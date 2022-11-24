@@ -1,0 +1,8 @@
+[package]
+name = "voxelified/flake-essentials"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[dependencies]
+llama = "freddylist/llama@1.1.1"

@@ -1,0 +1,108 @@
+{
+    "name": "flake",
+    "globIgnorePaths": ["**/classes", "**/baseAddon.luau"],
+    "tree": {
+        "$className": "DataModel",
+        "ServerScriptService": {
+            "FlakeActor": {
+                "$className": "Actor",
+                "$properties": {
+                    "Attributes": {
+                        "ModuleID": { "Int64": 11257788248 }
+                    }
+                },
+                "flake": {
+                    "$path": "src/loader"
+                },
+                "MainModule": {
+                    "$path": "src/module",
+                    "flake": {
+                        "$path": "src/flake",
+                        "classes": {
+                            "$path": "src/flake/classes",
+                            "baseAddon": {
+                                "$path": "src/flake/classes/baseAddon.luau",
+                                "types": {
+                                    "$path": "src/flake/types.luau"
+                                }
+                            }
+                        },
+                        "libraries": {
+                            "$path": "Packages",
+                            "vring": {
+                                "$path": "src/vring"
+                            },
+                            "roact-rodux": {
+                                "$path": "src/roact-rodux"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "ReplicatedStorage": {
+            "flake": {
+                "$className": "Folder",
+                "addons": {
+                    "$className": "Folder",
+                    "essentials": {
+                        "$path": "src/addons/essentials"
+                    }
+                },
+                "config": {
+                    "$path": "src/config.luau"
+                }
+            }
+        },
+        "ServerStorage": {
+            "addons": {
+                "$path": "src/addons"
+            }
+        },
+        "Workspace": {
+            "$properties": {
+                "FilteringEnabled": true
+            },
+            "Baseplate": {
+                "$className": "Part",
+                "$properties": {
+                    "Anchored": true,
+                    "Color": [
+                        0.38823,
+                        0.37254,
+                        0.38823
+                    ],
+                    "Locked": true,
+                    "Position": [
+                        0,
+                        -10,
+                        0
+                    ],
+                    "Size": [
+                        512,
+                        20,
+                        512
+                    ]
+                }
+            }
+        },
+        "Lighting": {
+            "$properties": {
+                "Ambient": [
+                    0,
+                    0,
+                    0
+                ],
+                "Brightness": 2,
+                "GlobalShadows": true,
+                "Outlines": false,
+                "Technology": "Voxel"
+            }
+        },
+        "SoundService": {
+            "$properties": {
+                "RespectFilteringEnabled": true
+            }
+        }
+    }
+}
