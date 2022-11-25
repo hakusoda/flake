@@ -401,6 +401,50 @@ function essentialsAddon:initialize()
 		self.flake:notifyPlayer(executor, nil, #targets.." player(s) have been unfrozen.")
 	end)
 
+    self:createCommand("essentials-r15")
+	:setAlias("r15")
+	:setLevel(1)
+	:setContext("server")
+	:addArgument("targets", "players")
+	:onCallback(function(cmd, executor: Player, targets: {Player})
+		for _,target in pairs(targets) do
+			task.defer(function()
+                local desc = Players:GetHumanoidDescriptionFromUserId(target.UserId)
+				local new = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R15)
+
+                local char = target.Character
+                target.Character = new
+
+                new.Parent = workspace
+                new:PivotTo(char:GetPivot())
+
+                char:Destroy()
+			end)
+		end
+	end)
+
+    self:createCommand("essentials-r6")
+	:setAlias("r6")
+	:setLevel(1)
+	:setContext("server")
+	:addArgument("targets", "players")
+	:onCallback(function(cmd, executor: Player, targets: {Player})
+		for _,target in pairs(targets) do
+			task.defer(function()
+                local desc = Players:GetHumanoidDescriptionFromUserId(target.UserId)
+				local new = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R6)
+
+                local char = target.Character
+                target.Character = new
+                
+                new.Parent = workspace
+                new:PivotTo(char:GetPivot())
+
+                char:Destroy()
+			end)
+		end
+	end)
+
 	local flying = false
 	self:createCommand("essentials-fly")
 	:setAlias("fly")
