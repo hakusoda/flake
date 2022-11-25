@@ -57,7 +57,7 @@ export type commandSystem = baseSystem & {
 	execute: (self: commandSystem, command: command, player: Player, args: {any}) -> ()
 }
 
-export type commandContext = "server" | "client"
+export type commandContext = "server" | "client" | "both"
 export type commandArgumentType = "string" | "strings" | "number" | "players"
 export type commandArgumentMatch = "default" | "rest"
 export type commandArgument = {

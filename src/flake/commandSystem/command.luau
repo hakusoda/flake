@@ -57,7 +57,7 @@ end
 
 function command:isInContext(): boolean
 	local context = self.context
-	if (isServer and context == "server") or (isClient and context == "client") then
+	if context == "both" or (isServer and context == "server") or (isClient and context == "client") then
 		return true
 	end
 

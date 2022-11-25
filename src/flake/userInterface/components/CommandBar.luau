@@ -180,11 +180,13 @@ function CommandBar:finish(flake: types.flake)
 	local command = flake.commandSystem:getByAlias(alias)
 	if command then
 		if command:hasPermission(flake.player) then
-			if command.context == "server" then
+            local context = command.context
+			if context == "server" or context == "both" then
 				flake.connectionHandler:sendAction(flakeActions.EXECUTE_COMMAND_STRING, {
 					text
 				})
-			elseif command.context == "client" then
+            end
+			if context == "client" or context == "both" then
 				task.defer(function()
 					flake.commandSystem:processCommandString(flake.player, text)
 				end)
