@@ -8,9 +8,8 @@ local isClient = RunService:IsClient()
 local localPlayer = Players.LocalPlayer
 
 local flake = ReplicatedStorage.flake
-local libraries = script.libraries
 
-local Cryo = require(libraries.llama)
+local Cryo = require(script.Cryo)
 local vLua = require(script.vLua)
 local types = require(script.types)
 local baseAddon: types.baseAddon = require(flake:WaitForChild("baseAddon"))
@@ -169,29 +168,45 @@ function essentialsAddon:initialize()
 				end)
 				local tools2 = {}
 				local character = player.Character
+                local position
 				if character then
 					tools2 = Cryo.List.filterMap(character:GetChildren(), function(child)
 						return child:IsA("Tool") and child:Clone() or nil
 					end)
 					local humanoid = character:FindFirstChildWhichIsA("Humanoid")
 					if humanoid then
+                        if humanoid.RootPart then
+                            position = humanoid.RootPart.CFrame
+                        end
 						humanoid:UnequipTools()
 						task.wait()
+                    elseif character.PrimaryPart then
+                        position = character.PrimaryPart.CFrame
 					end
 				end
 				player:LoadCharacter()
 
-				local character = player.CharacterAdded:Wait()
+                print(tools1, tools2)
+				local character = player.Character or player.CharacterAdded:Wait()
 				local backpack = player:WaitForChild("Backpack")
 				for _,i in pairs(tools1) do
 					i.Parent = backpack
 				end
 
-				local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+				local humanoid = character:WaitForChild("Humanoid", 5)
 				if humanoid then
 					for _,i in pairs(tools2) do
+                        i.Parent = character
 						humanoid:EquipTool(i)
 					end
+                    if humanoid.RootPart and position then
+                        humanoid.RootPart.CFrame = position
+                    end
+                elseif character.PrimaryPart and position then
+                    for _,i in pairs(tools2) do
+						i.Parent = character
+					end
+                    character.PrimaryPart.CFrame = position
 				end
 			end)
 		end
@@ -411,7 +426,7 @@ function essentialsAddon:initialize()
 end
 
 function essentialsAddon:onAction(player: Player?, action: number, args: types.connectionArgs)
-	baseAddon.onAction(self, player, action, args)
+	baseAddon.onAction(self :: any, player, action, args)
 
 	if action == actions.TEST2 then
 		if isClient then
