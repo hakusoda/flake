@@ -9,9 +9,9 @@ local localPlayer = Players.LocalPlayer
 
 local flake = ReplicatedStorage.flake
 
-local Cryo = require(script.Cryo)
-local vLua = require(script.vLua)
-local types = require(script.types)
+local Cryo = require(script:WaitForChild("Cryo"))
+local vLua = require(script:WaitForChild("vLua"))
+local types = require(script:WaitForChild("types"))
 local baseAddon: types.baseAddon = require(flake:WaitForChild("baseAddon"))
 
 type essentialsAddon = types.baseAddon & {
@@ -436,7 +436,7 @@ function essentialsAddon:initialize()
 
                 local char = target.Character
                 target.Character = new
-                
+
                 new.Parent = workspace
                 new:PivotTo(char:GetPivot())
 
