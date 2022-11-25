@@ -124,6 +124,7 @@ end)(function(props)
 				createElement("TextLabel", {
 					Text = props.data.title or "Notification header",
 					TextSize = 14,
+                    RichText = true,
 					FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
 					TextColor3 = Color3.new(1, 1, 1),
 					AutomaticSize = Enum.AutomaticSize.XY,
