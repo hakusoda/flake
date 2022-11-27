@@ -13,9 +13,10 @@ local Window = require(components:WaitForChild("Window"))
 local RoactRodux = require(libraries:WaitForChild("roact-rodux"))
 local InputLabel = require(components:WaitForChild("InputLabel"))
 local flakeContext = require(components:WaitForChild("flakeContext"))
-local flakeActions = require(root:WaitForChild("connectionHandler"):WaitForChild("data")).actions
+local flakeActions = require(root:WaitForChild("networking"):WaitForChild("data")).actions
 local SetCommandBarVisible = require(actions:WaitForChild("SetCommandBarVisible"))
 
+--TODO: rewrite as a functioan component
 type CommandBar = {
 	state: any,
 	props: { [string]: any },
@@ -177,18 +178,18 @@ end
 function CommandBar:finish(flake: types.flake)
 	local text = self.state.text
 	local alias = string.split(text, " ")[1]
-	local command = flake.commandSystem:getByAlias(alias)
+	local command = flake.commands:getByAlias(alias)
 	if command then
 		if command:hasPermission(flake.player) then
             local context = command.context
 			if context == "server" or context == "both" then
-				flake.connectionHandler:sendAction(flakeActions.EXECUTE_COMMAND_STRING, {
+				flake.networking:sendAction(flakeActions.EXECUTE_COMMAND_STRING, {
 					text
 				})
             end
 			if context == "client" or context == "both" then
 				task.defer(function()
-					flake.commandSystem:processCommandString(flake.player, text)
+					flake.commands:processCommandString(flake.player, text)
 				end)
 			end
 		else

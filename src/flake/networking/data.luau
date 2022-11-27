@@ -18,10 +18,10 @@ return {
 		[actions.EXECUTE_COMMAND_STRING] = function(flake, player, args)
 			if isServer then
 				assert(player, "Missing player argument")
-				xpcall(flake.commandSystem.processCommandString, function(err)
+				xpcall(flake.commands.processCommandString, function(err)
 					local err = string.sub(err, (string.find(err, " ") or 0) + 1)
 					flake:notifyPlayer(player, "Command error", err)
-				end, flake.commandSystem, player, args[1])
+				end, flake.commands, player, args[1])
 			end
 		end,
 		[actions.NOTIFY] = function(flake, player, args)
@@ -30,7 +30,7 @@ return {
 			end
 		end,
 		[actions.ADDON_ACTION] = function(flake, player, args)
-			local addon = flake.addonSystem.addons[args[1]]
+			local addon = flake.addons.addons[args[1]]
 			assert(addon, "Addon "..args[1].." does not exist")
 			
 			addon:onAction(player, args[2], args[3])

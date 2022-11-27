@@ -61,7 +61,7 @@ function userInterface:initialize()
 	UserInputService.InputEnded:Connect(function(input: InputObject, gameProcessedEvent: boolean)
 		if not gameProcessedEvent then
 			local keycode = input.KeyCode
-			if keycode == Enum.KeyCode.BackSlash and (not self.flake.config.hidden or self.flake.levelSystem:getLevel() > 0) then
+			if keycode == Enum.KeyCode.BackSlash and (not self.flake.config.hidden or self.flake.permissions:getLevel() > 0) then
 				self.store:dispatch(SetCommandBarVisible(true))
 			end
 		end
@@ -71,11 +71,13 @@ function userInterface:initialize()
 	UserInputService:GetPropertyChangedSignal("TouchEnabled"):Connect(function()
 		self:updateTouchMenu()
 	end)
-	self.flake.player:GetAttributeChangedSignal(self.flake.levelSystem.attribute):Connect(function()
+	self.flake.player:GetAttributeChangedSignal(self.flake.permissions.attribute):Connect(function()
 		self:updateTouchMenu()
 	end)
 
-	local commandSystem = self.flake.commandSystem
+	local commandSystem = self.flake.commands
+    self.store:dispatch(SetCommandBarCommands(commandSystem.commands))
+
 	commandSystem:onEvent("COMMAND_CREATED", function()
 		self.store:dispatch(SetCommandBarCommands(commandSystem.commands))
 	end)
@@ -95,7 +97,7 @@ function userInterface:initialize()
 end
 
 function userInterface:updateTouchMenu()
-	if UserInputService.TouchEnabled and self.flake.levelSystem:getLevel() >= 1 then
+	if UserInputService.TouchEnabled and self.flake.permissions:getLevel() >= 1 then
 		self:log("enabling touch menu")
 		self.store:dispatch(SetTouchMenuVisible(true))
 	else

@@ -47,7 +47,7 @@ end)(function(props)
 					Roact.createElement("UIListLayout", {
 						Padding = UDim.new(0, 8)
 					}),
-					table.unpack(Cryo.List.map(flake.commandSystem.commands, function(command)
+					table.unpack(Cryo.List.map(flake.commands.commands, function(command)
 						return Roact.createElement("Frame", {
 							Size = UDim2.fromScale(1, 0),
 							AutomaticSize = Enum.AutomaticSize.Y,

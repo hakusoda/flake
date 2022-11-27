@@ -10,20 +10,20 @@ local classes = root.classes
 local types = require(root.types)
 local baseSystem = require(classes.baseSystem)
 
-local addonSystem: types.addonSystem = setmetatable({}, baseSystem) :: any
-addonSystem.__index = addonSystem :: any
-addonSystem.name = "addonSystem"
+local addons: types.addons = setmetatable({}, baseSystem) :: any
+addons.__index = addons :: any
+addons.name = "addons"
 
-function addonSystem.new(flake: types.flake)
-	local self = setmetatable(baseSystem.new(flake), addonSystem :: any) :: any
+function addons.new(flake: types.flake)
+	local self = setmetatable(baseSystem.new(flake), addons :: any) :: any
 	self.emoji = "🧩"
 	self.addons = {}
 
     return self
 end
 
-function addonSystem:initialize()
-    local self = self :: types.addonSystem
+function addons:initialize()
+    local self = self :: types.addons
 	if isServer then
 		local flakeFolder = self.flake.flakeFolder
 
@@ -66,7 +66,7 @@ function addonSystem:initialize()
 	self:log("initialized")
 end
 
-function addonSystem:loadAddon(module: Instance)
+function addons:loadAddon(module: Instance)
 	xpcall(function()
         if module:IsA("Folder") then
             for _,i in pairs(module:GetChildren()) do
@@ -84,7 +84,7 @@ function addonSystem:loadAddon(module: Instance)
 
 			if isServer then
 				for _,player in pairs(Players:GetPlayers()) do
-					if self.flake.levelSystem:getPlayerLevel(player) >= 1 then
+					if self.flake.permissions:getPlayerLevel(player) >= 1 then
 						self.flake:notifyPlayer(player, "Addon Imported", addon.name.." v"..addon.version.." has been automatically loaded.")
 					end
 				end
@@ -93,7 +93,7 @@ function addonSystem:loadAddon(module: Instance)
 	end, function(err)
 		if isServer then
 			for _,player in pairs(Players:GetPlayers()) do
-				if self.flake.levelSystem:getPlayerLevel(player) >= 1 then
+				if self.flake.permissions:getPlayerLevel(player) >= 1 then
 					self.flake:notifyPlayer(player, "Addon System Error (Server)", "Failed to import <b>"..module.Name.."</b>.")
 				end
 			end
@@ -104,4 +104,4 @@ function addonSystem:loadAddon(module: Instance)
 	end)
 end
 
-return addonSystem
+return addons

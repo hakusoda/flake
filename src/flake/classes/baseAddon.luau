@@ -14,7 +14,7 @@ baseAddon.authors = {"Anonymous"}
 baseAddon.description = "placeholder"
 baseAddon.version = "0.0.0"
 
-function baseAddon.new(system: types.addonSystem)
+function baseAddon.new(system: types.addons)
 	local self = setmetatable({}, baseAddon)
 	self.flake = system.flake
 	self.system = system
@@ -58,11 +58,11 @@ function baseAddon:onAction(player: Player?, action: number, args: types.connect
 end
 
 function baseAddon:sendAction(action: number, args: types.connectionArgs)
-	return self.flake.connectionHandler:sendAction(2, {self.id, action, args})
+	return self.flake.networking:sendAction(2, {self.id, action, args})
 end
 
 function baseAddon:sendPlayerAction(player: Player, action: number, args: types.connectionArgs)
-	return self.flake.connectionHandler:sendPlayerAction(player, 2, {self.id, action, args})
+	return self.flake.networking:sendPlayerAction(player, 2, {self.id, action, args})
 end
 
 function baseAddon:log(...)

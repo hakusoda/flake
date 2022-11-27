@@ -22,7 +22,7 @@ end, function(dispatch)
 end)(function(props)
 	return createElement(flakeContext.Consumer, {
 		render = function(flake: types.flake)
-			local addons = Cryo.Dictionary.values(flake.addonSystem.addons)
+			local addons = Cryo.Dictionary.values(flake.addons.addons)
 			return createElement(Window, {
 				icon = "rbxassetid://11260520498",
 				title = "flake info",

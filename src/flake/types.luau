@@ -3,15 +3,15 @@ export type flake = {
     __index: flake,
 	emoji: string,
 	player: Player,
+    addons: addons,
 	config: flakeConfig,
 	version: string,
+    commands: commands,
 	libraries: Folder,
 	connection: RemoteEvent,
-	addonSystem: addonSystem,
-	levelSystem: levelSystem,
-	commandSystem: commandSystem,
+    networking: networking,
+	permissions: permissions,
 	userInterface: userInterface,
-	connectionHandler: connectionHandler,
 
 	flakeFolder: Folder,
 
@@ -33,28 +33,28 @@ export type flakeConfig = {
 	importAddons: {number}
 }
 
-export type addonSystem = baseSystem & {
-    __index: addonSystem,
+export type addons = baseSystem & {
+    __index: addons,
 
     addons: { [string]: baseAddon },
 	addonFolder: Folder,
 
-	loadAddon: (self: addonSystem, module: Instance) -> ()
+	loadAddon: (self: addons, module: Instance) -> ()
 }
 
-export type commandSystem = baseSystem & {
+export type commands = baseSystem & {
     commands: {command},
 
-	getById: (self: commandSystem, id: string) -> command?,
-	getByAlias: (self: commandSystem, alias: string) -> command?,
+	getById: (self: commands, id: string) -> command?,
+	getByAlias: (self: commands, alias: string) -> command?,
 
-	create: (self: commandSystem, id: string) -> command,
+	create: (self: commands, id: string) -> command,
 
-	processCommand: (self: commandSystem, command: command, executor: Player, arguments: any) -> (),
-	processCommandString: (self: commandSystem, executor: Player, text: string) -> (),
-	processArgument: (self: commandSystem, player: Player, argument: commandArgument, text: {string}, pos: number) -> (),
+	processCommand: (self: commands, command: command, executor: Player, arguments: any) -> (),
+	processCommandString: (self: commands, executor: Player, text: string) -> (),
+	processArgument: (self: commands, player: Player, argument: commandArgument, text: {string}, pos: number) -> (),
 
-	execute: (self: commandSystem, command: command, player: Player, args: {any}) -> ()
+	execute: (self: commands, command: command, player: Player, args: {any}) -> ()
 }
 
 export type commandContext = "server" | "client" | "both"
@@ -70,14 +70,14 @@ export type command = {
 
 	id: string,
 	level: number,
-	system: commandSystem,
+	system: commands,
 	aliases: {string},
 	context: commandContext,
 	arguments: {commandArgument},
 	callbacks: {(self: command, ...any) -> ()},
 	chatCommand: TextChatCommand?,
 
-    new: (id: string, system: commandSystem) -> command,
+    new: (id: string, system: commands) -> command,
 
 	setLevel: (self: command, level: number) -> command,
 	setAlias: (self: command, primary: string, secondary: string?) -> command,
@@ -112,22 +112,22 @@ export type userInterface = baseSystem & {
 }
 
 export type connectionArgs = {any}
-export type connectionHandler = baseSystem & {
+export type networking = baseSystem & {
     connection: RemoteEvent,
 
-	sendAction: (self: connectionHandler, action: number, args: connectionArgs) -> (),
-	sendPlayerAction: (self: connectionHandler, player: Player, action: number, args: connectionArgs) -> (),
+	sendAction: (self: networking, action: number, args: connectionArgs) -> (),
+	sendPlayerAction: (self: networking, player: Player, action: number, args: connectionArgs) -> (),
 
-	onAction: (self: connectionHandler, player: Player?, action: number, args: { [number]: any }) -> ()
+	onAction: (self: networking, player: Player?, action: number, args: { [number]: any }) -> ()
 }
 
-export type levelSystem = baseSystem & {
+export type permissions = baseSystem & {
     attribute: string,
 
-	getLevel: (self: levelSystem) -> number,
-	getPlayerLevel: (self: levelSystem, player: Player) -> number,
+	getLevel: (self: permissions) -> number,
+	getPlayerLevel: (self: permissions, player: Player) -> number,
 
-	setPlayerLevel: (self: levelSystem, player: Player, level: number) -> ()
+	setPlayerLevel: (self: permissions, player: Player, level: number) -> ()
 }
 
 export type baseSystem = {
@@ -154,14 +154,14 @@ export type baseAddon = {
 	name: string,
 	icon: string,
 	flake: flake,
-	system: addonSystem,
+	system: addons,
 	version: string,
 	authors: {string},
 	actions: { [string]: number },
 	description: string,
 	eventCallbacks: {any},
 
-	new: (system: addonSystem) -> baseAddon,
+	new: (system: addons) -> baseAddon,
 	initialize: (self: baseAddon) -> (),
 
 	emitEvent: (self: baseAddon, name: string, ...any) -> (),

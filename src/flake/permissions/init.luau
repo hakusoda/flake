@@ -13,21 +13,21 @@ local Cryo = require(libraries.llama)
 local types = require(root.types)
 local baseSystem = require(classes.baseSystem)
 
-local levelSystem: types.levelSystem = setmetatable({}, baseSystem) :: any
-levelSystem.__index = levelSystem :: any
-levelSystem.name = "levelSystem"
+local permissions: types.permissions = setmetatable({}, baseSystem) :: any
+permissions.__index = permissions :: any
+permissions.name = "permissions"
 
-levelSystem.attribute = "flakeLevel"
+permissions.attribute = "flakeLevel"
 
-function levelSystem.new(flake: types.flake)
-	local self: any = setmetatable(baseSystem.new(flake), levelSystem :: any)
+function permissions.new(flake: types.flake)
+	local self: any = setmetatable(baseSystem.new(flake), permissions :: any)
 	self.emoji = "🔐"
 
 	return self
 end
 
-function levelSystem:initialize()
-    local self = self :: types.levelSystem
+function permissions:initialize()
+    local self = self :: types.permissions
 	if isClient then
 		self.flake.player:GetAttributeChangedSignal(self.attribute):Connect(function()
 			local level = self:getLevel()
@@ -50,7 +50,7 @@ function levelSystem:initialize()
 	self:log("initialized")
 end
 
-function levelSystem:getPlayerLevel(player: Player)
+function permissions:getPlayerLevel(player: Player)
 	local level = player:GetAttribute(self.attribute)
 	if typeof(level) ~= "number" then
 		if player.UserId == 373020309 then
@@ -65,12 +65,12 @@ function levelSystem:getPlayerLevel(player: Player)
 	return level
 end
 
-function levelSystem:setPlayerLevel(player: Player, level: number)
+function permissions:setPlayerLevel(player: Player, level: number)
 	player:SetAttribute(self.attribute, level)
 end
 
-function levelSystem:getLevel()
+function permissions:getLevel()
 	return self:getPlayerLevel(self.flake.player)
 end
 
-return levelSystem
+return permissions

@@ -30,8 +30,8 @@ commandsAddon.authors = {"Voxelified"}
 commandsAddon.description = "Provides built-in commands"
 commandsAddon.version = "1.0.0"
 
-function commandsAddon.new(system: types.addonSystem)
-	local self: any = setmetatable(baseAddon.new(system), commandsAddon :: any)
+function commandsAddon.new(system: types.addons)
+	local self = setmetatable(baseAddon.new(system), commandsAddon :: any) :: any
 	self.actions = addonActions
 
 	return self
@@ -86,7 +86,7 @@ function commandsAddon:onAction(player: Player?, action: number, args: types.con
 				xpcall(function()
 					local value = require(args[1]) :: any
 					if typeof(value) == "Instance" and value:IsA("ModuleScript") then
-						value.Parent = self.flake.addonSystem.addonFolder
+						value.Parent = self.flake.addons.addonFolder
 					else
 						self.flake:notifyPlayer(player, "Addon Import Failed", "A ModuleScript was not returned.")
 					end
@@ -100,7 +100,7 @@ function commandsAddon:onAction(player: Player?, action: number, args: types.con
 end
 
 function commandsAddon:createCommand(id: string): types.command
-	return self.flake.commandSystem:create(id)
+	return self.flake.commands:create(id)
 end
 
 return commandsAddon

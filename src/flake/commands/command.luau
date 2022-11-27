@@ -11,7 +11,7 @@ local isClient = RunService:IsClient()
 local command: types.command = {} :: any
 command.__index = command
 
-function command.new(id: string, system: types.commandSystem): types.command
+function command.new(id: string, system: types.commands): types.command
 	local self = setmetatable({}, command)
 	self.id = id
 	self.level = 0
@@ -79,7 +79,7 @@ function command:onCallback(callback)
 end
 
 function command:hasPermission(player: Player)
-	return self.system.flake.levelSystem:getPlayerLevel(player) >= self.level
+	return self.system.flake.permissions:getPlayerLevel(player) >= self.level
 end
 
 return command

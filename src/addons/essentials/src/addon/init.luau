@@ -480,7 +480,7 @@ function essentialsAddon:onAction(player: Player?, action: number, args: types.c
 end
 
 function essentialsAddon:createCommand(id: string): types.command
-	return self.flake.commandSystem:create(id)
+	return self.flake.commands:create(id)
 end
 
 return essentialsAddon

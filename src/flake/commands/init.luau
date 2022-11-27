@@ -10,35 +10,35 @@ local types = require(root.types)
 local command = require(script.command)
 local baseSystem = require(classes.baseSystem)
 
-local commandSystem: types.commandSystem = setmetatable({}, baseSystem) :: any
-commandSystem.__index = commandSystem :: any
-commandSystem.name = "commandSystem"
+local commands: types.commands = setmetatable({}, baseSystem) :: any
+commands.__index = commands :: any
+commands.name = "commands"
 
-function commandSystem.new(flake: types.flake)
-	local self = setmetatable(baseSystem.new(flake), commandSystem :: any) :: any
+function commands.new(flake: types.flake)
+	local self = setmetatable(baseSystem.new(flake), commands :: any) :: any
 	self.emoji = "📂"
 	self.commands = {}
 
 	return self
 end
 
-function commandSystem:initialize()
+function commands:initialize()
 	self:log("initialized")
 end
 
-function commandSystem:getById(id: string)
+function commands:getById(id: string)
 	return self.commands[Cryo.List.findWhere(self.commands, function(command)
 		return command.id == id
 	end)]
 end
 
-function commandSystem:getByAlias(alias: string)
+function commands:getByAlias(alias: string)
 	return self.commands[Cryo.List.findWhere(self.commands, function(command)
 		return Cryo.List.find(command.aliases, alias)
 	end)]
 end
 
-function commandSystem:create(id: string)
+function commands:create(id: string)
 	local command = command.new(id, self)
 	local chatCommand = command.chatCommand
 	if chatCommand then
@@ -48,7 +48,7 @@ function commandSystem:create(id: string)
 			end
 			local player: Player = Players:GetPlayerByUserId(source.UserId)
 			if not command:hasPermission(player) then
-				local level = self.flake.levelSystem:getPlayerLevel(player)
+				local level = self.flake.permissions:getPlayerLevel(player)
 				self.flake:notifyPlayer(player, "Command error", "You do not have permission to run <b>"..command.id.."</b>.")
 				return self:log(player.Name.."'s level ("..level..") is not high enough to run", command.id, "("..command.level..")")
 			end
@@ -70,11 +70,11 @@ function commandSystem:create(id: string)
 	return command
 end
 
-function commandSystem:processCommand(command: types.command, executor: Player, arguments)
+function commands:processCommand(command: types.command, executor: Player, arguments)
 	self:execute(command, executor, arguments)
 end
 
-function commandSystem:processCommandString(player: Player, text: string)
+function commands:processCommandString(player: Player, text: string)
 	local text2 = string.split(text, " ")
 	local command = self:getByAlias(text2[1])
 	table.remove(text2, 1)
@@ -84,7 +84,7 @@ function commandSystem:processCommandString(player: Player, text: string)
 		return
 	end
 	if not command:hasPermission(player) then
-		local level = self.flake.levelSystem:getPlayerLevel(player)
+		local level = self.flake.permissions:getPlayerLevel(player)
 		self.flake:notifyPlayer(player, "Command error", "You do not have permission to run <b>"..command.id.."</b>.")
 		return self:log(player.Name.."'s level ("..level..") is not high enough to run", command.id, "("..command.level..")")
 	end
@@ -97,14 +97,14 @@ function commandSystem:processCommandString(player: Player, text: string)
 	self:execute(command, player, arguments)
 end
 
-function commandSystem:execute(command: types.command, player: Player, args: {any})
+function commands:execute(command: types.command, player: Player, args: {any})
 	for _,callback in pairs(command.callbacks) do
 		callback(command, player, table.unpack(args))
 	end
 	self:log("executed command", command.id)
 end
 
-function commandSystem:processArgument(player: Player, argument: types.commandArgument, text: {string}, pos: number)
+function commands:processArgument(player: Player, argument: types.commandArgument, text: {string}, pos: number)
 	if argument.type == "players" then
 		local players = {}
 		for _,part in pairs(string.split(text[pos] or "", ",")) do
@@ -156,4 +156,4 @@ function commandSystem:processArgument(player: Player, argument: types.commandAr
 	end
 end
 
-return commandSystem
+return commands
