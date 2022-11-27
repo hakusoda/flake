@@ -9,6 +9,7 @@ local libraries = script:WaitForChild("libraries")
 
 local Cryo = require(libraries:WaitForChild("llama"))
 local types = require(script:WaitForChild("types"))
+local store = require(script:WaitForChild("store"))
 local addons = require(script:WaitForChild("addons"))
 local actions = require(script:WaitForChild("networking"):WaitForChild("data")).actions
 local commands = require(script:WaitForChild("commands"))
@@ -29,6 +30,7 @@ flake.libraries = libraries
 function flake.new()
 	local self: any = setmetatable({}, flake) :: any
 	self.emoji = "🍫"
+    self.store = store
 	self.player = Players.LocalPlayer
 	self.addons = addons.new(self)
     self.commands = commands.new(self)

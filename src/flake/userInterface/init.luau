@@ -6,16 +6,13 @@ local UserInputService = game:GetService("UserInputService")
 local root = script.Parent
 local sounds = script.sounds
 local classes = root.classes
-local actions = script.actions
-local reducers = script.reducers
+local actions = root.store.actions
 local libraries = root.libraries
 local components = script.components
 
 local App = require(components.App)
 local types = require(root.types)
-local Rodux = require(libraries.rodux)
 local Roact = require(libraries["roact-compat"])
-local Reducer = require(reducers.Reducer)
 local baseSystem = require(classes.baseSystem)
 local RoactRodux = require(libraries["roact-rodux"])
 local CreatePrompt = require(actions.CreatePrompt)
@@ -34,9 +31,6 @@ userInterface.components = components
 function userInterface.new(flake: types.flake)
 	local self: any = setmetatable(baseSystem.new(flake), userInterface :: any)
 	self.emoji = "💻"
-	self.store = Rodux.Store.new(Reducer, nil, {
-		Rodux.thunkMiddleware
-	} :: any)
 
 	return self
 end
@@ -62,7 +56,7 @@ function userInterface:initialize()
 		if not gameProcessedEvent then
 			local keycode = input.KeyCode
 			if keycode == Enum.KeyCode.BackSlash and (not self.flake.config.hidden or self.flake.permissions:getLevel() > 0) then
-				self.store:dispatch(SetCommandBarVisible(true))
+				self.flake.store:dispatch(SetCommandBarVisible(true))
 			end
 		end
 	end)
@@ -76,14 +70,14 @@ function userInterface:initialize()
 	end)
 
 	local commandSystem = self.flake.commands
-    self.store:dispatch(SetCommandBarCommands(commandSystem.commands))
+    self.flake.store:dispatch(SetCommandBarCommands(commandSystem.commands))
 
 	commandSystem:onEvent("COMMAND_CREATED", function()
-		self.store:dispatch(SetCommandBarCommands(commandSystem.commands))
+		self.flake.store:dispatch(SetCommandBarCommands(commandSystem.commands))
 	end)
 
 	local app = Roact.createElement(RoactRodux.StoreProvider, {
-		store = self.store
+		store = self.flake.store
 	}, {
 		Roact.createElement(flakeContext.Provider, {
 			value = self.flake
@@ -99,15 +93,15 @@ end
 function userInterface:updateTouchMenu()
 	if UserInputService.TouchEnabled and self.flake.permissions:getLevel() >= 1 then
 		self:log("enabling touch menu")
-		self.store:dispatch(SetTouchMenuVisible(true))
+		self.flake.store:dispatch(SetTouchMenuVisible(true))
 	else
 		self:log("disabling touch menu")
-		self.store:dispatch(SetTouchMenuVisible(false))
+		self.flake.store:dispatch(SetTouchMenuVisible(false))
 	end
 end
 
 function userInterface:createPrompt(options: types.promptOptions, windowOptions: types.windowOptions?)
-	self.store:dispatch(CreatePrompt({
+	self.flake.store:dispatch(CreatePrompt({
 		id = HttpService:GenerateGUID(),
 		options = options,
 		window = windowOptions or {}
@@ -115,7 +109,7 @@ function userInterface:createPrompt(options: types.promptOptions, windowOptions:
 end
 
 function userInterface:notify(title: string?, body: string)
-	self.store:dispatch(AddNotification({
+	self.flake.store:dispatch(AddNotification({
 		id = HttpService:GenerateGUID(),
 		title = title,
 		body = body,

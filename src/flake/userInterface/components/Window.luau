@@ -4,9 +4,9 @@ local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
 
 local root = script.Parent.Parent
-local module = root.Parent
+local flake = root.Parent
 local sounds = root.sounds
-local libraries = module.libraries
+local libraries = flake.libraries
 
 local vring = require(libraries.vring)
 local Roact = require(libraries["roact-compat"])

@@ -3,14 +3,14 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
 local root = script.Parent.Parent
-local module = root.Parent
-local actions = root:WaitForChild("actions")
-local libraries = module:WaitForChild("libraries")
+local flake = root.Parent
+local actions = flake.store.actions
+local libraries = flake.libraries
 
-local vring = require(libraries:WaitForChild("vring"))
-local Roact = require(libraries:WaitForChild("roact-compat"))
-local RoactRodux = require(libraries:WaitForChild("roact-rodux"))
-local RemoveNotification = require(actions:WaitForChild("RemoveNotification"))
+local vring = require(libraries.vring)
+local Roact = require(libraries["roact-compat"])
+local RoactRodux = require(libraries["roact-rodux"])
+local RemoveNotification = require(actions.RemoveNotification)
 
 local useRef, useMemo, useState, useEffect, createElement = Roact.useRef, Roact.useMemo, Roact.useState, Roact.useEffect, Roact.createElement
 return RoactRodux.connect(nil, function(dispatch)

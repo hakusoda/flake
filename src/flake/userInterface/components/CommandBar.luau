@@ -2,21 +2,22 @@
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
-local root = script.Parent.Parent.Parent
-local actions = script.Parent.Parent:WaitForChild("actions")
-local libraries = root:WaitForChild("libraries")
+local root = script.Parent.Parent
+local flake = root.Parent
+local actions = flake.store.actions
+local libraries = flake.libraries
 local components = script.Parent
 
-local types = require(root:WaitForChild("types"))
-local Roact = require(libraries:WaitForChild("roact-compat"))
-local Window = require(components:WaitForChild("Window"))
-local RoactRodux = require(libraries:WaitForChild("roact-rodux"))
-local InputLabel = require(components:WaitForChild("InputLabel"))
-local flakeContext = require(components:WaitForChild("flakeContext"))
-local flakeActions = require(root:WaitForChild("networking"):WaitForChild("data")).actions
-local SetCommandBarVisible = require(actions:WaitForChild("SetCommandBarVisible"))
+local types = require(flake.types)
+local Roact = require(libraries["roact-compat"])
+local Window = require(components.Window)
+local RoactRodux = require(libraries["roact-rodux"])
+local InputLabel = require(components.InputLabel)
+local flakeContext = require(components.flakeContext)
+local flakeActions = require(flake.networking.data).actions
+local SetCommandBarVisible = require(actions.SetCommandBarVisible)
 
---TODO: rewrite as a functioan component
+--TODO: rewrite as a functional component
 type CommandBar = {
 	state: any,
 	props: { [string]: any },

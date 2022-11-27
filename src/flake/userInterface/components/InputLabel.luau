@@ -1,9 +1,5 @@
 --!strict
-local root = script.Parent.Parent
-local module = root.Parent
-local libraries = module.libraries
-
-local Roact = require(libraries["roact-compat"])
+local Roact = require(script.Parent.Parent.Parent.libraries["roact-compat"])
 return function(props)
 	return Roact.createElement("TextLabel", {
 		Text = props[Roact.Children],

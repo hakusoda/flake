@@ -4,16 +4,16 @@ local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 
 local root = script.Parent.Parent
-local module = root.Parent
-local sounds = root:WaitForChild("sounds")
-local actions = root:WaitForChild("actions")
-local libraries = module:WaitForChild("libraries")
+local flake = root.Parent
+local sounds = root.sounds
+local actions = flake.store.actions
+local libraries = flake.libraries
 
-local Roact = require(libraries:WaitForChild("roact-compat"))
-local vring = require(libraries:WaitForChild("vring"))
-local RoactRodux = require(libraries:WaitForChild("roact-rodux"))
-local SetFlakeInfoVisible = require(actions:WaitForChild("SetFlakeInfoVisible"))
-local SetCommandBarVisible = require(actions:WaitForChild("SetCommandBarVisible"))
+local vring = require(libraries.vring)
+local Roact = require(libraries["roact-compat"])
+local RoactRodux = require(libraries["roact-rodux"])
+local SetFlakeInfoVisible = require(actions.SetFlakeInfoVisible)
+local SetCommandBarVisible = require(actions.SetCommandBarVisible)
 
 local useMemo, useState, useEffect, createElement = Roact.useMemo, Roact.useState, Roact.useEffect, Roact.createElement
 return RoactRodux.connect(function(state)

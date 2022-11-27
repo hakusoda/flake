@@ -1,6 +1,5 @@
 --!strict
-local root = script.Parent.Parent.Parent
-local libraries = root.libraries
+local libraries = script.Parent.Parent.Parent.libraries
 local components = script.Parent
 
 local Roact = require(libraries["roact-compat"])

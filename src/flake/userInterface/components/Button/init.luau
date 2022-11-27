@@ -3,13 +3,13 @@ local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
 
 local root = script.Parent.Parent
-local module = root.Parent
-local sounds = root:WaitForChild("sounds")
-local libraries = module:WaitForChild("libraries")
+local flake = root.Parent
+local sounds = root.sounds
+local libraries = flake.libraries
 
-local vring = require(libraries:WaitForChild("vring"))
-local Roact = require(libraries:WaitForChild("roact-compat"))
-local ButtonThemes = require(script:WaitForChild("themes"))
+local vring = require(libraries.vring)
+local Roact = require(libraries["roact-compat"])
+local ButtonThemes = require(script.themes)
 
 local Button = Roact.Component:extend("Button")
 function Button:init()

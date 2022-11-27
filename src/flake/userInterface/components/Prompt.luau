@@ -1,14 +1,15 @@
 --!strict
-local root = script.Parent.Parent.Parent
-local actions = script.Parent.Parent:WaitForChild("actions")
-local libraries = root:WaitForChild("libraries")
+local root = script.Parent.Parent
+local flake = root.Parent
+local actions = flake.store.actions
+local libraries = flake.libraries
 local components = script.Parent
 
-local Roact = require(libraries:WaitForChild("roact-compat"))
-local Button = require(components:WaitForChild("Button"))
-local Window = require(components:WaitForChild("Window"))
-local EndPrompt = require(actions:WaitForChild("EndPrompt"))
-local RoactRodux = require(libraries:WaitForChild("roact-rodux"))
+local Roact = require(libraries["roact-compat"])
+local Button = require(components.Button)
+local Window = require(components.Window)
+local EndPrompt = require(actions.EndPrompt)
+local RoactRodux = require(libraries["roact-rodux"])
 
 local createElement = Roact.createElement
 return RoactRodux.connect(nil, function(dispatch)

@@ -3,11 +3,11 @@ local RunService = game:GetService("RunService")
 
 local isServer = RunService:IsServer()
 
-local root = script.Parent.Parent.Parent
-local classes = root.classes
-local actions = root.userInterface.actions
+local flake = script.Parent.Parent.Parent
+local classes = flake.classes
+local actions = flake.store.actions
 
-local types = require(root.types)
+local types = require(flake.types)
 local baseAddon = require(classes.baseAddon)
 local SetFlakeInfoVisible = require(actions.SetFlakeInfoVisible)
 local SetCommandListVisible = require(actions.SetCommandListVisible)
@@ -44,7 +44,7 @@ function commandsAddon:initialize()
 	:setLevel(0)
 	:setContext("client")
 	:onCallback(function()
-		self.flake.userInterface.store:dispatch(SetFlakeInfoVisible(true))
+		self.flake.store:dispatch(SetFlakeInfoVisible(true))
 	end)
 
 	self:createCommand("builtin-commands")
@@ -52,7 +52,7 @@ function commandsAddon:initialize()
 	:setLevel(0)
 	:setContext("client")
 	:onCallback(function()
-		self.flake.userInterface.store:dispatch(SetCommandListVisible(true))
+		self.flake.store:dispatch(SetCommandListVisible(true))
 	end)
 
 	self.loadAddonCommand = self:createCommand("builtin-load-addon")

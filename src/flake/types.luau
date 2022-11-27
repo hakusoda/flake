@@ -1,6 +1,7 @@
 --!strict
 export type flake = {
     __index: flake,
+    store: any,
 	emoji: string,
 	player: Player,
     addons: addons,
@@ -103,7 +104,6 @@ export type windowOptions = {
 }
 export type userInterface = baseSystem & {
     gui: ScreenGui,
-	store: any,
 	components: Folder,
 
 	notify: (self: userInterface, title: string?, body: string) -> (),

@@ -1,7 +1,7 @@
 --!strict
-local root = script.Parent.Parent.Parent
-local actions = script.Parent.Parent.actions
-local libraries = root.libraries
+local root = script.Parent.Parent
+local actions = root.actions
+local libraries = root.Parent.libraries
 
 local Cryo = require(libraries.llama)
 local Rodux = require(libraries.rodux)

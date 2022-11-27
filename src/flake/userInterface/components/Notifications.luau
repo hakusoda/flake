@@ -1,13 +1,13 @@
 --!strict
 local root = script.Parent.Parent
-local module = root.Parent
-local libraries = module:WaitForChild("libraries")
+local flake = root.Parent
+local libraries = flake.libraries
 local components = script.Parent
 
-local Cryo = require(libraries:WaitForChild("llama"))
-local Roact = require(libraries:WaitForChild("roact-compat"))
-local RoactRodux = require(libraries:WaitForChild("roact-rodux"))
-local Notification = require(components:WaitForChild("Notification"))
+local Cryo = require(libraries.llama)
+local Roact = require(libraries["roact-compat"])
+local RoactRodux = require(libraries["roact-rodux"])
+local Notification = require(components.Notification)
 
 local useRef, createElement = Roact.useRef, Roact.createElement
 return RoactRodux.connect(function(state)

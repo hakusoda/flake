@@ -1,17 +1,17 @@
 --!strict
-local root = script.Parent.Parent.Parent
-local actions = script.Parent.Parent:WaitForChild("actions")
-local libraries = root:WaitForChild("libraries")
+local flake = script.Parent.Parent.Parent
+local actions = flake.store.actions
+local libraries = flake.libraries
 local components = script.Parent
 
-local Cryo = require(libraries:WaitForChild("llama"))
-local types = require(root:WaitForChild("types"))
-local Roact = require(libraries:WaitForChild("roact-compat"))
-local Window = require(components:WaitForChild("Window"))
-local RoactRodux = require(libraries:WaitForChild("roact-rodux"))
-local InputLabel = require(components:WaitForChild("InputLabel"))
-local flakeContext = require(components:WaitForChild("flakeContext"))
-local SetCommandListVisible = require(actions:WaitForChild("SetCommandListVisible"))
+local Cryo = require(libraries.llama)
+local types = require(flake.types)
+local Roact = require(libraries["roact-compat"])
+local Window = require(components.Window)
+local RoactRodux = require(libraries["roact-rodux"])
+local InputLabel = require(components.InputLabel)
+local flakeContext = require(components.flakeContext)
+local SetCommandListVisible = require(actions.SetCommandListVisible)
 
 return RoactRodux.connect(function(state)
 	return {
