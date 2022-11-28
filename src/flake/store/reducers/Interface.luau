@@ -10,6 +10,7 @@ local CreatePrompt = require(actions.CreatePrompt)
 local AddAppComponent = require(actions.AddAppComponent)
 local SetFlakeInfoVisible = require(actions.SetFlakeInfoVisible)
 local SetTouchMenuVisible = require(actions.SetTouchMenuVisible)
+local SetCommandBarVisible = require(actions.SetCommandBarVisible)
 local SetCommandListVisible = require(actions.SetCommandListVisible)
 
 return Rodux.createReducer({
@@ -17,6 +18,7 @@ return Rodux.createReducer({
 	infoVisible = false,
     appComponents = {},
 	touchMenuVisible = false,
+    commandBarVisible = false,
 	commandListVisible = false
 }, {
 	[CreatePrompt.name] = function(state, action)
@@ -47,6 +49,12 @@ return Rodux.createReducer({
 	[SetTouchMenuVisible.name] = function(state, action)
 		return Cryo.Dictionary.join(state, {
 			touchMenuVisible = action.touchMenuVisible
+		})
+	end,
+
+    [SetCommandBarVisible.name] = function(state, action)
+		return Cryo.Dictionary.join(state, {
+			commandBarVisible = action.commandBarVisible
 		})
 	end,
 
