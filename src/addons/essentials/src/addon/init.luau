@@ -8,13 +8,21 @@ local isClient = RunService:IsClient()
 local localPlayer = Players.LocalPlayer
 
 local flake = ReplicatedStorage.flake
+local store = script:WaitForChild("store")
+local actions = store:WaitForChild("actions")
+local components = script:WaitForChild("components")
 
 local Cryo = require(script:WaitForChild("Cryo"))
 local vLua = require(script:WaitForChild("vLua"))
 local types = require(script:WaitForChild("types"))
 local baseAddon: types.baseAddon = require(flake:WaitForChild("baseAddon"))
+local roduxStore = require(store)
+local ClientStats = require(components:WaitForChild("ClientStats"))
+local SetClientStatsVisible = require(actions:WaitForChild("SetClientStatsVisible"))
 
 type essentialsAddon = types.baseAddon & {
+    store: any,
+
 	createCommand: (self: essentialsAddon, id: string) -> types.command
 }
 local actions = {
@@ -31,6 +39,7 @@ essentialsAddon.version = "1.0.0"
 
 function essentialsAddon.new(system)
 	local self: any = setmetatable(baseAddon.new(system), essentialsAddon :: any)
+    self.store = roduxStore
 	self.actions = actions
 
 	return self
@@ -444,6 +453,18 @@ function essentialsAddon:initialize()
 			end)
 		end
 	end)
+
+    self:createCommand("essentials-client-stats")
+    :setAlias("clientstats")
+    :setLevel(0)
+    :setContext("client")
+    :onCallback(function()
+        self.store:dispatch(SetClientStatsVisible(true))
+    end)
+
+    if self.flake.userInterface then
+        self.flake.userInterface:addAppComponent(ClientStats)
+    end
 
 	local flying = false
 	self:createCommand("essentials-fly")

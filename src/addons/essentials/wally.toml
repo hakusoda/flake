@@ -5,3 +5,5 @@ registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
 [dependencies]
+llama = "freddylist/llama@1.1.1"
+rodux = "roblox/rodux@4.0.0-rc.0"
