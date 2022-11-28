@@ -105,6 +105,9 @@ export type windowOptions = {
 export type userInterface = baseSystem & {
     gui: ScreenGui,
 	components: Folder,
+    appComponents: {any},
+
+    addAppComponent: (self: userInterface, component: any) -> (),
 
 	notify: (self: userInterface, title: string?, body: string) -> (),
 	createPrompt: (self: userInterface, options: promptOptions, windowOptions: windowOptions?) -> (),

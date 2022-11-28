@@ -18,6 +18,7 @@ local RoactRodux = require(libraries["roact-rodux"])
 local CreatePrompt = require(actions.CreatePrompt)
 local flakeContext = require(components.flakeContext)
 local AddNotification = require(actions.AddNotification)
+local AddAppComponent = require(actions.AddAppComponent)
 local SetTouchMenuVisible = require(actions.SetTouchMenuVisible)
 local SetCommandBarVisible = require(actions.SetCommandBarVisible)
 local SetCommandBarCommands = require(actions.SetCommandBarCommands)
@@ -88,6 +89,10 @@ function userInterface:initialize()
 	Roact.mount(app, gui)
 
 	self:log("initialized")
+end
+
+function userInterface:addAppComponent(component: any)
+    self.flake.store:dispatch(AddAppComponent(component))
 end
 
 function userInterface:updateTouchMenu()

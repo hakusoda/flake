@@ -2,10 +2,11 @@
 local Roact = require(script.Parent.Parent.Parent.libraries["roact-compat"])
 return function(props)
 	return Roact.createElement("TextLabel", {
-		Text = props[Roact.Children],
+		Text = props.children,
 		TextSize = 12,
 		FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
 		TextColor3 = Color3.fromRGB(240, 240, 240),
+        LayoutOrder = props.LayoutOrder,
 		AutomaticSize = Enum.AutomaticSize.XY,
 		BackgroundTransparency = 1
 	}, {
