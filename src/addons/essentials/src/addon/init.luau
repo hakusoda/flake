@@ -464,6 +464,13 @@ function essentialsAddon:initialize()
 
     if self.flake.userInterface then
         self.flake.userInterface:addAppComponent(ClientInfo)
+		self.flake.userInterface:addTouchMenuItem({
+			--temporary icon
+			icon = "rbxassetid://11259235980",
+			onClick = function()
+				self.store:dispatch(SetClientInfoVisible(true))
+			end
+		})
     end
 
 	local flying = false
