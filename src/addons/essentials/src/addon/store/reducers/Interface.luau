@@ -5,14 +5,14 @@ local libraries = root.Parent.libraries
 
 local llama = require(libraries.llama)
 local Rodux = require(libraries.rodux)
-local SetClientStatsVisible = require(actions.SetClientStatsVisible)
+local SetClientInfoVisible = require(actions.SetClientInfoVisible)
 
 return Rodux.createReducer({
-	clientStatsVisible = false
+	clientInfoVisible = false
 }, {
-	[SetClientStatsVisible.name] = function(state, action)
+	[SetClientInfoVisible.name] = function(state, action)
 		return llama.Dictionary.join(state, {
-			clientStatsVisible = action.clientStatsVisible
+			clientInfoVisible = action.clientInfoVisible
 		})
 	end
 })

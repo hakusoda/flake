@@ -17,8 +17,8 @@ local vLua = require(script:WaitForChild("vLua"))
 local types = require(script:WaitForChild("types"))
 local baseAddon: types.baseAddon = require(flake:WaitForChild("baseAddon"))
 local roduxStore = require(store)
-local ClientStats = require(components:WaitForChild("ClientStats"))
-local SetClientStatsVisible = require(actions:WaitForChild("SetClientStatsVisible"))
+local ClientInfo = require(components:WaitForChild("ClientInfo"))
+local SetClientInfoVisible = require(actions:WaitForChild("SetClientInfoVisible"))
 
 type essentialsAddon = types.baseAddon & {
     store: any,
@@ -454,16 +454,16 @@ function essentialsAddon:initialize()
 		end
 	end)
 
-    self:createCommand("essentials-client-stats")
-    :setAlias("clientstats")
+    self:createCommand("essentials-client-info")
+    :setAlias("clientinfo")
     :setLevel(0)
     :setContext("client")
     :onCallback(function()
-        self.store:dispatch(SetClientStatsVisible(true))
+        self.store:dispatch(SetClientInfoVisible(true))
     end)
 
     if self.flake.userInterface then
-        self.flake.userInterface:addAppComponent(ClientStats)
+        self.flake.userInterface:addAppComponent(ClientInfo)
     end
 
 	local flying = false
