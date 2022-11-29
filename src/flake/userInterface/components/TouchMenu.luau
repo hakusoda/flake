@@ -16,7 +16,7 @@ local RoactRodux = require(libraries["roact-rodux"])
 
 local useMemo, useState, useEffect, createElement, createFragment = Roact.useMemo, Roact.useState, Roact.useEffect, Roact.createElement, Roact.createFragment
 return RoactRodux.connect(function(state)
-	return { items = state.interface.touchMenuItems, visible = true }
+	return { items = state.interface.touchMenuItems, visible = state.interface.touchMenuVisible }
 end)(function(props)
 	local alpha, setAlpha = useState(0)
 	local motor = useMemo(function()
