@@ -78,7 +78,7 @@ function addons:loadAddon(module: Instance)
                 module = require(module)
             end
 			local addon: types.baseAddon = require(module).new(self) :: any
-			addon:initialize()
+			task.defer(addon.initialize, addon)
 
 			self.addons[addon.id] = addon
 
