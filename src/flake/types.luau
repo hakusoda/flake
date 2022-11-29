@@ -1,22 +1,22 @@
 --!strict
 export type flake = {
-    __index: flake,
-    store: any,
+	__index: flake,
+	store: any,
 	emoji: string,
 	player: Player,
-    addons: addons,
+	addons: addons,
 	config: flakeConfig,
 	version: string,
-    commands: commands,
+	commands: commands,
 	libraries: Folder,
 	connection: RemoteEvent,
-    networking: networking,
+	networking: networking,
 	permissions: permissions,
 	userInterface: userInterface,
 
 	flakeFolder: Folder,
 
-    new: () -> flake,
+	new: () -> flake,
 
 	initialize: (self: flake) -> (),
 	addClientActor: (self: flake) -> (),
@@ -35,16 +35,16 @@ export type flakeConfig = {
 }
 
 export type addons = baseSystem & {
-    __index: addons,
+	__index: addons,
 
-    addons: { [string]: baseAddon },
+	addons: { [string]: baseAddon },
 	addonFolder: Folder,
 
 	loadAddon: (self: addons, module: Instance) -> ()
 }
 
 export type commands = baseSystem & {
-    commands: {command},
+	commands: {command},
 
 	getById: (self: commands, id: string) -> command?,
 	getByAlias: (self: commands, alias: string) -> command?,
@@ -67,7 +67,7 @@ export type commandArgument = {
 	match: commandArgumentMatch
 }
 export type command = {
-    __index: command,
+	__index: command,
 
 	id: string,
 	level: number,
@@ -78,7 +78,7 @@ export type command = {
 	callbacks: {(self: command, ...any) -> ()},
 	chatCommand: TextChatCommand?,
 
-    new: (id: string, system: commands) -> command,
+	new: (id: string, system: commands) -> command,
 
 	setLevel: (self: command, level: number) -> command,
 	setAlias: (self: command, primary: string, secondary: string?) -> command,
@@ -94,7 +94,7 @@ export type command = {
 }
 
 export type promptOptions = {
-    title: string,
+	title: string,
 	body: string,
 
 	confirmButton: () -> ()?,
@@ -104,11 +104,11 @@ export type windowOptions = {
 	title: string?
 }
 export type userInterface = baseSystem & {
-    gui: ScreenGui,
+	gui: ScreenGui,
 	components: Folder,
-    appComponents: {any},
+	appComponents: {any},
 
-    addAppComponent: (self: userInterface, component: any) -> (),
+	addAppComponent: (self: userInterface, component: any) -> (),
 
 	notify: (self: userInterface, title: string?, body: string) -> (),
 	createPrompt: (self: userInterface, options: promptOptions, windowOptions: windowOptions?) -> (),
@@ -117,7 +117,7 @@ export type userInterface = baseSystem & {
 
 export type connectionArgs = {any}
 export type networking = baseSystem & {
-    connection: RemoteEvent,
+	connection: RemoteEvent,
 
 	sendAction: (self: networking, action: number, args: connectionArgs) -> (),
 	sendPlayerAction: (self: networking, player: Player, action: number, args: connectionArgs) -> (),
@@ -126,7 +126,7 @@ export type networking = baseSystem & {
 }
 
 export type permissions = baseSystem & {
-    attribute: string,
+	attribute: string,
 
 	getLevel: (self: permissions) -> number,
 	getPlayerLevel: (self: permissions, player: Player) -> number,
@@ -135,14 +135,14 @@ export type permissions = baseSystem & {
 }
 
 export type baseSystem = {
-    __index: baseSystem,
+	__index: baseSystem,
 
 	name: string,
 	flake: flake,
 	emoji: string,
 	eventCallbacks: {any},
 
-    new: (flake: flake) -> baseSystem,
+	new: (flake: flake) -> baseSystem,
 
 	initialize: (self: baseSystem) -> (),
 
@@ -152,9 +152,9 @@ export type baseSystem = {
 	log: <T>(self: T, ...any) -> ()
 }
 export type baseAddon = {
-    __index: baseAddon,
+	__index: baseAddon,
 
-    id: string,
+	id: string,
 	name: string,
 	icon: string,
 	flake: flake,
