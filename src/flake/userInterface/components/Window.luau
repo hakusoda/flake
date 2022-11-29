@@ -2,6 +2,7 @@
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
+local UserInputService = game:GetService("UserInputService")
 
 local root = script.Parent.Parent
 local flake = root.Parent
@@ -11,11 +12,49 @@ local libraries = flake.libraries
 local vring = require(libraries.vring)
 local Roact = require(libraries["roact-compat"])
 
-local useMemo, useState, useEffect, createElement = Roact.useMemo, Roact.useState, Roact.useEffect, Roact.createElement
+local camera = workspace.CurrentCamera
+local useRef, useMemo, useState, useEffect, createElement = Roact.useRef, Roact.useMemo, Roact.useState, Roact.useEffect, Roact.createElement
+function WindowButton(props)
+    return createElement("TextButton", {
+        Text = "",
+        AutomaticSize = Enum.AutomaticSize.XY,
+        BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+        [Roact.Event.Activated] = props.onClick
+    }, {
+        createElement("UICorner", {
+            CornerRadius = UDim.new(0.5, 0)
+        }),
+        createElement("UIPadding", {
+            PaddingTop = UDim.new(0, 8),
+            PaddingLeft = UDim.new(0, 8),
+            PaddingRight = UDim.new(0, 8),
+            PaddingBottom = UDim.new(0, 8)
+        }),
+        table.unpack(props.children)
+    })
+end
+
 return function(props)
+    local viewportSize = camera.ViewportSize
+
     local alpha, setAlpha = useState(0)
+    local width, setWidth = useState(props.width or 400)
+    local height, setHeight = useState(props.height or 300)
     local visible, setVisible = useState(false)
-    local motor = useMemo(function()
+    local dragging = useRef(false)
+    local position, setPosition = useState(props.position or UDim2.fromOffset(
+        viewportSize.X / 2,
+        viewportSize.Y / 2
+    ))
+    local mouseOffset = useRef(Vector2.new())
+    local inputConnection = useMemo(function()
+        return UserInputService.InputEnded:Connect(function(input: InputObject, gameProcessed: boolean)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging.current = false
+            end
+        end)
+    end, {})
+    local motor, positionMotors = useMemo(function()
         return vring.linearMotor.new(alpha, 4)
         :onStep(function(value)
             setAlpha(value)
@@ -30,11 +69,29 @@ return function(props)
                 end
             end
         end)
+        :connectStepper(RunService.Stepped),
+        --TODO: switch to linearMotor when it supports vector2
+        vring.motorGroup.new()
+        :add("x", vring.linearMotor.new(viewportSize.X / 2))
+        :add("y", vring.linearMotor.new(viewportSize.Y / 2))
+        :onStep(function(values)
+            setPosition(UDim2.fromOffset(values.x, values.y))
+        end)
+        :onStepper(function(group)
+            if dragging.current then
+                local offset = mouseOffset.current
+                local position = UserInputService:GetMouseLocation()
+                group:get("x"):setTarget(position.X + offset.X):setLength(0.1)
+                group:get("y"):setTarget(position.Y + offset.Y):setLength(0.1)
+            end
+        end)
         :connectStepper(RunService.Stepped)
-    end, {}) :: vring.linearMotor
+    end, {})
     useEffect(function()
         return function()
             motor:destroy()
+            positionMotors:destroy()
+            inputConnection:Disconnect()
         end
     end, {})
     useEffect(function()
@@ -48,74 +105,76 @@ return function(props)
     end
 
     return createElement("CanvasGroup", {
-		Size = UDim2.fromOffset(props.width or 350, props.height or 250),
-		Position = (props.position or UDim2.fromScale(0.5, 0.5)) + UDim2.fromOffset(0, 64 * (1 - TweenService:GetValue(alpha, Enum.EasingStyle.Quart, Enum.EasingDirection.Out))),
-		AnchorPoint = props.anchor or Vector2.new(0.5, 0.5),
+		Size = UDim2.fromOffset(props.width or 450, props.height or 300),
+		Position = position,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Color3.fromRGB(36, 36, 36),
 		GroupTransparency = 1 - alpha
 	}, {
 		createElement("UIScale", {
 			Scale = 0.5 + (0.5 * TweenService:GetValue(alpha, Enum.EasingStyle.Quart, Enum.EasingDirection.Out))
 		}),
 		createElement("UICorner", {
-			CornerRadius = UDim.new(0, 10)
+			CornerRadius = UDim.new(0, 16)
 		}),
-		createElement("UIStroke", {
-			Color = Color3.fromRGB(80, 80, 80),
-			Thickness = 2,
-			Transparency = 1 - alpha
-		}),
-		createElement("Frame", {
-			Size = UDim2.new(1, 0, 0, 32),
+		createElement("TextButton", {
+            Text = "",
+			Size = UDim2.new(1, 0, 0, 40),
 			BorderSizePixel = 0,
-			BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+			BackgroundTransparency = 1,
+            [Roact.Event.MouseButton1Down] = function()
+                mouseOffset.current = Vector2.new(position.X.Offset, position.Y.Offset) - UserInputService:GetMouseLocation()
+                dragging.current = true
+            end
 		}, {
-			createElement("ImageLabel", {
-				Size = UDim2.fromOffset(24, 24),
-				Image = props.icon or "rbxassetid://11242597370",
-				Position = UDim2.fromOffset(4, 4),
-				BackgroundTransparency = 1
-			}),
 			createElement("TextLabel", {
 				Size = UDim2.fromScale(0, 1),
 				Text = props.title or "Window title",
-				TextSize = 12,
-				Position = UDim2.fromOffset(34, 0),
+				TextSize = 16,
+				Position = UDim2.fromOffset(16, 0),
 				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
 				TextColor3 = Color3.fromRGB(240, 240, 240),
 				AutomaticSize = Enum.AutomaticSize.X,
 				BackgroundTransparency = 1
 			}),
 
-			createElement("ImageButton", {
-				Size = UDim2.fromOffset(12, 12),
-				Image = "rbxassetid://11249698455",
-				Position = UDim2.new(1, -10, 0, 10),
-				AnchorPoint = Vector2.new(1, 0),
-				ImageColor3 = Color3.fromRGB(240, 240, 240),
-				BackgroundTransparency = 1,
-				[Roact.Event.Activated] = function()
-					SoundService:PlayLocalSound(sounds.buttonPress)
-					props.onClose()
-				end
-			})
+            createElement("Frame", {
+                Position = UDim2.new(1, -10, 0.5, 0),
+                AnchorPoint = Vector2.new(1, 0.5),
+                AutomaticSize = Enum.AutomaticSize.XY,
+                BackgroundTransparency = 1
+            }, {
+                createElement("UIListLayout", {
+                    Padding = UDim.new(0, 16)
+                }),
+                createElement(WindowButton, {
+                    onClick = function()
+                        SoundService:PlayLocalSound(sounds.buttonPress)
+                        props.onClose()
+                    end
+                }, {
+                    createElement("ImageLabel", {
+                        Size = UDim2.fromOffset(12, 12),
+                        Image = "rbxassetid://11249698455",
+                        ImageColor3 = Color3.fromRGB(140, 140, 140),
+                        BackgroundTransparency = 1
+                    })
+                })
+            })
 		}),
 		createElement("Frame", {
-			Size = UDim2.new(1, 0, 1, -32),
-			Position = UDim2.fromOffset(0, 32),
+			Size = UDim2.new(1, 0, 1, -40),
+			Position = UDim2.fromOffset(0, 40),
 			BorderSizePixel = 0,
-			BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+			BackgroundTransparency = 1
 		}, {
 			createElement("UIPadding", {
-				PaddingTop = UDim.new(0, 12),
-				PaddingLeft = UDim.new(0, 12),
-				PaddingRight = UDim.new(0, 12),
-				PaddingBottom = UDim.new(0, 12)
+				PaddingTop = UDim.new(0, 8),
+				PaddingLeft = UDim.new(0, 16),
+				PaddingRight = UDim.new(0, 16),
+				PaddingBottom = UDim.new(0, 16)
 			}),
-			createElement("UIGradient", {
-				Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(203, 211, 226)),
-				Rotation = 90
-			}),
-			table.unpack(props[Roact.Children])
+			table.unpack(props.children)
 		})
 	})
 end

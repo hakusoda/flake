@@ -14,15 +14,11 @@ local flakeContext = require(components.flakeContext)
 local SetCommandListVisible = require(actions.SetCommandListVisible)
 
 return RoactRodux.connect(function(state)
-	return {
-		visible = state.interface.commandListVisible
-	}
+	return { visible = state.interface.commandListVisible }
 end, function(dispatch)
-	return {
-		onClose = function()
-			dispatch(SetCommandListVisible(false))
-		end
-	}
+	return { onClose = function()
+        dispatch(SetCommandListVisible(false))
+    end }
 end)(function(props)
     return Roact.createElement(flakeContext.Consumer, {
 		render = function(flake: types.flake)
@@ -51,7 +47,7 @@ end)(function(props)
 						return Roact.createElement("Frame", {
 							Size = UDim2.fromScale(1, 0),
 							AutomaticSize = Enum.AutomaticSize.Y,
-							BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+							BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 						}, {
 							Roact.createElement("UICorner"),
 							Roact.createElement("UIPadding", {
@@ -64,7 +60,7 @@ end)(function(props)
 								Text = string.format("%s%s(%s)", command.aliases[1], command.aliases[2] and (", "..command.aliases[2].." ") or " ", command.id),
 								TextSize = 12,
 								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-								TextColor3 = Color3.fromRGB(240, 240, 240),
+								TextColor3 = Color3.new(.9, .9, .9),
 								AutomaticSize = Enum.AutomaticSize.XY,
 								BackgroundTransparency = 1
 							})

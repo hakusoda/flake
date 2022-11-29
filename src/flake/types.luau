@@ -94,6 +94,7 @@ export type command = {
 }
 
 export type promptOptions = {
+    title: string,
 	body: string,
 
 	confirmButton: () -> ()?,

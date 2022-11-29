@@ -26,9 +26,9 @@ end)(function(props)
 			local addons = Cryo.Dictionary.values(flake.addons.addons)
 			return createElement(Window, {
 				icon = "rbxassetid://11260520498",
-				title = "flake info",
-				width = 350,
-				height = 208,
+				title = "flake Information",
+                width = 512,
+				height = 298,
 				hidden = not props.visible,
 				onClose = props.onClose
 			}, {
@@ -36,9 +36,19 @@ end)(function(props)
 					Padding = UDim.new(0, 16)
 				}),
 				createElement("Frame", {
+                    Size = UDim2.fromScale(1, 0),
 					AutomaticSize = Enum.AutomaticSize.XY,
-					BackgroundTransparency = 1
+					BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 				}, {
+                    createElement("UICorner", {
+                        CornerRadius = UDim.new(0, 8)
+                    }),
+                    createElement("UIPadding", {
+                        PaddingTop = UDim.new(0, 8),
+                        PaddingLeft = UDim.new(0, 8),
+                        PaddingRight = UDim.new(0, 8),
+                        PaddingBottom = UDim.new(0, 8)
+                    }),
 					createElement("ImageLabel", {
 						Size = UDim2.fromOffset(64, 64),
 						Image = "rbxassetid://11259281331",
@@ -58,7 +68,7 @@ end)(function(props)
 							TextSize = 16,
 							RichText = true,
 							FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-							TextColor3 = Color3.new(1, 1, 1),
+							TextColor3 = Color3.new(.8, .8, .8),
 							AutomaticSize = Enum.AutomaticSize.XY,
 							BackgroundTransparency = 1
 						}),
@@ -66,7 +76,7 @@ end)(function(props)
 							Text = "A simple, modern admin system.",
 							TextSize = 12,
 							FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-							TextColor3 = Color3.fromRGB(240, 240, 240),
+							TextColor3 = Color3.new(.6, .6, .6),
 							AutomaticSize = Enum.AutomaticSize.XY,
 							BackgroundTransparency = 1
 						})
@@ -80,12 +90,12 @@ end)(function(props)
 						Text = "This experience is using "..#addons.." addons:",
 						TextSize = 12,
 						FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-						TextColor3 = Color3.fromRGB(240, 240, 240),
+						TextColor3 = Color3.new(.8, .8, .8),
 						AutomaticSize = Enum.AutomaticSize.XY,
 						BackgroundTransparency = 1
 					}),
 					createElement("ScrollingFrame", {
-						Size = UDim2.new(1, 0, 0, 56),
+						Size = UDim2.new(1, 0, 0, 120),
 						Position = UDim2.fromOffset(0, 18),
 						ScrollBarThickness = 4,
 						AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -97,14 +107,10 @@ end)(function(props)
 						table.unpack(Cryo.List.map(addons, function(addon: types.baseAddon)
 							return createElement("Frame", {
 								Size = UDim2.new(1, 0, 0, 56),
-								BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+								BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 							}, {
 								createElement("UICorner", {
 									CornerRadius = UDim.new(0, 8)
-								}),
-								createElement("UIGradient", {
-									Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(203, 211, 226)),
-									Rotation = 90
 								}),
 							    createElement("UIPadding", {
 									PaddingTop = UDim.new(0, 8),
@@ -139,7 +145,7 @@ end)(function(props)
 											TextSize = 12,
 											RichText = true,
 											FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-											TextColor3 = Color3.new(1, 1, 1),
+											TextColor3 = Color3.new(.8, .8, .8),
 											AutomaticSize = Enum.AutomaticSize.XY,
 											BackgroundTransparency = 1
 										}),
@@ -147,7 +153,7 @@ end)(function(props)
 											Text = addon.description or "description",
 											TextSize = 10,
 											FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-											TextColor3 = Color3.fromRGB(240, 240, 240),
+											TextColor3 = Color3.new(.6, .6, .6),
 											AutomaticSize = Enum.AutomaticSize.XY,
 											BackgroundTransparency = 1
 										})

@@ -29,9 +29,9 @@ end)(function(props)
     local promptData = props.data or data
 	return createElement(Window, {
         icon = "rbxassetid://11260520498",
-        title = "prompt",
+        title = promptData.options.title or "Unnamed Prompt",
         width = 350,
-        height = 128,
+        height = 136,
         hidden = not props.data,
         onClose = function()
             props.onClose(promptData.id)
@@ -46,7 +46,7 @@ end)(function(props)
             TextSize = 14,
             RichText = true,
             FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-            TextColor3 = Color3.new(1, 1, 1),
+            TextColor3 = Color3.new(.9, .9, .9),
             AutomaticSize = Enum.AutomaticSize.Y,
             TextXAlignment = Enum.TextXAlignment.Center,
             BackgroundTransparency = 1

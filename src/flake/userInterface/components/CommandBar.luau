@@ -118,9 +118,9 @@ function CommandBar(props)
     return createElement(Window, {
         icon = "rbxassetid://11568224787",
         title = "Command Bar",
-        height = 128,
+        height = 150,
         hidden = not props.visible,
-        anchor = touchEnabled and Vector2.new(0.5, 0) or nil,
+        --anchor = touchEnabled and Vector2.new(0.5, 0) or nil,
         onClose = function()
             setInputText("")
             props.onClose()
@@ -136,21 +136,21 @@ function CommandBar(props)
                 textBox:CaptureFocus()
             end
         end,
-        position = touchEnabled and UDim2.fromScale(0.5, 0.1) or nil
+        --position = touchEnabled and UDim2.fromScale(0.5, 0.1) or nil
     }, {
         createElement("UIListLayout"),
         createElement(InputLabel, nil, "Type a command"),
         createElement("TextBox", {
             ref = textBoxRef,
             Text = "",
-            Size = UDim2.fromOffset(200, 0),
+            Size = UDim2.fromScale(1, 0),
             TextSize = 12,
             FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-            AutomaticSize = Enum.AutomaticSize.XY,
+            AutomaticSize = Enum.AutomaticSize.Y,
             TextXAlignment = Enum.TextXAlignment.Left,
             TextTransparency = 1,
             ClearTextOnFocus = false,
-            BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+            BackgroundColor3 = Color3.fromRGB(45, 45, 45),
             [Roact.Change.Text] = function(rbx: TextBox)
                 local text = rbx.Text
                 if string.find(text, "\t") then
@@ -180,13 +180,10 @@ function CommandBar(props)
                 if enterPressed then
                     finish()
                 end
-            end,
-            [Roact.Change.CursorPosition] = function()
-                
             end
         }, {
             createElement("UICorner", {
-                CornerRadius = UDim.new(0, 4)
+                CornerRadius = UDim.new(0, 8)
             }),
             createElement("UIPadding", {
                 PaddingTop = UDim.new(0, 8),
@@ -200,7 +197,7 @@ function CommandBar(props)
                 RichText = true,
                 FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
                 LineHeight = 0,
-                TextColor3 = #inputText == 0 and Color3.fromRGB(180, 180, 180) or Color3.fromRGB(240, 240, 240),
+                TextColor3 = #inputText == 0 and Color3.fromRGB(140, 140, 140) or Color3.fromRGB(240, 240, 240),
                 AutomaticSize = Enum.AutomaticSize.XY,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 BackgroundTransparency = 1
@@ -211,12 +208,12 @@ function CommandBar(props)
             Text = touchEnabled and "You may experience issues with typing on your device." or "Press TAB to use autocomplete (basic & prone to issues)",
             TextSize = 10,
             FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-            TextColor3 = Color3.fromRGB(180, 180, 180),
+            TextColor3 = Color3.new(.6, .6, .6),
             AutomaticSize = Enum.AutomaticSize.XY,
             BackgroundTransparency = 1
         }, {
             createElement("UIPadding", {
-                PaddingTop = UDim.new(0, 16)
+                PaddingTop = UDim.new(0, 24)
             })
         })
     })

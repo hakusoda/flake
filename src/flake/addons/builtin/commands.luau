@@ -62,8 +62,10 @@ function commandsAddon:initialize()
 	:addArgument("id", "number")
 	:onCallback(function(cmd, executor: Player, id: number)
 		self.flake.userInterface:createPrompt({
+            title = "Confirm Addon Import",
 			body = "Are you sure you want to load <b>"..id.."</b>?<br/>The contained model may be dangerous!",
-			confirmButton = function()
+			
+            confirmButton = function()
 				self:sendAction(addonActions.LOAD_ADDON, {id})
 			end,
 			cancelButton = function()

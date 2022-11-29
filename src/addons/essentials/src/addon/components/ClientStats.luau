@@ -27,11 +27,11 @@ function StatItem(props)
         Size = UDim2.fromScale(1, 0),
         TextSize = 12,
         FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-        TextColor3 = Color3.fromRGB(240, 240, 240),
+        TextColor3 = Color3.new(.9, .9, .9),
         LayoutOrder = props[1],
         AutomaticSize = Enum.AutomaticSize.Y,
         TextXAlignment = Enum.TextXAlignment.Left,
-        BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        BackgroundColor3 = Color3.fromRGB(45, 45, 45)
     }, {
         createElement("UICorner"),
         createElement("UIPadding", {
@@ -128,7 +128,7 @@ end)(function(props)
                 Text = "Click to show memory usage",
                 TextSize = 14,
                 FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-                TextColor3 = Color3.fromRGB(240, 240, 240),
+                TextColor3 = Color3.new(.6, .6, .6),
                 LayoutOrder = 31,
                 AutomaticSize = Enum.AutomaticSize.XY,
                 BackgroundTransparency = 1,

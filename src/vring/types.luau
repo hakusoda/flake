@@ -2,13 +2,21 @@ export type motorGroup<G> = {
     __index: motorGroup<G>,
 
 	motors: { [string]: linearMotor },
+    stepCallbacks: { [number]: any },
+	stepperCallbacks: { [number]: any },
 
 	new: () -> motorGroup<G>,
 	add: (self: motorGroup<G>, name: G, motor: linearMotor) -> motorGroup<G>,
 	get: (self: motorGroup<G>, name: G) -> linearMotor,
 	getValue: (self: motorGroup<G>, name: G) -> number,
-	destroy: (self: motorGroup<G>) -> (),
-	step: (self: motorGroup<G>, deltaTime: number) -> motorGroup<G>
+    getValues: (self: motorGroup<G>) -> { [G]: linearMotor },
+
+    onStepper: (self: motorGroup<G>, callback: (motor: linearMotor, deltaTime: number) -> ()) -> linearMotor,
+    connectStepper: (self: motorGroup<G>, signal: RBXScriptSignal) -> linearMotor,
+	
+    destroy: (self: motorGroup<G>) -> (),
+	step: (self: motorGroup<G>, deltaTime: number) -> motorGroup<G>,
+    log: (self: motorGroup<G>, text: string) -> ()
 }
 export type linearMotor = {
     __index: linearMotor,

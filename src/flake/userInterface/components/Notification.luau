@@ -33,7 +33,7 @@ end)(function(props)
         :setTarget(1.8)
         :onStepper(function(motor)
             if props.data.endTime - os.time() <= 0 then
-                motor:setTarget(3.8)
+                motor:setTarget(3.8):setVelocity(1.5)
             end
         end)
         :connectStepper(RunService.Stepped)
@@ -89,28 +89,20 @@ end)(function(props)
 				return Vector2.new(0, 0):Lerp(Vector2.new(1, 0), value)
 			end)(),
 			AutomaticSize = Enum.AutomaticSize.XY,
-			BackgroundColor3 = Color3.fromRGB(50, 50, 50),
+			BackgroundColor3 = Color3.fromRGB(36, 36, 36),
 			[Roact.Ref] = container
 		}, {
 			createElement("UICorner", {
-				CornerRadius = UDim.new(0, 8)
-			}),
-			createElement("UIStroke", {
-				Color = Color3.fromRGB(80, 80, 80),
-				Thickness = 2
-			}),
-			createElement("UIGradient", {
-				Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(203, 211, 226)),
-				Rotation = 90
+				CornerRadius = UDim.new(0, 16)
 			}),
 			createElement("UIPadding", {
-				PaddingTop = UDim.new(0, 8),
-				PaddingLeft = UDim.new(0, 12),
-				PaddingRight = UDim.new(0, 12),
-				PaddingBottom = UDim.new(0, 8)
+				PaddingTop = UDim.new(0, 12),
+				PaddingLeft = UDim.new(0, 20),
+				PaddingRight = UDim.new(0, 20),
+				PaddingBottom = UDim.new(0, 12)
 			}),
 			createElement("UIListLayout", {
-				Padding = UDim.new(0, 12),
+				Padding = UDim.new(0, 32),
 				FillDirection = Enum.FillDirection.Horizontal
 			}),
 			createElement("Frame", {
@@ -126,7 +118,7 @@ end)(function(props)
 					TextSize = 14,
                     RichText = true,
 					FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-					TextColor3 = Color3.new(1, 1, 1),
+					TextColor3 = Color3.new(.9, .9, .9),
 					AutomaticSize = Enum.AutomaticSize.XY,
 					BackgroundTransparency = 1
 				}),
@@ -135,7 +127,7 @@ end)(function(props)
 					TextSize = 12,
 					RichText = true,
 					FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-					TextColor3 = Color3.fromRGB(230, 230, 230),
+					TextColor3 = Color3.new(.6, .6, .6),
 					AutomaticSize = Enum.AutomaticSize.XY,
 					BackgroundTransparency = 1
 				})
@@ -149,6 +141,7 @@ end)(function(props)
 					Image = "rbxassetid://7733658504",
 					Position = UDim2.fromScale(0.5, 0.5),
 					AnchorPoint = Vector2.new(0.5, 0.5),
+                    ImageColor3 = Color3.new(.9, .9, .9),
 					ImageTransparency = 0.75 + ((0 - 0.75) * TweenService:GetValue(
                         math.max(alpha - 1.2, 0) / 0.6,
                         Enum.EasingStyle.Quart, Enum.EasingDirection.Out
