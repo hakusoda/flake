@@ -19,7 +19,9 @@ local CreatePrompt = require(actions.CreatePrompt)
 local flakeContext = require(components.flakeContext)
 local AddNotification = require(actions.AddNotification)
 local AddAppComponent = require(actions.AddAppComponent)
+local AddTouchMenuItem = require(actions.AddTouchMenuItem)
 local SetTouchMenuVisible = require(actions.SetTouchMenuVisible)
+local SetFlakeInfoVisible = require(actions.SetFlakeInfoVisible)
 local SetCommandBarVisible = require(actions.SetCommandBarVisible)
 local SetCommandBarCommands = require(actions.SetCommandBarCommands)
 
@@ -71,11 +73,24 @@ function userInterface:initialize()
 	end)
 
 	local commandSystem = self.flake.commands
-    self.flake.store:dispatch(SetCommandBarCommands(commandSystem.commands))
+	self.flake.store:dispatch(SetCommandBarCommands(commandSystem.commands))
 
 	commandSystem:onEvent("COMMAND_CREATED", function()
 		self.flake.store:dispatch(SetCommandBarCommands(commandSystem.commands))
 	end)
+
+	self:addTouchMenuItem({
+		icon = "rbxassetid://11568197675",
+		onClick = function()
+			self.flake.store:dispatch(SetCommandBarVisible(true))
+		end
+	})
+	self:addTouchMenuItem({
+		icon = "rbxassetid://11568098452",
+		onClick = function()
+			self.flake.store:dispatch(SetFlakeInfoVisible(true))
+		end
+	})
 
 	local app = Roact.createElement(RoactRodux.StoreProvider, {
 		store = self.flake.store
@@ -93,6 +108,10 @@ end
 
 function userInterface:addAppComponent(component: any)
     self.flake.store:dispatch(AddAppComponent(component))
+end
+
+function userInterface:addTouchMenuItem(item: types.touchMenuItem)
+    self.flake.store:dispatch(AddTouchMenuItem(item))
 end
 
 function userInterface:updateTouchMenu()

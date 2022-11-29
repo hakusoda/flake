@@ -8,6 +8,7 @@ local Rodux = require(libraries.rodux)
 local EndPrompt = require(actions.EndPrompt)
 local CreatePrompt = require(actions.CreatePrompt)
 local AddAppComponent = require(actions.AddAppComponent)
+local AddTouchMenuItem = require(actions.AddTouchMenuItem)
 local SetFlakeInfoVisible = require(actions.SetFlakeInfoVisible)
 local SetTouchMenuVisible = require(actions.SetTouchMenuVisible)
 local SetCommandBarVisible = require(actions.SetCommandBarVisible)
@@ -16,9 +17,10 @@ local SetCommandListVisible = require(actions.SetCommandListVisible)
 return Rodux.createReducer({
 	prompts = {},
 	infoVisible = false,
-    appComponents = {},
+	appComponents = {},
+	touchMenuItems = {},
 	touchMenuVisible = false,
-    commandBarVisible = false,
+	commandBarVisible = false,
 	commandListVisible = false
 }, {
 	[CreatePrompt.name] = function(state, action)
@@ -40,11 +42,17 @@ return Rodux.createReducer({
 		})
 	end,
 
-    [AddAppComponent.name] = function(state, action)
-        return Cryo.Dictionary.join(state, {
+	[AddAppComponent.name] = function(state, action)
+		return Cryo.Dictionary.join(state, {
 			appComponents = Cryo.List.join(state.appComponents, {action.component})
 		})
-    end,
+	end,
+
+	[AddTouchMenuItem.name] = function(state, action)
+		return Cryo.Dictionary.join(state, {
+			touchMenuItems = Cryo.List.join(state.touchMenuItems, {action.item})
+		})
+	end,
 
 	[SetTouchMenuVisible.name] = function(state, action)
 		return Cryo.Dictionary.join(state, {
@@ -52,7 +60,7 @@ return Rodux.createReducer({
 		})
 	end,
 
-    [SetCommandBarVisible.name] = function(state, action)
+	[SetCommandBarVisible.name] = function(state, action)
 		return Cryo.Dictionary.join(state, {
 			commandBarVisible = action.commandBarVisible
 		})

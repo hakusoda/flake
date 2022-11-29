@@ -103,12 +103,17 @@ export type promptOptions = {
 export type windowOptions = {
 	title: string?
 }
+export type touchMenuItem = {
+	icon: string,
+	onClick: () -> ()
+}
 export type userInterface = baseSystem & {
 	gui: ScreenGui,
 	components: Folder,
 	appComponents: {any},
 
 	addAppComponent: (self: userInterface, component: any) -> (),
+	addTouchMenuItem: (self: userInterface, item: touchMenuItem) -> (),
 
 	notify: (self: userInterface, title: string?, body: string) -> (),
 	createPrompt: (self: userInterface, options: promptOptions, windowOptions: windowOptions?) -> (),
