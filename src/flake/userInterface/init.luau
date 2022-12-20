@@ -58,7 +58,7 @@ function userInterface:initialize()
 	UserInputService.InputEnded:Connect(function(input: InputObject, gameProcessedEvent: boolean)
 		if not gameProcessedEvent then
 			local keycode = input.KeyCode
-			if keycode == Enum.KeyCode.BackSlash and (not self.flake.config.hidden or self.flake.permissions:getLevel() > 0) then
+			if keycode == Enum.KeyCode.Comma and (not self.flake.config.hidden or self.flake.permissions:getLevel() > 0) then
 				self.flake.store:dispatch(SetCommandBarVisible(true))
 			end
 		end
