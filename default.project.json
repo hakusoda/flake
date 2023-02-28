@@ -18,7 +18,10 @@
                     "flake": {
                         "$path": "src/flake",
                         "libraries": {
-                            "$path": "Packages"
+                            "$path": "Packages",
+							"Fusion": {
+								"$path": "src/flake/libraries/Fusion"
+							}
                         }
                     }
                 }

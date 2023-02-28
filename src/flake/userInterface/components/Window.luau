@@ -8,7 +8,7 @@ local flake = root.Parent
 local sounds = root.sounds
 local libraries = flake.libraries
 
-local Fusion = require(libraries._Index["elttob_fusion@0.2.0"].fusion)
+local Fusion = require(libraries.Fusion)
 
 local camera = workspace.CurrentCamera
 local New, Value, Spring, OnEvent, Cleanup, OnChange, Children, Computed, Observer = Fusion.New, Fusion.Value, Fusion.Spring, Fusion.OnEvent, Fusion.Cleanup, Fusion.OnChange, Fusion.Children, Fusion.Computed, Fusion.Observer
@@ -177,7 +177,7 @@ return function(props: WindowProps)
 		}
 	}
 	return Computed(function()
-		if alpha:get() == 0 then
+		if alphaSpring:get() < 0.01 then
 			return nil :: any
 		end
 		return Window

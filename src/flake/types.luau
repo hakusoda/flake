@@ -1,5 +1,5 @@
 --!strict
-local Fusion = require(script.Parent.libraries._Index["elttob_fusion@0.2.0"].fusion.PubTypes)
+local Fusion = require(script.Parent.libraries.Fusion)
 
 export type flake = {
 	__index: flake,
