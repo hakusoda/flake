@@ -6,24 +6,21 @@ local UserInputService = game:GetService("UserInputService")
 local root = script.Parent
 local sounds = script.sounds
 local classes = root.classes
-local actions = root.store.actions
 local libraries = root.libraries
 local components = script.components
 
 local App = require(components.App)
 local types = require(root.types)
-local Roact = require(libraries["roact-compat"])
+local llama = require(libraries.llama)
+local Fusion = require(libraries.Fusion)
+local TouchMenu = require(components.TouchMenu)
+local FlakeInfo = require(components.FlakeInfo)
 local baseSystem = require(classes.baseSystem)
-local RoactRodux = require(libraries["roact-rodux"])
-local CreatePrompt = require(actions.CreatePrompt)
-local flakeContext = require(components.flakeContext)
-local AddNotification = require(actions.AddNotification)
-local AddAppComponent = require(actions.AddAppComponent)
-local AddTouchMenuItem = require(actions.AddTouchMenuItem)
-local SetTouchMenuVisible = require(actions.SetTouchMenuVisible)
-local SetFlakeInfoVisible = require(actions.SetFlakeInfoVisible)
-local SetCommandBarVisible = require(actions.SetCommandBarVisible)
-local SetCommandBarCommands = require(actions.SetCommandBarCommands)
+local CommandBar = require(components.CommandBar)
+local CommandList = require(components.CommandList)
+local Notifications = require(components.Notifications)
+
+local New, Ref, Value, Children, OnChange = Fusion.New, Fusion.Ref, Fusion.Value, Fusion.Children, Fusion.OnChange
 
 local userInterface: types.userInterface = setmetatable({}, baseSystem) :: any
 userInterface.__index = userInterface :: any
@@ -34,32 +31,41 @@ userInterface.components = components
 function userInterface.new(flake: types.flake)
 	local self: any = setmetatable(baseSystem.new(flake), userInterface :: any)
 	self.emoji = "💻"
+	self.prompts = Value({})
+	self.notifications = Value({})
+	self.appComponents = Value({})
+	self.touchMenuItems = Value({})
+	self.touchMenuVisible = Value(false)
+	self.flakeInfoVisible = Value(false)
+	self.commandBarVisible = Value(false)
+	self.commandListVisible = Value(false)
 
 	return self
 end
 
 function userInterface:initialize()
 	local self = self :: types.userInterface
-	local gui = Instance.new("ScreenGui")
-	gui.Name = "flakeInterface"
-	gui.DisplayOrder = 2147483647
-	gui.ResetOnSpawn = false
-	gui.IgnoreGuiInset = true
-	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	gui.Parent = self.flake.player:WaitForChild("PlayerGui")
 
-	self.gui = gui
-	gui:GetPropertyChangedSignal("Enabled"):Connect(function()
-		if not gui.Enabled then
-			gui.Enabled = true
+	local gui = Value((nil :: any) :: ScreenGui)
+	New "ScreenGui" {
+		Name = "flakeInterface",
+		Parent = self.flake.player:WaitForChild("PlayerGui"),
+		DisplayOrder = 2147483647,
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		[Ref] = gui,
+		[Children] = App { flake = self.flake },
+		[OnChange "Enabled"] = function()
+			gui:get().Enabled = true
 		end
-	end)
+	}
 
 	UserInputService.InputEnded:Connect(function(input: InputObject, gameProcessedEvent: boolean)
 		if not gameProcessedEvent then
 			local keycode = input.KeyCode
 			if keycode == Enum.KeyCode.Comma and (not self.flake.config.hidden or self.flake.permissions:getLevel() > 0) then
-				self.flake.store:dispatch(SetCommandBarVisible(true))
+				self.commandBarVisible:set(true)
 			end
 		end
 	end)
@@ -71,75 +77,69 @@ function userInterface:initialize()
 	self.flake.player:GetAttributeChangedSignal(self.flake.permissions.attribute):Connect(function()
 		self:updateTouchMenu()
 	end)
-
-	local commandSystem = self.flake.commands
-	self.flake.store:dispatch(SetCommandBarCommands(commandSystem.commands))
-
-	commandSystem:onEvent("COMMAND_CREATED", function()
-		self.flake.store:dispatch(SetCommandBarCommands(commandSystem.commands))
-	end)
+	
+	self:addAppComponent(TouchMenu)
+	self:addAppComponent(FlakeInfo)
+	self:addAppComponent(CommandBar)
+	self:addAppComponent(CommandList)
+	self:addAppComponent(Notifications)
 
 	self:addTouchMenuItem({
 		icon = "rbxassetid://11568197675",
 		onClick = function()
-			self.flake.store:dispatch(SetCommandBarVisible(true))
+			self.commandBarVisible:set(true)
 		end
 	})
 	self:addTouchMenuItem({
 		icon = "rbxassetid://11568098452",
 		onClick = function()
-			self.flake.store:dispatch(SetFlakeInfoVisible(true))
+			self.flakeInfoVisible:set(true)
 		end
 	})
-
-	local app = Roact.createElement(RoactRodux.StoreProvider, {
-		store = self.flake.store
-	}, {
-		Roact.createElement(flakeContext.Provider, {
-			value = self.flake
-		}, {
-			Roact.createElement(App)
-		})
-	})
-	Roact.mount(app, gui)
 
 	self:log("initialized")
 end
 
 function userInterface:addAppComponent(component: any)
-    self.flake.store:dispatch(AddAppComponent(component))
+	local list = self.appComponents
+	list:set(llama.List.join(list:get(), {component}))
 end
 
 function userInterface:addTouchMenuItem(item: types.touchMenuItem)
-    self.flake.store:dispatch(AddTouchMenuItem(item))
+	local list = self.touchMenuItems
+	list:set(llama.List.join(list:get(), {item}))
 end
 
 function userInterface:updateTouchMenu()
-	if UserInputService.TouchEnabled and self.flake.permissions:getLevel() >= 1 then
-		self:log("enabling touch menu")
-		self.flake.store:dispatch(SetTouchMenuVisible(true))
-	else
-		self:log("disabling touch menu")
-		self.flake.store:dispatch(SetTouchMenuVisible(false))
-	end
+	self.touchMenuVisible:set(UserInputService.TouchEnabled and self.flake.permissions:getLevel() >= 1)
 end
 
 function userInterface:createPrompt(options: types.promptOptions, windowOptions: types.windowOptions?)
-	self.flake.store:dispatch(CreatePrompt({
+	local list = self.prompts
+	local data: types.prompt = {
 		id = HttpService:GenerateGUID(),
-		options = options,
-		window = windowOptions or {}
-	}))
+		body = options.body,
+		title = options.title,
+		cancelButton = options.cancelButton,
+		confirmButton = options.confirmButton
+	}
+	list:set(llama.List.join(list:get(), {data}))
 end
 
-function userInterface:notify(title: string?, body: string)
-	self.flake.store:dispatch(AddNotification({
+function userInterface:notify(title: string?, body: string, icon: string?)
+	local list = self.notifications
+	local data: types.notification = {
 		id = HttpService:GenerateGUID(),
-		title = title,
+		icon = icon,
 		body = body,
-        endTime = os.time() + 5
-	}))
+		title = title,
+		endTime = os.time() + 5
+	}
+	list:set(llama.List.join(list:get(), {data}))
 	SoundService:PlayLocalSound(sounds.notify)
+	
+	task.wait(5)
+	list:set(llama.List.removeValue(list:get(), data))
 end
 
 return userInterface

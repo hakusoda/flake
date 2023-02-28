@@ -7,141 +7,129 @@ local flake = root.Parent
 local sounds = root.sounds
 local libraries = flake.libraries
 
-local vring = require(libraries.vring)
-local Roact = require(libraries["roact-compat"])
+local Fusion = require(libraries.Fusion)
 local ButtonThemes = require(script.themes)
 
-local Button = Roact.Component:extend("Button")
-function Button:init()
-	local theme: any = ButtonThemes[self.props.theme] or ButtonThemes.primary
-
-	self.background, self.updateBackground = Roact.createBinding(0)
-	self.backgroundMotor = vring.linearMotor.new(self.background:getValue())
-    :onStep(function(value)
-		self.updateBackground(value)
-	end)
-    :connectStepper(RunService.Stepped)
-
-	self.border, self.updateBorder = Roact.createBinding(0)
-	self.borderMotor = vring.linearMotor.new(self.border:getValue())
-	:onStep(function(value)
-		self.updateBorder(value)
-	end)
-    :connectStepper(RunService.Stepped)
-
-	self.color, self.updateColor = Roact.createBinding(0)
-	self.colorMotor = vring.linearMotor.new(self.color:getValue())
-	:onStep(function(value)
-		self.updateColor(value)
-	end)
-    :connectStepper(RunService.Stepped)
-end
-
-function Button:render()
-	local theme: any = ButtonThemes[self.props.theme] or ButtonThemes.primary
-	return Roact.createElement("TextButton", {
-		Text = "",
-		TextSize = 12,
+local New, Ref, Value, Spring, OnEvent, Computed, Children = Fusion.New, Fusion.Ref, Fusion.Value, Fusion.Spring, Fusion.OnEvent, Fusion.Computed, Fusion.Children
+export type ButtonProps = {
+	Text: string?,
+	Theme: string?,
+	OnClick: () -> ()?,
+	Disabled: boolean?,
+	LayoutOrder: number?
+}
+return function(props: ButtonProps)
+	local theme: any = ButtonThemes[props.Theme] or ButtonThemes.primary
+	local disabled = props.Disabled
+	
+	local background = Value(0)
+	local backgroundSpring = Spring(background, 1, 1)
+	
+	local border = Value(0)
+	local borderSpring = Spring(border, 1, 1)
+	
+	local button = Value((nil :: any) :: TextButton)
+	return New "TextButton" {
+		LayoutOrder = props.LayoutOrder,
+		Transparency = theme.noBackground and 1 or 0,
 		AutomaticSize = Enum.AutomaticSize.XY,
 		AutoButtonColor = false,
-		BackgroundColor3 = self.background:map(function(value)
-            return theme.background.normal:Lerp(theme.background.hover, value)
+		BackgroundColor3 = Computed(function()
+			return theme.background.normal:Lerp(theme.background.hover, background:get())
 		end),
-		BackgroundTransparency = theme.noBackground and 1 or 0,
-		[Roact.Event.MouseButton1Down] = function()
-			if not self.props.disabled then
-				if self.props[Roact.Event.MouseButton1Down] then
-					self.props[Roact.Event.MouseButton1Down]()
+		[Ref] = button,
+		[OnEvent "MouseButton1Down"] = function()
+			if not disabled then
+				local callback = props[OnEvent "MouseButton1Down"]
+				if callback then
+					task.defer(callback)
 				end
-                self.backgroundMotor:setTarget(1)
+				background:set(1)
 			end
 		end,
-		[Roact.Event.MouseButton1Up] = function(rbx: TextButton, x: number, y: number)
-			if not self.props.disabled then
-				if self.props[Roact.Event.MouseButton1Up] then
-					self.props[Roact.Event.MouseButton1Up]()
+		[OnEvent "MouseButton1Up"] = function(x: number, y: number)
+			if not disabled then
+				local callback = props[OnEvent "MouseButton1Up"]
+				if callback then
+					task.defer(callback)
 				end
-
-				local position, size, endPos = rbx.AbsolutePosition, rbx.AbsoluteSize, rbx.AbsolutePosition + rbx.AbsoluteSize
-				local gui = rbx:FindFirstAncestorWhichIsA("ScreenGui")
+				
+				local button = button:get()
+				local position, size, endPos = button.AbsolutePosition, button.AbsoluteSize, button.AbsolutePosition + button.AbsoluteSize
+				local gui = button:FindFirstAncestorWhichIsA("ScreenGui")
 				if gui and gui.IgnoreGuiInset then
 					position += Vector2.new(0, 36)
 					endPos += Vector2.new(0, 36)
 				end
 
 				if x > position.X and y > position.Y and x < endPos.X and y < endPos.Y then
-					self.backgroundMotor:setTarget(1)
+					background:set(1)
 					SoundService:PlayLocalSound(sounds.buttonPress)
-					if self.props.onClick then
-						return self.props.onClick()
+					if props.OnClick then
+						return props.OnClick()
 					end
 				else
-					self.backgroundMotor:setTarget(0)
+					background:set(0)
 				end
 			end
 		end :: any,
-		[Roact.Event.MouseEnter] = function()
-			if not self.props.disabled then
-				if self.props[Roact.Event.MouseEnter] then
-					self.props[Roact.Event.MouseEnter]()
+		[OnEvent "MouseEnter"] = function()
+			if not disabled then
+				local callback = props[OnEvent "MouseEnter"]
+				if callback then
+					task.defer(callback)
 				end
-				--self.backgroundMotor:setTarget(theme.background.hover)
-                self.backgroundMotor:setTarget(1)
+				
+				background:set(1)
 				if theme.border then
-					--self.borderMotor:setTarget(theme.border.hover)
-                    self.borderMotor:setTarget(1)
+					border:set(1)
 				end
 			end
 		end,
-		[Roact.Event.MouseLeave] = function()
-			if not self.props.disabled then
-				if self.props[Roact.Event.MouseLeave] then
-					self.props[Roact.Event.MouseLeave]()
+		[OnEvent "MouseLeave"] = function()
+			if not disabled then
+				local callback = props[OnEvent "MouseEnter"]
+				if callback then
+					task.defer(callback)
 				end
-				--self.backgroundMotor:setTarget(theme.background.normal)
-                self.backgroundMotor:setTarget(0)
+
+				background:set(0)
 				if theme.border then
-					--self.borderMotor:setTarget(theme.border.normal)
-                    self.borderMotor:setTarget(0)
+					border:set(0)
 				end
 			end
-		end
-	}, {
-		Roact.createElement("UICorner", {
-			CornerRadius = UDim.new(0, 4)
-		}),
-		theme.border and Roact.createElement("UIStroke", {
-			Color = self.border:map(function(value)
-                return theme.border.normal:Lerp(theme.border.hover, value)
-            end),
-			Thickness = 1,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		}) or nil,
-		Roact.createElement("UIListLayout", {
-			Padding = UDim.new(0, 8),
-			VerticalAlignment = Enum.VerticalAlignment.Center,
-			HorizontalAlignment = Enum.HorizontalAlignment.Center
-		}),
-		Roact.createElement("UIPadding", {
-			PaddingTop = UDim.new(0, 4),
-			PaddingLeft = UDim.new(0, 12),
-			PaddingRight = UDim.new(0, 12),
-			PaddingBottom = UDim.new(0, 4)
-		}),
-		self.props[Roact.Children] and
-			table.unpack(self.props[Roact.Children]) or
-			Roact.createElement("TextLabel", {
-				Text = self.props.text or "Button",
-				TextSize = 12,
+		end,
+		[Children] = {
+			New "UICorner" {
+				CornerRadius = UDim.new(0, 4)
+			},
+			theme.border and New "UIStroke" {
+				Color = Computed(function()
+					return theme.border.normal:Lerp(theme.border.hover, border:get())
+				end),
+				Thickness = 1,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			} or nil :: any,
+			New "UIListLayout" {
+				Padding = UDim.new(0, 8),
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				HorizontalAlignment = Enum.HorizontalAlignment.Center
+			},
+			New "UIPadding" {
+				PaddingTop = UDim.new(0, 8),
+				PaddingLeft = UDim.new(0, 18),
+				PaddingRight = UDim.new(0, 18),
+				PaddingBottom = UDim.new(0, 8)
+			},
+			props[Children] or New "TextLabel" {
+				Text = props.Text or "Button",
+				TextSize = 14,
 				RichText = true,
 				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-				TextColor3 = self.color:map(function(value)
-                    return theme.color.normal:Lerp(Color3.new(), value)
-				end),
+				TextColor3 = theme.color.normal,
 				AutomaticSize = Enum.AutomaticSize.XY,
 				BackgroundTransparency = 1
-			})
-	})
+			}
+		}
+	}
 end
-
-return Button

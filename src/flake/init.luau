@@ -7,9 +7,8 @@ local StarterPlayerScripts = StarterPlayer:WaitForChild("StarterPlayerScripts")
 
 local libraries = script:WaitForChild("libraries")
 
-local Cryo = require(libraries:WaitForChild("llama"))
 local types = require(script:WaitForChild("types"))
-local store = require(script:WaitForChild("store"))
+local llama = require(libraries:WaitForChild("llama"))
 local addons = require(script:WaitForChild("addons"))
 local actions = require(script:WaitForChild("networking"):WaitForChild("data")).actions
 local commands = require(script:WaitForChild("commands"))
@@ -30,7 +29,6 @@ flake.libraries = libraries
 function flake.new()
 	local self: any = setmetatable({}, flake) :: any
 	self.emoji = "🍫"
-    self.store = store
 	self.player = Players.LocalPlayer
 	self.addons = addons.new(self)
     self.commands = commands.new(self)
@@ -62,7 +60,7 @@ function flake:initialize()
 		local baseAddon = script.classes.baseAddon:Clone()
 		baseAddon.Parent = self.flakeFolder
 
-		self.config = Cryo.Dictionary.join(require(defaultConfig) :: types.flakeConfig,
+		self.config = llama.Dictionary.join(require(defaultConfig) :: types.flakeConfig,
 			require(config) :: any
 		) :: types.flakeConfig
 
@@ -74,7 +72,7 @@ function flake:initialize()
 		self.flakeFolder = ReplicatedStorage:WaitForChild("flake")
 
 		local config = self.flakeFolder:WaitForChild("config")
-		self.config = Cryo.Dictionary.join(require(defaultConfig) :: types.flakeConfig,
+		self.config = llama.Dictionary.join(require(defaultConfig) :: types.flakeConfig,
 			require(config) :: any
 		) :: types.flakeConfig
 	end
@@ -101,7 +99,7 @@ function flake:addClientActor()
 	gui.ResetOnSpawn = false
 	actor:Clone().Parent = gui
 
-	for _,i in pairs(Players:GetPlayers()) do
+	for _,i in Players:GetPlayers() do
 		gui:Clone().Parent = i.PlayerGui
 	end
 end

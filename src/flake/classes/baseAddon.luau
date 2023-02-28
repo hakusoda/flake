@@ -3,8 +3,6 @@ local RunService = game:GetService("RunService")
 
 local isServer = RunService:IsServer()
 
-local types = require(script.types)
-
 local baseAddon = {} :: types.baseAddon
 baseAddon.__index = baseAddon
 baseAddon.id = "baseAddon"

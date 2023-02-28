@@ -6,3 +6,4 @@ realm = "shared"
 
 [dependencies]
 llama = "freddylist/llama@1.1.1"
+Fusion = "elttob/fusion@0.2.0"

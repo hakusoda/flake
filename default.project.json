@@ -1,6 +1,5 @@
 {
     "name": "flake",
-    "globIgnorePaths": ["**/classes", "**/baseAddon.luau"],
     "tree": {
         "$className": "DataModel",
         "ServerScriptService": {
@@ -18,23 +17,8 @@
                     "$path": "src/module",
                     "flake": {
                         "$path": "src/flake",
-                        "classes": {
-                            "$path": "src/flake/classes",
-                            "baseAddon": {
-                                "$path": "src/flake/classes/baseAddon.luau",
-                                "types": {
-                                    "$path": "src/flake/types.luau"
-                                }
-                            }
-                        },
                         "libraries": {
-                            "$path": "Packages",
-                            "vring": {
-                                "$path": "src/vring"
-                            },
-                            "roact-rodux": {
-                                "$path": "src/roact-rodux"
-                            }
+                            "$path": "Packages"
                         }
                     }
                 }

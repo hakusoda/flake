@@ -19,11 +19,11 @@ function addons.new(flake: types.flake)
 	self.emoji = "🧩"
 	self.addons = {}
 
-    return self
+	return self
 end
 
 function addons:initialize()
-    local self = self :: types.addons
+	local self = self :: types.addons
 	if isServer then
 		local flakeFolder = self.flake.flakeFolder
 
@@ -36,14 +36,14 @@ function addons:initialize()
 	end
 
 	local builtin = script:WaitForChild("builtin")
-	for _,child in pairs(builtin:GetChildren()) do
+	for _,child in builtin:GetChildren() do
 		self:loadAddon(child)
 	end
 	builtin.ChildAdded:Connect(function(child)
 		self:loadAddon(child)
 	end)
 
-	for _,child in pairs(self.addonFolder:GetChildren()) do
+	for _,child in self.addonFolder:GetChildren() do
 		self:loadAddon(child)
 	end
 	self.addonFolder.ChildAdded:Connect(function(child)
@@ -53,7 +53,7 @@ function addons:initialize()
 	if isServer then
 		local toImport = self.flake.config.importAddons
 		if typeof(toImport) == "table" then
-			for _,i in pairs(toImport) do
+			for _,i in toImport do
 				if typeof(i) == "number" then
 					xpcall(function()
 						(require(i) :: any).Parent = self.addonFolder
@@ -68,22 +68,22 @@ end
 
 function addons:loadAddon(module: Instance)
 	xpcall(function()
-        if module:IsA("Folder") then
-            for _,i in pairs(module:GetChildren()) do
-                self:loadAddon(i)
-            end
-            return
+		if module:IsA("Folder") then
+			for _,i in module:GetChildren() do
+				self:loadAddon(i)
+			end
+			return
 		elseif module:IsA("ModuleScript") then
-            if module.Name == "MainModule" then
-                module = require(module)
-            end
+			if module.Name == "MainModule" then
+				module = require(module) :: any
+			end
 			local addon: types.baseAddon = require(module).new(self) :: any
 			task.defer(addon.initialize, addon)
 
 			self.addons[addon.id] = addon
 
 			if isServer then
-				for _,player in pairs(Players:GetPlayers()) do
+				for _,player in Players:GetPlayers() do
 					if self.flake.permissions:getPlayerLevel(player) >= 1 then
 						self.flake:notifyPlayer(player, "Addon Imported", addon.name.." v"..addon.version.." has been automatically loaded.")
 					end
@@ -92,7 +92,7 @@ function addons:loadAddon(module: Instance)
 		end
 	end, function(err)
 		if isServer then
-			for _,player in pairs(Players:GetPlayers()) do
+			for _,player in Players:GetPlayers() do
 				if self.flake.permissions:getPlayerLevel(player) >= 1 then
 					self.flake:notifyPlayer(player, "Addon System Error (Server)", "Failed to import <b>"..module.Name.."</b>.")
 				end

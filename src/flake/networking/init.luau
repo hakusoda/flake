@@ -56,7 +56,7 @@ function networking:onAction(player: Player?, action: number, args: types.connec
 	assert(args, "Missing args argument")
 
 	local actionName
-	for key, val in pairs(data.actions) do
+	for key, val in data.actions :: any do
 		if action == val then
 			actionName = key
 		end

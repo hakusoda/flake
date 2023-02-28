@@ -6,47 +6,44 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local isClient = RunService:IsClient()
 local localPlayer = Players.LocalPlayer
+if isClient and os.clock() > 10 then
+	task.wait(5) -- wait for full replication
+end
 
 local flake = ReplicatedStorage.flake
-local store = script:WaitForChild("store")
-local actions = store:WaitForChild("actions")
-local components = script:WaitForChild("components")
+local components = script.components
 
-local Cryo = require(script:WaitForChild("Cryo"))
-local vLua = require(script:WaitForChild("vLua"))
-local types = require(script:WaitForChild("types"))
-local baseAddon: types.baseAddon = require(flake:WaitForChild("baseAddon"))
-local roduxStore = require(store)
-local ClientInfo = require(components:WaitForChild("ClientInfo"))
-local SetClientInfoVisible = require(actions:WaitForChild("SetClientInfoVisible"))
+local Cryo = require(script.Cryo)
+local vLua = require(script.vLua)
+local types = require(script.types)
+local Fusion = require(script.Fusion)
+local flakeTypes = require(script.flakeTypes)
+local baseAddon = require(flake.baseAddon) :: flakeTypes.baseAddon
+local ClientInfo = require(components.ClientInfo)
 
-type essentialsAddon = types.baseAddon & {
-    store: any,
-
-	createCommand: (self: essentialsAddon, id: string) -> types.command
-}
+local Value = Fusion.Value
 local actions = {
 	TEST2 = 0
 }
 
-local essentialsAddon: essentialsAddon = setmetatable({}, baseAddon) :: any
+local essentialsAddon: types.essentialsAddon = setmetatable({}, baseAddon) :: any
 essentialsAddon.__index = essentialsAddon :: any
 essentialsAddon.id = "essentials"
 essentialsAddon.name = "flake Essentials"
 essentialsAddon.authors = {"Voxelified"}
-essentialsAddon.description = "Useful commands & such for flake"
+essentialsAddon.description = "Useful commands & more for flake"
 essentialsAddon.version = "1.0.0"
 
 function essentialsAddon.new(system)
 	local self: any = setmetatable(baseAddon.new(system), essentialsAddon :: any)
-    self.store = roduxStore
 	self.actions = actions
+	self.clientInfoVisible = Value(false)
 
 	return self
 end
 
 function essentialsAddon:initialize()
-	local self = self :: essentialsAddon
+	local self = self :: types.essentialsAddon
 
 	self:createCommand("essentials-kill")
 	:setAlias("kill")
@@ -54,7 +51,7 @@ function essentialsAddon:initialize()
 	:setContext("server")
 	:addArgument("targets", "players")
 	:onCallback(function(cmd, executor: Player, targets: {Player})
-		for _,target in pairs(targets) do
+		for _,target in targets do
 			local character = target.Character
 			if character then
 				local humanoid = character:FindFirstChildWhichIsA("Humanoid")
@@ -72,7 +69,7 @@ function essentialsAddon:initialize()
 	:setContext("server")
 	:addArgument("targets", "players")
 	:onCallback(function(cmd, executor: Player, targets: {Player})
-		for _,target in pairs(targets) do
+		for _,target in targets do
 			local character = target.Character
 			if character then
 				local humanoid = character:FindFirstChildWhichIsA("Humanoid")
@@ -89,7 +86,7 @@ function essentialsAddon:initialize()
 	:setContext("server")
 	:addArgument("targets", "players")
 	:onCallback(function(cmd, executor: Player, targets: {Player})
-		for _,target in pairs(targets) do
+		for _,target in targets do
 			task.defer(target.LoadCharacter, target)
 		end
 	end)
@@ -134,7 +131,7 @@ function essentialsAddon:initialize()
 	:onCallback(function(cmd, executor: Player, targets: {Player})
 		local character = executor.Character
 		if character then
-			for _,target in pairs(targets) do
+			for _,target in targets do
 				task.defer(function()
 					local character2 = target.Character
 					if character2 then
@@ -159,7 +156,7 @@ function essentialsAddon:initialize()
 	:setContext("server")
 	:addArgument("targets", "players")
 	:onCallback(function(cmd, executor: Player, targets: {Player})
-		for _,player in pairs(targets) do
+		for _,player in targets do
 			task.defer(player.LoadCharacter, player)
 		end
 	end)
@@ -170,52 +167,51 @@ function essentialsAddon:initialize()
 	:setContext("server")
 	:addArgument("targets", "players")
 	:onCallback(function(cmd, executor: Player, targets: {Player})
-		for _,player in pairs(targets) do
+		for _,player in targets do
 			task.defer(function()
 				local tools1 = Cryo.List.filterMap(player:WaitForChild("Backpack"):GetChildren(), function(child)
 					return child:IsA("Tool") and child:Clone() or nil
 				end)
 				local tools2 = {}
 				local character = player.Character
-                local position
+				local position
 				if character then
 					tools2 = Cryo.List.filterMap(character:GetChildren(), function(child)
 						return child:IsA("Tool") and child:Clone() or nil
 					end)
 					local humanoid = character:FindFirstChildWhichIsA("Humanoid")
 					if humanoid then
-                        if humanoid.RootPart then
-                            position = humanoid.RootPart.CFrame
-                        end
+						if humanoid.RootPart then
+							position = humanoid.RootPart.CFrame
+						end
 						humanoid:UnequipTools()
 						task.wait()
-                    elseif character.PrimaryPart then
-                        position = character.PrimaryPart.CFrame
+					elseif character.PrimaryPart then
+						position = character.PrimaryPart.CFrame
 					end
 				end
 				player:LoadCharacter()
 
-                print(tools1, tools2)
 				local character = player.Character or player.CharacterAdded:Wait()
 				local backpack = player:WaitForChild("Backpack")
-				for _,i in pairs(tools1) do
+				for _,i in tools1 do
 					i.Parent = backpack
 				end
 
-				local humanoid = character:WaitForChild("Humanoid", 5)
+				local humanoid: Humanoid? = character:WaitForChild("Humanoid", 5) :: any
 				if humanoid then
-					for _,i in pairs(tools2) do
-                        i.Parent = character
+					for _,i in tools2 :: any do
+						i.Parent = character
 						humanoid:EquipTool(i)
 					end
-                    if humanoid.RootPart and position then
-                        humanoid.RootPart.CFrame = position
-                    end
-                elseif character.PrimaryPart and position then
-                    for _,i in pairs(tools2) do
+					if humanoid.RootPart and position then
+						humanoid.RootPart.CFrame = position
+					end
+				elseif character.PrimaryPart and position then
+					for _,i in tools2 :: any do
 						i.Parent = character
 					end
-                    character.PrimaryPart.CFrame = position
+					character.PrimaryPart.CFrame = position
 				end
 			end)
 		end
@@ -228,7 +224,7 @@ function essentialsAddon:initialize()
 	:addArgument("targets", "players")
 	:addArgument("value", "number")
 	:onCallback(function(cmd, executor: Player, targets: {Player}, value: number)
-		for _,player in pairs(targets) do
+		for _,player in targets do
 			task.defer(function()
 				local character = player.Character
 				if character then
@@ -249,7 +245,7 @@ function essentialsAddon:initialize()
 	:addArgument("targets", "players")
 	:addArgument("value", "number")
 	:onCallback(function(cmd, executor: Player, targets: {Player}, value: number)
-		for _,player in pairs(targets) do
+		for _,player in targets do
 			task.defer(function()
 				local character = player.Character
 				if character then
@@ -271,7 +267,7 @@ function essentialsAddon:initialize()
 	:addArgument("targets", "players")
 	:addArgument("value", "number")
 	:onCallback(function(cmd, executor: Player, targets: {Player}, value: number)
-		for _,player in pairs(targets) do
+		for _,player in targets do
 			task.defer(function()
 				local character = player.Character
 				if character then
@@ -293,7 +289,7 @@ function essentialsAddon:initialize()
 	:addArgument("targets", "players")
 	:addArgument("reason", "string", "rest")
 	:onCallback(function(cmd, executor: Player, targets: {Player}, reason: string)
-		for _,player in pairs(targets) do
+		for _,player in targets do
 			task.defer(player.Kick, player, reason)
 		end
 		self.flake:notifyPlayer(executor, nil, "Kicked <b>"..#targets.."</b> player(s).")
@@ -348,7 +344,7 @@ function essentialsAddon:initialize()
 	:addArgument("targets", "players")
 	:addArgument("text", "string", "rest")
 	:onCallback(function(cmd, executor: Player, targets: {Player}, text: string)
-		for _,target in pairs(targets) do
+		for _,target in targets do
 			self.flake:notifyPlayer(target, "Notication from <b>"..executor.DisplayName.."</b>", text)
 		end
 	end)
@@ -359,7 +355,7 @@ function essentialsAddon:initialize()
 	:setContext("server")
 	:addArgument("targets", "players")
 	:onCallback(function(cmd, executor: Player, targets: {Player})
-		for _,target in pairs(targets) do
+		for _,target in targets do
 			task.defer(function()
 				local character = target.Character
 				if character then
@@ -380,7 +376,7 @@ function essentialsAddon:initialize()
 	:setContext("server")
 	:addArgument("targets", "players")
 	:onCallback(function(cmd, executor: Player, targets: {Player})
-		for _,target in pairs(targets) do
+		for _,target in targets do
 			task.defer(function()
 				local character = target.Character
 				if character and character.PrimaryPart then
@@ -398,7 +394,7 @@ function essentialsAddon:initialize()
 	:setContext("server")
 	:addArgument("targets", "players")
 	:onCallback(function(cmd, executor: Player, targets: {Player})
-		for _,target in pairs(targets) do
+		for _,target in targets do
 			task.defer(function()
 				local character = target.Character
 				if character and character.PrimaryPart then
@@ -410,68 +406,74 @@ function essentialsAddon:initialize()
 		self.flake:notifyPlayer(executor, nil, #targets.." player(s) have been unfrozen.")
 	end)
 
-    self:createCommand("essentials-r15")
+	self:createCommand("essentials-r15")
 	:setAlias("r15")
 	:setLevel(1)
 	:setContext("server")
 	:addArgument("targets", "players")
 	:onCallback(function(cmd, executor: Player, targets: {Player})
-		for _,target in pairs(targets) do
+		for _,target in targets do
 			task.defer(function()
-                local desc = Players:GetHumanoidDescriptionFromUserId(target.UserId)
+				local desc = Players:GetHumanoidDescriptionFromUserId(target.UserId)
 				local new = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R15)
 
-                local char = target.Character
-                target.Character = new
+				local char = target.Character
+				target.Character = new
 
-                new.Parent = workspace
-                new:PivotTo(char:GetPivot())
-
-                char:Destroy()
+				new.Parent = workspace
+				
+				if char then
+					new:PivotTo(char:GetPivot())
+					char:Destroy()
+				end
 			end)
 		end
 	end)
 
-    self:createCommand("essentials-r6")
+	self:createCommand("essentials-r6")
 	:setAlias("r6")
 	:setLevel(1)
 	:setContext("server")
 	:addArgument("targets", "players")
 	:onCallback(function(cmd, executor: Player, targets: {Player})
-		for _,target in pairs(targets) do
+		for _,target in targets do
 			task.defer(function()
-                local desc = Players:GetHumanoidDescriptionFromUserId(target.UserId)
+				local desc = Players:GetHumanoidDescriptionFromUserId(target.UserId)
 				local new = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R6)
 
-                local char = target.Character
-                target.Character = new
+				local char = target.Character
+				target.Character = new
 
-                new.Parent = workspace
-                new:PivotTo(char:GetPivot())
-
-                char:Destroy()
+				new.Parent = workspace
+				
+				if char then
+					new:PivotTo(char:GetPivot())
+					char:Destroy()
+				end
 			end)
 		end
 	end)
 
-    self:createCommand("essentials-client-info")
-    :setAlias("clientinfo")
-    :setLevel(0)
-    :setContext("client")
-    :onCallback(function()
-        self.store:dispatch(SetClientInfoVisible(true))
-    end)
+	self:createCommand("essentials-client-info")
+	:setAlias("clientinfo")
+	:setLevel(0)
+	:setContext("client")
+	:onCallback(function()
+		self.clientInfoVisible:set(true)
+	end)
 
-    if self.flake.userInterface then
-        self.flake.userInterface:addAppComponent(ClientInfo)
+	if self.flake.userInterface then
+		self.flake.userInterface:addAppComponent(function(props)
+			return ClientInfo { addon = self, flake = props.flake }
+		end)
 		self.flake.userInterface:addTouchMenuItem({
 			--temporary icon
 			icon = "rbxassetid://11259235980",
 			onClick = function()
-				self.store:dispatch(SetClientInfoVisible(true))
+				self.clientInfoVisible:set(true)
 			end
 		})
-    end
+	end
 
 	local flying = false
 	self:createCommand("essentials-fly")
@@ -497,7 +499,7 @@ function essentialsAddon:initialize()
 	end
 end
 
-function essentialsAddon:onAction(player: Player?, action: number, args: types.connectionArgs)
+function essentialsAddon:onAction(player: Player?, action: number, args: flakeTypes.connectionArgs)
 	baseAddon.onAction(self :: any, player, action, args)
 
 	if action == actions.TEST2 then
@@ -507,7 +509,7 @@ function essentialsAddon:onAction(player: Player?, action: number, args: types.c
 	end
 end
 
-function essentialsAddon:createCommand(id: string): types.command
+function essentialsAddon:createCommand(id: string): flakeTypes.command
 	return self.flake.commands:create(id)
 end
 

@@ -39,7 +39,7 @@ function permissions:initialize()
 
 	if isServer then
 		--set level attributes
-		for _,i in pairs(Players:GetPlayers()) do
+		for _,i in Players:GetPlayers() do
 			self:getPlayerLevel(i)
 		end
 		Players.PlayerAdded:Connect(function(player: Player)

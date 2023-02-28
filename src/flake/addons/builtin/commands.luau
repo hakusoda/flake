@@ -5,12 +5,9 @@ local isServer = RunService:IsServer()
 
 local flake = script.Parent.Parent.Parent
 local classes = flake.classes
-local actions = flake.store.actions
 
 local types = require(flake.types)
 local baseAddon = require(classes.baseAddon)
-local SetFlakeInfoVisible = require(actions.SetFlakeInfoVisible)
-local SetCommandListVisible = require(actions.SetCommandListVisible)
 
 type commandsAddon = types.baseAddon & {
 	loadAddonCommand: types.command,
@@ -38,13 +35,13 @@ function commandsAddon.new(system: types.addons)
 end
 
 function commandsAddon:initialize()
-    local self = self :: commandsAddon
+	local self = self :: commandsAddon
 	self:createCommand("builtin-info")
 	:setAlias("info")
 	:setLevel(0)
 	:setContext("client")
 	:onCallback(function()
-		self.flake.store:dispatch(SetFlakeInfoVisible(true))
+		self.flake.userInterface.flakeInfoVisible:set(true)
 	end)
 
 	self:createCommand("builtin-commands")
@@ -52,7 +49,7 @@ function commandsAddon:initialize()
 	:setLevel(0)
 	:setContext("client")
 	:onCallback(function()
-		self.flake.store:dispatch(SetCommandListVisible(true))
+		self.flake.userInterface.commandListVisible:set(true)
 	end)
 
 	self.loadAddonCommand = self:createCommand("builtin-load-addon")
@@ -62,10 +59,10 @@ function commandsAddon:initialize()
 	:addArgument("id", "number")
 	:onCallback(function(cmd, executor: Player, id: number)
 		self.flake.userInterface:createPrompt({
-            title = "Confirm Addon Import",
+			title = "Confirm Addon Import",
 			body = "Are you sure you want to load <b>"..id.."</b>?<br/>The contained model may be dangerous!",
-			
-            confirmButton = function()
+
+			confirmButton = function()
 				self:sendAction(addonActions.LOAD_ADDON, {id})
 			end,
 			cancelButton = function()
@@ -76,7 +73,7 @@ function commandsAddon:initialize()
 end
 
 function commandsAddon:onAction(player: Player?, action: number, args: types.connectionArgs)
-    local self = self :: commandsAddon
+	local self = self :: commandsAddon
 	baseAddon.onAction(self, player, action, args)
 
 	if action == addonActions.LOAD_ADDON then

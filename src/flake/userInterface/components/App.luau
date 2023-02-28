@@ -1,37 +1,33 @@
 --!strict
-local libraries = script.Parent.Parent.Parent.libraries
+local root = script.Parent.Parent.Parent
+local libraries = root.libraries
 local components = script.Parent
 
-local llama = require(libraries.llama)
-local Roact = require(libraries["roact-compat"])
+local types = require(root.types)
+local Fusion = require(libraries.Fusion)
 local Prompt = require(components.Prompt)
-local TouchMenu = require(components.TouchMenu)
-local FlakeInfo = require(components.FlakeInfo)
-local RoactRodux = require(libraries["roact-rodux"])
-local CommandBar = require(components.CommandBar)
-local CommandList = require(components.CommandList)
-local Notifications = require(components.Notifications)
 
-return RoactRodux.connect(function(state)
+local Computed, ForValues = Fusion.Computed, Fusion.ForValues
+export type AppProps = {
+	flake: types.flake
+}
+return function(props: AppProps)
+	local flake = props.flake
 	return {
-        extra = state.interface.appComponents,
-		prompts = state.interface.prompts
+		Computed(function()
+			local data = flake.userInterface.prompts:get()[1]
+			if data then
+				return Prompt {
+					data = data,
+					flake = flake
+				}
+			end
+
+			return nil :: any
+		end, Fusion.cleanup) :: any,
+
+		ForValues(flake.userInterface.appComponents, function(component)
+			return component { flake = flake }
+		end, Fusion.cleanup) :: any
 	}
-end)(function(props)
-    return Roact.createFragment({
-		Roact.createElement(TouchMenu),
-		Roact.createElement(CommandBar),
-		Roact.createElement(Notifications),
-
-		Roact.createElement(CommandList),
-		Roact.createElement(FlakeInfo),
-
-		Roact.createElement(Prompt, {
-			data = props.prompts[1]
-		}),
-
-        table.unpack(llama.List.map(props.extra, function(component)
-            return Roact.createElement(component)
-        end))
-	})
-end)
+end

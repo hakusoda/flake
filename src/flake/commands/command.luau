@@ -3,23 +3,28 @@ local RunService = game:GetService("RunService")
 local TextChatService = game:GetService("TextChatService")
 
 local root = script.Parent.Parent
+local libraries = root.libraries
+
 local types = require(root.types)
+local llama = require(libraries.llama)
+local Fusion = require(libraries.Fusion)
 
 local isServer = RunService:IsServer()
 local isClient = RunService:IsClient()
 
+local Value = Fusion.Value
 local command: types.command = {} :: any
 command.__index = command
 
 function command.new(id: string, system: types.commands): types.command
 	local self = setmetatable({}, command)
 	self.id = id
-	self.level = 0
+	self.level = Value(0)
 	self.match = "default"
 	self.system = system
-	self.aliases = {}
-	self.context = "server"
-	self.arguments = {}
+	self.aliases = Value({})
+	self.context = Value("server")
+	self.arguments = Value({})
 
 	self.callbacks = {}
 
@@ -37,12 +42,12 @@ function command.new(id: string, system: types.commands): types.command
 end
 
 function command:setLevel(level: number)
-	self.level = level
+	self.level:set(level)
 	return self
 end
 
 function command:setAlias(primary: string, secondary: string?)
-	self.aliases = {primary, secondary :: string}
+	self.aliases:set({primary, secondary :: string})
 	if self.chatCommand then
 		self.chatCommand.PrimaryAlias = "/"..primary
 		self.chatCommand.SecondaryAlias = secondary and "/"..secondary or ""
@@ -51,12 +56,12 @@ function command:setAlias(primary: string, secondary: string?)
 end
 
 function command:setContext(context: types.commandContext)
-	self.context = context
+	self.context:set(context)
 	return self
 end
 
 function command:isInContext(): boolean
-	local context = self.context
+	local context = self.context:get()
 	if context == "both" or (isServer and context == "server") or (isClient and context == "client") then
 		return true
 	end
@@ -65,11 +70,13 @@ function command:isInContext(): boolean
 end
 
 function command:addArgument(id: string, type: types.commandArgumentType, match: types.commandArgumentMatch?)
-	table.insert(self.arguments, {
+	local list = self.arguments
+	list:set(llama.List.join(list:get(), {{
 		id = id,
 		type = type,
 		match = match or "default"
-	})
+	}}))
+	
 	return self
 end
 
@@ -79,7 +86,7 @@ function command:onCallback(callback)
 end
 
 function command:hasPermission(player: Player)
-	return self.system.flake.permissions:getPlayerLevel(player) >= self.level
+	return self.system.flake.permissions:getPlayerLevel(player) >= self.level:get()
 end
 
 return command

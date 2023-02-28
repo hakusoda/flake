@@ -6,91 +6,92 @@ local TweenService = game:GetService("TweenService")
 local root = script.Parent.Parent
 local flake = root.Parent
 local sounds = root.sounds
-local actions = flake.store.actions
 local libraries = flake.libraries
 
-local llama = require(libraries.llama)
-local vring = require(libraries.vring)
-local Roact = require(libraries["roact-compat"])
-local RoactRodux = require(libraries["roact-rodux"])
+local types = require(flake.types)
+local Fusion = require(libraries.Fusion)
 
-local useMemo, useState, useEffect, createElement, createFragment = Roact.useMemo, Roact.useState, Roact.useEffect, Roact.createElement, Roact.createFragment
-return RoactRodux.connect(function(state)
-	return { items = state.interface.touchMenuItems, visible = state.interface.touchMenuVisible }
-end)(function(props)
-	local alpha, setAlpha = useState(0)
-	local motor = useMemo(function()
-		return vring.linearMotor.new(alpha, 4)
-		:onStep(setAlpha)
-		:connectStepper(RunService.Stepped)
-	end, {}) :: vring.linearMotor
-	useEffect(function()
-		return function()
-			motor:destroy()
-		end
-	end, {})
-	if not props.visible then
-		return
-	end
-
-	return createElement("ImageLabel", {
-		Size = UDim2.fromOffset(400, 48),
-		Image = "rbxassetid://11568047819",
-		Position = UDim2.fromScale(0.5, 0),
-		ScaleType = Enum.ScaleType.Slice,
-		SliceCenter = Rect.new(48, 0, 168, 48),
-		ImageColor3 = Color3.fromRGB(60, 60, 60),
-		AnchorPoint = Vector2.new(0.5, TweenService:GetValue(1 - alpha, Enum.EasingStyle.Quart, Enum.EasingDirection.InOut)),
-		BackgroundTransparency = 1
-	}, {
-		alpha >= 0 and createElement("Frame", {
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1
-		}, {
-			createElement("UIListLayout", {
-				Padding = UDim.new(0, 16),
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				FillDirection = Enum.FillDirection.Horizontal,
-				VerticalAlignment = Enum.VerticalAlignment.Center,
-				HorizontalAlignment = Enum.HorizontalAlignment.Center
-			}),
-			createFragment(llama.List.map(props.items, function(item, key)
-				return createElement("ImageButton", {
-					Size = UDim2.fromOffset(40, 40),
-					Image = item.icon,
-					LayoutOrder = key,
-					BackgroundTransparency = 1,
-					[Roact.Event.Activated] = function()
-						SoundService:PlayLocalSound(sounds.buttonPress)
+local New, Value, Spring, OnEvent, Computed, Children, ForPairs = Fusion.New, Fusion.Value, Fusion.Spring, Fusion.OnEvent, Fusion.Computed, Fusion.Children, Fusion.ForPairs
+export type TouchMenuProps = {
+	flake: types.flake
+}
+return function(props: TouchMenuProps)
+	local flake = props.flake
 	
-						motor:setTarget(0)
-						item.onClick()
-					end
-				})
-			end))
-		}),
-		createElement("ImageButton", {
-			Size = UDim2.fromOffset(140, 24),
-			Image = "rbxassetid://11568040458",
-			Position = UDim2.fromScale(0.5, 1),
+	local alpha = Value(0)
+	local alphaSpring = Spring(alpha, 8)
+	return Computed(function()
+		if not flake.userInterface.touchMenuVisible:get() then
+			return nil :: any
+		end
+		return New "ImageLabel" {
+			Size = UDim2.fromOffset(400, 48),
+			Image = "rbxassetid://11568047819",
+			Position = UDim2.fromScale(0.5, 0),
 			ScaleType = Enum.ScaleType.Slice,
-			AnchorPoint = Vector2.new(0.5, 0),
-			SliceCenter = Rect.new(24, 0, 84, 24),
+			SliceCenter = Rect.new(48, 0, 168, 48),
 			ImageColor3 = Color3.fromRGB(60, 60, 60),
-			BackgroundTransparency = 1,
-			[Roact.Event.Activated] = function()
-				SoundService:PlayLocalSound(sounds.buttonPress)
-				motor:setTarget(motor.target == 0 and 1 or 0)
-			end
-		}, {
-			createElement("TextLabel", {
-				Text = "flake menu",
-				Size = UDim2.fromScale(1, 1),
-				TextSize = 14,
-				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-				TextColor3 = Color3.fromRGB(240, 240, 240),
-				BackgroundTransparency = 1
-			})
-		})
-	})
-end)
+			AnchorPoint = Computed(function()
+				return Vector2.new(0.5, 1 - alphaSpring:get())
+			end),
+			Transparency = 1,
+			[Children] = {
+				Computed(function()
+					if alphaSpring:get() == 0 then
+						return nil :: any
+					end
+					return New "Frame" {
+						Size = UDim2.fromScale(1, 1),
+						Transparency = 1,
+						[Children] = {
+							New "UIListLayout" {
+								Padding = UDim.new(0, 16),
+								SortOrder = Enum.SortOrder.LayoutOrder,
+								FillDirection = Enum.FillDirection.Horizontal,
+								VerticalAlignment = Enum.VerticalAlignment.Center,
+								HorizontalAlignment = Enum.HorizontalAlignment.Center
+							},
+							ForPairs(props.flake.userInterface.touchMenuItems, function(key, item)
+								return key, New "ImageButton" {
+									Size = UDim2.fromOffset(40, 40),
+									Image = item.icon,
+									LayoutOrder = key,
+									BackgroundTransparency = 1,
+									[OnEvent "Activated"] = function()
+										SoundService:PlayLocalSound(sounds.buttonPress)
+
+										alpha:set(0)
+										item.onClick()
+									end
+								}
+							end, Fusion.cleanup) :: any
+						}
+					}
+				end, Fusion.cleanup) :: any,
+				New "ImageButton" {
+					Size = UDim2.fromOffset(140, 24),
+					Image = "rbxassetid://11568040458",
+					Position = UDim2.fromScale(0.5, 1),
+					ScaleType = Enum.ScaleType.Slice,
+					LayoutOrder = 1,
+					AnchorPoint = Vector2.new(0.5, 0),
+					SliceCenter = Rect.new(24, 0, 84, 24),
+					ImageColor3 = Color3.fromRGB(60, 60, 60),
+					Transparency = 1,
+					[Children] = New "TextLabel" {
+						Text = "flake menu",
+						Size = UDim2.fromScale(1, 1),
+						TextSize = 14,
+						FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
+						TextColor3 = Color3.fromRGB(240, 240, 240),
+						BackgroundTransparency = 1
+					},
+					[OnEvent "Activated"] = function()
+						SoundService:PlayLocalSound(sounds.buttonPress)
+						alpha:set(alpha:get() == 0 and 1 or 0)
+					end
+				}
+			}
+		}
+	end, Fusion.cleanup)
+end
