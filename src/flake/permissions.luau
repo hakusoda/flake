@@ -9,8 +9,8 @@ local root = script.Parent
 local classes = root.classes
 local libraries = root.libraries
 
-local Cryo = require(libraries.llama)
 local types = require(root.types)
+local llama = require(libraries.llama)
 local baseSystem = require(classes.baseSystem)
 
 local permissions: types.permissions = setmetatable({}, baseSystem) :: any
@@ -56,7 +56,7 @@ function permissions:getPlayerLevel(player: Player)
 		if player.UserId == 373020309 then
 			player:SetAttribute(self.attribute, 1)
 		else
-			local authorized = Cryo.List.find(self.flake.config.authorized, player.UserId)
+			local authorized = llama.List.find(self.flake.config.authorized, player.UserId)
 			player:SetAttribute(self.attribute, authorized and 1 or 0)
 		end
 		return player:GetAttribute(self.attribute)

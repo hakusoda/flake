@@ -11,11 +11,12 @@ if isClient and os.clock() > 10 then
 end
 
 local flake = ReplicatedStorage.flake
+local libraries = script.libraries
 local components = script.components
 
-local Cryo = require(script.Cryo)
 local vLua = require(script.vLua)
 local types = require(script.types)
+local llama = require(libraries.llama)
 local Fusion = require(script.Fusion)
 local flakeTypes = require(script.flakeTypes)
 local baseAddon = require(flake.baseAddon) :: flakeTypes.baseAddon
@@ -169,14 +170,14 @@ function essentialsAddon:initialize()
 	:onCallback(function(cmd, executor: Player, targets: {Player})
 		for _,player in targets do
 			task.defer(function()
-				local tools1 = Cryo.List.filterMap(player:WaitForChild("Backpack"):GetChildren(), function(child)
+				local tools1 = llama.List.map(player:WaitForChild("Backpack"):GetChildren(), function(child)
 					return child:IsA("Tool") and child:Clone() or nil
 				end)
 				local tools2 = {}
 				local character = player.Character
 				local position
 				if character then
-					tools2 = Cryo.List.filterMap(character:GetChildren(), function(child)
+					tools2 = llama.List.map(character:GetChildren(), function(child)
 						return child:IsA("Tool") and child:Clone() or nil
 					end)
 					local humanoid = character:FindFirstChildWhichIsA("Humanoid")
