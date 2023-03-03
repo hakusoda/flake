@@ -24,15 +24,16 @@ return function(props: CommandListProps)
 		end,
 		[Children] = {
 			New "ScrollingFrame" {
-				Size = UDim2.new(1, 0, 0, 160),
+				Size = UDim2.new(1, 0, 0, 188),
 				CanvasSize = UDim2.fromScale(0, 0),
 				BorderSizePixel = 0,
+				ScrollBarThickness = 8,
+				ScrollingDirection = Enum.ScrollingDirection.Y,
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
+				ScrollBarImageColor3 = Color3.new(1, 1, 1),
 				BackgroundTransparency = 1,
 				[Children] = {
-					New "UIListLayout" {
-						Padding = UDim.new(0, 8)
-					},
+					New "UIListLayout" { Padding = UDim.new(0, 8) },
 					ForValues(flake.commands.commands:get(), function(command)
 						return New "Frame" {
 							Size = UDim2.fromScale(1, 0),
