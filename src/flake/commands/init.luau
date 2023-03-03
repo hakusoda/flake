@@ -103,7 +103,7 @@ end
 
 function commands:execute(command: types.command, player: Player, args: {any})
 	for _,callback in command.callbacks do
-		callback(command, player, table.unpack(args))
+		task.spawn(callback, command, player, table.unpack(args))
 	end
 	self:log("executed command", command.id)
 end
