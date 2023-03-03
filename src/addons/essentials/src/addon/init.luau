@@ -485,7 +485,8 @@ function essentialsAddon:initialize()
 	end)
 
 	if isClient then
-		RunService.Heartbeat:Connect(function()
+		--unfinished
+		RunService.PreSimulation:Connect(function()
 			if flying then
 				local character = localPlayer.Character
 				if character then

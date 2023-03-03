@@ -66,7 +66,7 @@ local function updateAllTweens()
 end
 
 if RunService:IsClient() then
-	RunService.RenderStepped:Connect(updateAllTweens)
+	RunService.PreRender:Connect(updateAllTweens)
 end
 
 return TweenScheduler

@@ -1,145 +1,146 @@
 --!strict
-local HttpService = game:GetService("HttpService")
-local SoundService = game:GetService("SoundService")
-local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
-local root = script.Parent
-local sounds = script.sounds
-local classes = root.classes
-local libraries = root.libraries
-local components = script.components
+local root = script.Parent.Parent
+local flake = root.Parent
+local types = require(flake.types)
+local libraries = flake.libraries
 
-local App = require(components.App)
-local types = require(root.types)
-local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
-local TouchMenu = require(components.TouchMenu)
-local FlakeInfo = require(components.FlakeInfo)
-local baseSystem = require(classes.baseSystem)
-local CommandBar = require(components.CommandBar)
-local CommandList = require(components.CommandList)
-local Notifications = require(components.Notifications)
 
-local New, Ref, Value, Children, OnChange = Fusion.New, Fusion.Ref, Fusion.Value, Fusion.Children, Fusion.OnChange
-
-local userInterface: types.userInterface = setmetatable({}, baseSystem) :: any
-userInterface.__index = userInterface :: any
-userInterface.name = "userInterface"
-
-userInterface.components = components
-
-function userInterface.new(flake: types.flake)
-	local self: any = setmetatable(baseSystem.new(flake), userInterface :: any)
-	self.emoji = "💻"
-	self.prompts = Value({})
-	self.notifications = Value({})
-	self.appComponents = Value({})
-	self.touchMenuItems = Value({})
-	self.touchMenuVisible = Value(false)
-	self.flakeInfoVisible = Value(false)
-	self.commandBarVisible = Value(false)
-	self.commandListVisible = Value(false)
-
-	return self
+local New, Ref, Value, Tween, Cleanup, Children, Computed, Observer = Fusion.New, Fusion.Ref, Fusion.Value, Fusion.Tween, Fusion.Cleanup, Fusion.Children, Fusion.Computed, Fusion.Observer
+function getVal(alpha: number, style: Enum.EasingStyle?)
+	return TweenService:GetValue(alpha, style or Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 end
 
-function userInterface:initialize()
-	local self = self :: types.userInterface
-
-	local gui = Value((nil :: any) :: ScreenGui)
-	New "ScreenGui" {
-		Name = "flakeInterface",
-		Parent = self.flake.player:WaitForChild("PlayerGui"),
-		DisplayOrder = 2147483647,
-		ResetOnSpawn = false,
-		IgnoreGuiInset = true,
-		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		[Ref] = gui,
-		[Children] = App { flake = self.flake },
-		[OnChange "Enabled"] = function()
-			gui:get().Enabled = true
-		end
-	}
-
-	UserInputService.InputEnded:Connect(function(input: InputObject, gameProcessedEvent: boolean)
-		if not gameProcessedEvent then
-			local keycode = input.KeyCode
-			if keycode == Enum.KeyCode.Comma and (not self.flake.config.hidden or self.flake.permissions:getLevel() > 0) then
-				self.commandBarVisible:set(true)
-			end
-		end
+export type NotificationProps = {
+	data: types.notification,
+	update: () -> ()
+}
+return function(props: NotificationProps)
+	local data = props.data
+	local alpha = Value(0)
+	local tweenInfo = Value(TweenInfo.new(1, Enum.EasingStyle.Linear))
+	local alphaSpring = Tween(alpha, tweenInfo :: any)
+	local disconnectSpring = Observer(alphaSpring):onChange(function()
+		props.update()
 	end)
-
-	self:updateTouchMenu()
-	UserInputService:GetPropertyChangedSignal("TouchEnabled"):Connect(function()
-		self:updateTouchMenu()
+	local visible = Computed(function()
+		local value = alphaSpring:get()
+		return value > 0 and value < 3.79
 	end)
-	self.flake.player:GetAttributeChangedSignal(self.flake.permissions.attribute):Connect(function()
-		self:updateTouchMenu()
+	alpha:set(1.8)
+	
+	local timerConn = RunService.PreRender:Connect(function(deltaTime: number)
+		if os.time() >= props.data.endTime and alpha:get() ~= 3.8 then
+			tweenInfo:set(TweenInfo.new(2, Enum.EasingStyle.Linear))
+			alpha:set(3.8)
+		end
 	end)
 	
-	self:addAppComponent(TouchMenu)
-	self:addAppComponent(FlakeInfo)
-	self:addAppComponent(CommandBar)
-	self:addAppComponent(CommandList)
-	self:addAppComponent(Notifications)
-
-	self:addTouchMenuItem({
-		icon = "rbxassetid://11568197675",
-		onClick = function()
-			self.commandBarVisible:set(true)
+	local container = Value(nil)
+	return Computed(function()
+		if not visible:get() then
+			return nil :: any
 		end
-	})
-	self:addTouchMenuItem({
-		icon = "rbxassetid://11568098452",
-		onClick = function()
-			self.flakeInfoVisible:set(true)
-		end
-	})
-
-	self:log("initialized")
+		
+		return New "Frame" {
+			Size = Computed(function()
+				local alpha = alphaSpring:get()
+				local container = container:get()
+				if container then
+					return UDim2.fromScale(1, 0):Lerp(
+						UDim2.new(1, 4, 0, container.AbsoluteSize.Y + 4),
+						getVal(math.min(alpha, 1), Enum.EasingStyle.Quart)
+					)
+				end
+				return UDim2.fromScale(1, 0)
+			end),
+			Position = UDim2.fromScale(1, 1),
+			AnchorPoint = Vector2.new(0, 1),
+			BackgroundTransparency = 1,
+			[Cleanup] = { timerConn, disconnectSpring },
+			[Children] = {
+				New "Frame" {
+					Position = Computed(function()
+						local alpha = alphaSpring:get()
+						return UDim2.new(1, 4, 0, 0):Lerp(UDim2.new(1, -20, 0, 0), getVal(alpha > 1.8 and 1 - (alpha - 1.8) / 2 or math.max(alpha - 0.8, 0) / 0.8, alpha > 1.8 and Enum.EasingStyle.Quad or nil))
+					end),
+					AnchorPoint = Computed(function()
+						local alpha = alphaSpring:get()
+						return Vector2.new(0, 0):Lerp(Vector2.new(1, 0), getVal(alpha > 1.8 and 1 - (alpha - 1.8) / 2 or math.max(alpha - 0.8, 0) / 0.8, alpha > 1.8 and Enum.EasingStyle.Quad or nil))
+					end),
+					AutomaticSize = Enum.AutomaticSize.XY,
+					BackgroundColor3 = Color3.fromRGB(36, 36, 36),
+					[Ref] = container,
+					[Children] = {
+						New "UICorner" {
+							CornerRadius = UDim.new(0, 16)
+						},
+						New "UIPadding" {
+							PaddingTop = UDim.new(0, 12),
+							PaddingLeft = UDim.new(0, 20),
+							PaddingRight = UDim.new(0, 20),
+							PaddingBottom = UDim.new(0, 12)
+						},
+						New "UIListLayout" {
+							Padding = UDim.new(0, 32),
+							FillDirection = Enum.FillDirection.Horizontal
+						},
+						New "Frame" {
+							AutomaticSize = Enum.AutomaticSize.XY,
+							BackgroundTransparency = 1,
+							[Children] = {
+								New "UIListLayout" {
+									Padding = UDim.new(0, 4),
+									FillDirection = Enum.FillDirection.Vertical
+								},
+								New "TextLabel" {
+									Text = data.title or "Notification",
+									TextSize = 14,
+									RichText = true,
+									FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
+									TextColor3 = Color3.new(.9, .9, .9),
+									AutomaticSize = Enum.AutomaticSize.XY,
+									BackgroundTransparency = 1
+								},
+								New "TextLabel" {
+									Text = data.body or "Notification body",
+									TextSize = 12,
+									RichText = true,
+									FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
+									TextColor3 = Color3.new(.6, .6, .6),
+									AutomaticSize = Enum.AutomaticSize.XY,
+									BackgroundTransparency = 1
+								}
+							}
+						},
+						New "Frame" {
+							Size = UDim2.fromOffset(32, 32),
+							BackgroundTransparency = 1,
+							[Children] = New "ImageLabel" {
+								Size = UDim2.fromOffset(32, 32),
+								Image = data.icon or "rbxassetid://7733658504",
+								Position = UDim2.fromScale(0.5, 0.5),
+								AnchorPoint = Vector2.new(0.5, 0.5),
+								ImageColor3 = Color3.new(.9, .9, .9),
+								ImageTransparency = Computed(function()
+									local alpha = alphaSpring:get()
+									return 0.75 + ((0 - 0.75) * getVal(math.max(alpha - 1.2, 0) / 0.6))
+								end),
+								BackgroundTransparency = 1,
+								[Children] = New "UIScale" {
+									Scale = Computed(function()
+										local alpha = alphaSpring:get()
+										return 8 + ((1 - 8) * getVal(math.max(alpha - 1.2, 0) / 0.6))
+									end)
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	end, Fusion.cleanup)
 end
-
-function userInterface:addAppComponent(component: any)
-	local list = self.appComponents
-	list:set(llama.List.join(list:get(), {component}))
-end
-
-function userInterface:addTouchMenuItem(item: types.touchMenuItem)
-	local list = self.touchMenuItems
-	list:set(llama.List.join(list:get(), {item}))
-end
-
-function userInterface:updateTouchMenu()
-	self.touchMenuVisible:set(UserInputService.TouchEnabled and self.flake.permissions:getLevel() >= 1)
-end
-
-function userInterface:createPrompt(options: types.promptOptions, windowOptions: types.windowOptions?)
-	local list = self.prompts
-	local data: types.prompt = {
-		id = HttpService:GenerateGUID(),
-		body = options.body,
-		title = options.title,
-		cancelButton = options.cancelButton,
-		confirmButton = options.confirmButton
-	}
-	list:set(llama.List.join(list:get(), {data}))
-end
-
-function userInterface:notify(title: string?, body: string, icon: string?)
-	local list = self.notifications
-	local data: types.notification = {
-		id = HttpService:GenerateGUID(),
-		icon = icon,
-		body = body,
-		title = title,
-		endTime = os.time() + 5
-	}
-	list:set(llama.List.join(list:get(), {data}))
-	SoundService:PlayLocalSound(sounds.notify)
-	
-	task.wait(8)
-	list:set(llama.List.removeValue(list:get(), data))
-end
-
-return userInterface

@@ -84,7 +84,7 @@ local function updateAllSprings()
 end
 
 if RunService:IsClient() then
-	RunService.RenderStepped:Connect(updateAllSprings)
+	RunService.PreRender:Connect(updateAllSprings)
 end
 
 return SpringScheduler

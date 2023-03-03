@@ -61,7 +61,7 @@ return function(props: WindowProps)
 	local dragging = Value(false)
 	local position = Value(props.position or UDim2.fromOffset(viewportSize.X / 2, viewportSize.Y / 2))
 	local mouseOffset = Value(Vector2.new())
-	local dragConnection = RunService.RenderStepped:Connect(function()
+	local dragConnection = RunService.PreRender:Connect(function()
 		if dragging:get() then
 			local pos = UserInputService:GetMouseLocation()
 			local offset = mouseOffset:get()

@@ -26,7 +26,7 @@ return function(props: CommandBarProps)
 	local inputText = Value("")
 
 	local lastTime = 0
-	local flashConnection = RunService.Heartbeat:Connect(function()
+	local flashConnection = RunService.PreSimulation:Connect(function()
 		local time = os.clock()
 		if time - lastTime >= 0.5 then
 			lastTime = time
