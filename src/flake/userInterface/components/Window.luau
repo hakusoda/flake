@@ -21,9 +21,7 @@ function WindowButton(props: WindowButtonProps)
 		AutomaticSize = Enum.AutomaticSize.XY,
 		BackgroundColor3 = Color3.fromRGB(45, 45, 45),
 		[Children] = {
-			New "UICorner" {
-				CornerRadius = UDim.new(0.5, 0)
-			},
+			New "UICorner" { CornerRadius = UDim.new(0.5, 0) },
 			New "UIPadding" {
 				PaddingTop = UDim.new(0, 8),
 				PaddingLeft = UDim.new(0, 8),
@@ -46,6 +44,7 @@ export type WindowProps = {
 }
 return function(props: WindowProps)
 	local viewportSize = camera.ViewportSize
+	local width, height = props.width or 450, props.height or 300
 	
 	local render = Value(false)
 	local alpha = Computed(function()
@@ -58,14 +57,24 @@ return function(props: WindowProps)
 		end
 		return 0
 	end)
+	local bounds = Rect.new()
 	local dragging = Value(false)
-	local position = Value(props.position or UDim2.fromOffset(viewportSize.X / 2, viewportSize.Y / 2))
+	local position = Value(props.position or UDim2.fromOffset(math.max(viewportSize.X / 2, width / 2), math.max(viewportSize.Y / 2, height / 2)))
 	local mouseOffset = Value(Vector2.new())
 	local dragConnection = RunService.PreRender:Connect(function()
 		if dragging:get() then
 			local pos = UserInputService:GetMouseLocation()
 			local offset = mouseOffset:get()
-			position:set(UDim2.fromOffset(pos.X + offset.X, pos.Y + offset.Y))
+			local viewportSize = camera.ViewportSize
+			
+			local min = Vector2.new(width / 2, height / 2)
+			local max = viewportSize.Magnitude == 0 and min or Vector2.new(viewportSize.X - width / 2, viewportSize.Y - height / 2)
+			bounds = Rect.new(min, max)
+			
+			position:set(UDim2.fromOffset(
+				math.clamp(pos.X + offset.X, min.X, max.X),
+				math.clamp(pos.Y + offset.Y, min.Y, max.Y)
+			))
 		end
 	end)
 	local inputConnection = UserInputService.InputEnded:Connect(function(input: InputObject)
@@ -74,7 +83,7 @@ return function(props: WindowProps)
 		end
 	end)
 	local alphaSpring = Spring(alpha, 24)
-	local positionSpring = Spring(position, 32, 0.9)
+	local positionSpring = Spring(position, 32, 1)
 	
 	local lastAlpha = 0
 	local disconnectAlpha = Observer(alpha):onChange(function()
@@ -88,7 +97,7 @@ return function(props: WindowProps)
 	render:set(true)
 	
 	local Window = New "CanvasGroup" {
-		Size = UDim2.fromOffset(props.width or 450, props.height or 300),
+		Size = UDim2.fromOffset(width, height),
 		Position = positionSpring,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = Color3.fromRGB(36, 36, 36),
