@@ -104,8 +104,8 @@ function flake:addClientActor()
 	end
 end
 
-function flake:notifyPlayer(player: Player, title: string?, body: string)
-	return self:sendPlayerAction(player, actions.NOTIFY, {title, body})
+function flake:notifyPlayer(player: Player, title: string?, body: string, icon: string | types.notificationIcon | nil)
+	return self:sendPlayerAction(player, actions.NOTIFY, {title, body, icon})
 end
 
 function flake:sendAction(action: number, args: types.connectionArgs)

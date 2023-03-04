@@ -126,19 +126,27 @@ function userInterface:createPrompt(options: types.promptOptions, windowOptions:
 	list:set(llama.List.join(list:get(), {data}))
 end
 
-function userInterface:notify(title: string?, body: string, icon: string?)
+function userInterface:notify(title: string?, body: string, icon: string | types.notificationIcon | nil)
 	local list = self.notifications
+	
+	local realIcon = icon and llama.Dictionary.join({
+		color = Color3.new(1, 1, 1),
+		image = typeof(icon) == "string" and icon or ""
+	}, typeof(icon) == "table" and icon or nil) or {
+		color = Color3.new(.9, .9, .9),
+		image = "rbxassetid://7733658504"
+	}
 	local data: types.notification = {
 		id = HttpService:GenerateGUID(),
-		icon = icon,
 		body = body,
+		icon = realIcon,
 		title = title,
 		endTime = os.time() + 5
 	}
 	list:set(llama.List.join(list:get(), {data}))
 	SoundService:PlayLocalSound(sounds.notify)
 	
-	task.wait(5)
+	task.wait(8)
 	list:set(llama.List.removeValue(list:get(), data))
 end
 

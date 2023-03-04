@@ -7,6 +7,7 @@ local flake = root.Parent
 local types = require(flake.types)
 local libraries = flake.libraries
 
+local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
 
 local New, Ref, Value, Tween, Cleanup, Children, Computed, Observer = Fusion.New, Fusion.Ref, Fusion.Value, Fusion.Tween, Fusion.Cleanup, Fusion.Children, Fusion.Computed, Fusion.Observer
@@ -121,10 +122,10 @@ return function(props: NotificationProps)
 							BackgroundTransparency = 1,
 							[Children] = New "ImageLabel" {
 								Size = UDim2.fromOffset(32, 32),
-								Image = data.icon or "rbxassetid://7733658504",
+								Image = data.icon.image,
 								Position = UDim2.fromScale(0.5, 0.5),
 								AnchorPoint = Vector2.new(0.5, 0.5),
-								ImageColor3 = Color3.new(.9, .9, .9),
+								ImageColor3 = data.icon.color,
 								ImageTransparency = Computed(function()
 									local alpha = alphaSpring:get()
 									return 0.75 + ((0 - 0.75) * getVal(math.max(alpha - 1.2, 0) / 0.6))

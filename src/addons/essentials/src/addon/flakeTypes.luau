@@ -22,7 +22,7 @@ export type flake = {
 	initialize: (self: flake) -> (),
 	addClientActor: (self: flake) -> (),
 
-	notifyPlayer: (self: flake, player: Player, title: string?, body: string) -> (),
+	notifyPlayer: (self: flake, player: Player, title: string?, body: string, icon: string | notificationIcon | nil) -> (),
 
 	sendAction: (self: flake, action: number, args: connectionArgs) -> (),
 	sendPlayerAction: (self: flake, player: Player, action: number, args: connectionArgs) -> (),
@@ -115,7 +115,7 @@ export type userInterface = baseSystem & {
 	addAppComponent: (self: userInterface, component: appComponent) -> (),
 	addTouchMenuItem: (self: userInterface, item: touchMenuItem) -> (),
 
-	notify: (self: userInterface, title: string?, body: string) -> (),
+	notify: (self: userInterface, title: string?, body: string, icon: string | notificationIcon | nil) -> (),
 	createPrompt: (self: userInterface, options: promptOptions, windowOptions: windowOptions?) -> (),
 	updateTouchMenu: (self: userInterface) -> ()
 }
@@ -123,9 +123,13 @@ export type appComponent = (props: { flake: flake }) -> any
 export type notification = {
 	id: string,
 	body: string,
-	icon: string?,
+	icon: notificationIcon,
 	title: string?,
 	endTime: number
+}
+export type notificationIcon = {
+	image: string,
+	color: Color3?
 }
 export type prompt = promptOptions & {
 	id: string

@@ -26,7 +26,7 @@ return {
 		end,
 		[actions.NOTIFY] = function(flake, player, args)
 			if isClient then
-				flake.userInterface:notify(args[1], args[2])
+				flake.userInterface:notify(table.unpack(args))
 			end
 		end,
 		[actions.ADDON_ACTION] = function(flake, player, args)

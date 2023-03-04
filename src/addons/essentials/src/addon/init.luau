@@ -98,7 +98,7 @@ function essentialsAddon:initialize()
 	:setContext("server")
 	:addArgument("text", "string", "rest")
 	:onCallback(function(cmd, executor: Player, text: string)
-		self.flake:notifyPlayer(executor, "Test notification", text)
+		self.flake:notifyPlayer(executor, "Test notification", text, "rbxassetid://12619591785")
 	end)
 
 	self:createCommand("essentials-test2")
@@ -108,7 +108,19 @@ function essentialsAddon:initialize()
 	:onCallback(function(cmd, executor: Player)
 		self:sendPlayerAction(executor, actions.TEST2, {})
 	end)
-
+	
+	self:createCommand("essentials-test3")
+	:setAlias("test3")
+	:setLevel(0)
+	:setContext("server")
+	:addArgument("text", "string", "rest")
+	:onCallback(function(cmd, executor: Player, text: string)
+		self.flake:notifyPlayer(executor, "Test notification", text, {
+			color = Color3.new(1, 0, 0),
+			image = "rbxassetid://12619591785"
+		})
+	end)
+	
 	self:createCommand("essentials-teleport-to")
 	:setAlias("goto", "to")
 	:setLevel(1)
