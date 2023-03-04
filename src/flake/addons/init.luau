@@ -6,8 +6,11 @@ local isServer = RunService:IsServer()
 
 local root = script.Parent
 local classes = root.classes
+local libraries = root.libraries
 
 local types = require(root.types)
+local llama = require(libraries.llama)
+local Fusion = require(libraries.Fusion)
 local baseSystem = require(classes.baseSystem)
 
 local addons: types.addons = setmetatable({}, baseSystem) :: any
@@ -17,7 +20,7 @@ addons.name = "addons"
 function addons.new(flake: types.flake)
 	local self = setmetatable(baseSystem.new(flake), addons :: any) :: any
 	self.emoji = "🧩"
-	self.addons = {}
+	self.loaded = Fusion.Value({})
 
 	return self
 end
@@ -35,19 +38,11 @@ function addons:initialize()
 		self.addonFolder = flakeFolder:WaitForChild("addons") :: Folder
 	end
 
-	local builtin = script:WaitForChild("builtin")
-	for _,child in builtin:GetChildren() do
-		self:loadAddon(child)
-	end
-	builtin.ChildAdded:Connect(function(child)
-		self:loadAddon(child)
-	end)
-
-	for _,child in self.addonFolder:GetChildren() do
-		self:loadAddon(child)
-	end
+	self:loadAddon(script.builtin)
+	self:loadAddon(self.addonFolder)
 	self.addonFolder.ChildAdded:Connect(function(child)
-		self:loadAddon(child)
+		self:log(`scheduled "{child.Name}" to be loaded`)
+		task.delay(5, self.loadAddon, self, child)
 	end)
 
 	if isServer then
@@ -66,39 +61,39 @@ function addons:initialize()
 	self:log("initialized")
 end
 
+function addons:getById(id: string)
+	for _,addon in self.loaded:get() do
+		if addon.id == id then
+			return addon :: any
+		end
+	end
+	return nil
+end
+
 function addons:loadAddon(module: Instance)
 	xpcall(function()
 		if module:IsA("Folder") then
 			for _,i in module:GetChildren() do
 				self:loadAddon(i)
 			end
-			return
 		elseif module:IsA("ModuleScript") then
 			if module.Name == "MainModule" then
 				module = require(module) :: any
 			end
 			local addon: types.baseAddon = require(module).new(self) :: any
+			self.loaded:set(llama.List.join(self.loaded:get(), {addon}))
+			
 			task.defer(addon.initialize, addon)
-
-			self.addons[addon.id] = addon
-
-			if isServer then
-				for _,player in Players:GetPlayers() do
-					if self.flake.permissions:getPlayerLevel(player) >= 1 then
-						self.flake:notifyPlayer(player, "Addon Imported", addon.name.." v"..addon.version.." has been automatically loaded.")
-					end
-				end
-			end
 		end
 	end, function(err)
 		if isServer then
 			for _,player in Players:GetPlayers() do
-				if self.flake.permissions:getPlayerLevel(player) >= 1 then
-					self.flake:notifyPlayer(player, "Addon System Error (Server)", "Failed to import <b>"..module.Name.."</b>.")
+				if self.flake.permissions:getPlayerLevel(player) > 0 then
+					self.flake:notifyPlayer(player, "Addon System Error (Server)", `Failed to import <b>{module.Name}</b>.`)
 				end
 			end
 		else
-			self.flake.userInterface:notify("Addon System Error (Client)", "Failed to import <b>"..module.Name.."</b>.")
+			self.flake.userInterface:notify("Addon System Error (Client)", `Failed to import <b>{module.Name}</b>.`)
 		end
 		self:log("import error!", err)
 	end)

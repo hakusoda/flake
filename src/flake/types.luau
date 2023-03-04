@@ -38,9 +38,10 @@ export type flakeConfig = {
 export type addons = baseSystem & {
 	__index: addons,
 
-	addons: { [string]: baseAddon },
+	loaded: Fusion.Value<{baseAddon}>,
 	addonFolder: Folder,
-
+	
+	getById: (self: addons, id: string) -> baseAddon?,
 	loadAddon: (self: addons, module: Instance) -> ()
 }
 

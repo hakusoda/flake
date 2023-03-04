@@ -5,17 +5,16 @@ local libraries = flake.libraries
 local components = script.Parent
 
 local types = require(flake.types)
-local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
 local Window = require(components.Window)
 
-local New, Computed, Children = Fusion.New, Fusion.Computed, Fusion.Children
+local New, Computed, Children, ForValues = Fusion.New, Fusion.Computed, Fusion.Children, Fusion.ForValues
 export type FlakeInfoProps = {
 	flake: types.flake
 }
 return function(props: FlakeInfoProps)
 	local flake = props.flake
-	local addons = llama.Dictionary.values(flake.addons.addons)
+	local addons = flake.addons.loaded
 	return Window {
 		icon = "rbxassetid://11260520498",
 		title = "flake Information",
@@ -81,7 +80,9 @@ return function(props: FlakeInfoProps)
 				BackgroundTransparency = 1,
 				[Children] = {
 					New "TextLabel" {
-						Text = "This experience is using "..#addons.." addons:",
+						Text = Computed(function()
+							return `This experience is using {#addons:get()} addons:`
+						end),
 						TextSize = 12,
 						FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
 						TextColor3 = Color3.new(.8, .8, .8),
@@ -98,7 +99,7 @@ return function(props: FlakeInfoProps)
 							New "UIListLayout" {
 								Padding = UDim.new(0, 8)
 							},
-							llama.List.map(addons, function(addon: types.baseAddon)
+							ForValues(addons, function(addon: types.baseAddon)
 								return New "Frame" {
 									Size = UDim2.new(1, 0, 0, 56),
 									BackgroundColor3 = Color3.fromRGB(45, 45, 45),
@@ -156,7 +157,7 @@ return function(props: FlakeInfoProps)
 										}
 									}
 								}
-							end)
+							end, Fusion.cleanup) :: any
 						}
 					}
 				}

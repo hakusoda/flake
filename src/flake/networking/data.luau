@@ -30,8 +30,8 @@ return {
 			end
 		end,
 		[actions.ADDON_ACTION] = function(flake, player, args)
-			local addon = flake.addons.addons[args[1]]
-			assert(addon, "Addon "..args[1].." does not exist")
+			local addon = flake.addons:getById(args[1])
+			assert(addon, `Addon {args[1]} does not exist`)
 			
 			addon:onAction(player, args[2], args[3])
 		end
