@@ -1,29 +1,35 @@
 --!strict
 local root = script.Parent.Parent
-local flake = root.Parent
+local flake = root.Parent.Parent.Parent
 local libraries = flake.libraries
 local components = script.Parent
 
 local types = require(flake.types)
 local Fusion = require(libraries.Fusion)
-local Window = require(components.Window)
+local Window = require(flake.userInterface.components.Window)
+local interface = require(root.types)
 
-local New, Computed, Children, ForValues = Fusion.New, Fusion.Computed, Fusion.Children, Fusion.ForValues
+local New, OnEvent, Computed, Children, ForValues = Fusion.New, Fusion.OnEvent, Fusion.Computed, Fusion.Children, Fusion.ForValues
 export type FlakeInfoProps = {
-	flake: types.flake
+	flake: types.flake,
+	addon: interface.interfaceAddon
 }
 return function(props: FlakeInfoProps)
 	local flake = props.flake
 	local addons = flake.addons.loaded
+	local interface = props.addon
+	
+	local visible = interface.flakeInfoVisible
 	return Window {
-		icon = "rbxassetid://11260520498",
 		title = "flake Information",
 		width = 512,
 		height = 298,
 		onClose = function()
-			flake.userInterface.flakeInfoVisible:set(false)
+			visible:set(false)
 		end,
-		visible = flake.userInterface.flakeInfoVisible,
+		visible = Computed(function()
+			return visible:get() and not interface.viewAddon:get()
+		end),
 		[Children] = {
 			New "UIListLayout" { Padding = UDim.new(0, 16) },
 			New "Frame" {
@@ -55,7 +61,7 @@ return function(props: FlakeInfoProps)
 								VerticalAlignment = Enum.VerticalAlignment.Center
 							},
 							New "TextLabel" {
-								Text = "flake <font size=\"12\" color=\"#c8c8c8\">v"..flake.version.."</font>",
+								Text = `flake <font size=\"12\" color=\"#c8c8c8\">v{flake.version}</font>`,
 								TextSize = 16,
 								RichText = true,
 								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
@@ -64,7 +70,7 @@ return function(props: FlakeInfoProps)
 								BackgroundTransparency = 1
 							},
 							New "TextLabel" {
-								Text = "A simple, modern admin system.",
+								Text = "A simple, modern & experimental admin system.",
 								TextSize = 12,
 								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
 								TextColor3 = Color3.new(.6, .6, .6),
@@ -100,9 +106,12 @@ return function(props: FlakeInfoProps)
 								Padding = UDim.new(0, 8)
 							},
 							ForValues(addons, function(addon: types.baseAddon)
-								return New "Frame" {
+								return New "TextButton" {
 									Size = UDim2.new(1, 0, 0, 56),
 									BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+									[OnEvent "Activated"] = function()
+										interface.viewAddon:set(addon)
+									end,
 									[Children] = {
 										New "UICorner" {
 											CornerRadius = UDim.new(0, 8)
@@ -135,7 +144,7 @@ return function(props: FlakeInfoProps)
 															VerticalAlignment = Enum.VerticalAlignment.Center
 														},
 														New "TextLabel" {
-															Text = (addon.name or addon.id).." <font size=\"8\" color=\"#c8c8c8\">v"..(addon.version or "0.0.0").." by "..addon.authors[1].."</font>"..(string.find(addon.id, "builtin") == 1 and "   <font size=\"8\" color=\"#c8c8c8\"><sc>(BUILT-IN ADDON)</sc></font>" or ""),
+															Text = `{addon.name or addon.id} <font size=\"8\" color=\"#c8c8c8\">v{addon.version or "0.0.0"} by {table.concat(addon.authors, ", ")}</font>{string.find(addon.id, "builtin") == 1 and "   <font size=\"8\" color=\"#c8c8c8\"><sc>(BUILT-IN ADDON)</sc></font>" or ""}`,
 															TextSize = 12,
 															RichText = true,
 															FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
@@ -143,14 +152,14 @@ return function(props: FlakeInfoProps)
 															AutomaticSize = Enum.AutomaticSize.XY,
 															BackgroundTransparency = 1
 														},
-														New "TextLabel" {
-															Text = addon.description or "description",
+														addon.description and New "TextLabel" {
+															Text = addon.description,
 															TextSize = 10,
 															FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
 															TextColor3 = Color3.new(.6, .6, .6),
 															AutomaticSize = Enum.AutomaticSize.XY,
 															BackgroundTransparency = 1
-														}
+														} or nil :: any
 													}
 												}
 											}

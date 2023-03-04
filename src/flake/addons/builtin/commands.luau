@@ -9,7 +9,7 @@ local classes = flake.classes
 local types = require(flake.types)
 local baseAddon = require(classes.baseAddon)
 
-type commandsAddon = types.baseAddon & {
+export type commandsAddon = types.baseAddon & {
 	loadAddonCommand: types.command,
 
 	createCommand: (self: commandsAddon, id: string) -> types.command
@@ -21,7 +21,7 @@ local addonActions = {
 local commandsAddon: commandsAddon = setmetatable({}, baseAddon) :: any
 commandsAddon.__index = commandsAddon :: any
 commandsAddon.id = "builtin-commands"
-commandsAddon.name = "flake - Commands"
+commandsAddon.name = "Commands"
 commandsAddon.icon = "rbxassetid://11259281331"
 commandsAddon.authors = {"Voxelified"}
 commandsAddon.description = "Provides built-in commands"
@@ -36,22 +36,6 @@ end
 
 function commandsAddon:initialize()
 	local self = self :: commandsAddon
-	self:createCommand("builtin-info")
-	:setAlias("info")
-	:setLevel(0)
-	:setContext("client")
-	:onCallback(function()
-		self.flake.userInterface.flakeInfoVisible:set(true)
-	end)
-
-	self:createCommand("builtin-commands")
-	:setAlias("commands", "cmds")
-	:setLevel(0)
-	:setContext("client")
-	:onCallback(function()
-		self.flake.userInterface.commandListVisible:set(true)
-	end)
-
 	self.loadAddonCommand = self:createCommand("builtin-load-addon")
 	:setAlias("loadaddon")
 	:setLevel(1)

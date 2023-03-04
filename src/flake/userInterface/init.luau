@@ -14,10 +14,8 @@ local types = require(root.types)
 local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
 local TouchMenu = require(components.TouchMenu)
-local FlakeInfo = require(components.FlakeInfo)
 local baseSystem = require(classes.baseSystem)
 local CommandBar = require(components.CommandBar)
-local CommandList = require(components.CommandList)
 local Notifications = require(components.Notifications)
 
 local New, Ref, Value, Children, OnChange = Fusion.New, Fusion.Ref, Fusion.Value, Fusion.Children, Fusion.OnChange
@@ -36,9 +34,7 @@ function userInterface.new(flake: types.flake)
 	self.appComponents = Value({})
 	self.touchMenuItems = Value({})
 	self.touchMenuVisible = Value(false)
-	self.flakeInfoVisible = Value(false)
 	self.commandBarVisible = Value(false)
-	self.commandListVisible = Value(false)
 
 	return self
 end
@@ -79,21 +75,13 @@ function userInterface:initialize()
 	end)
 	
 	self:addAppComponent(TouchMenu)
-	self:addAppComponent(FlakeInfo)
 	self:addAppComponent(CommandBar)
-	self:addAppComponent(CommandList)
 	self:addAppComponent(Notifications)
 
 	self:addTouchMenuItem({
 		icon = "rbxassetid://11568197675",
 		onClick = function()
 			self.commandBarVisible:set(true)
-		end
-	})
-	self:addTouchMenuItem({
-		icon = "rbxassetid://11568098452",
-		onClick = function()
-			self.flakeInfoVisible:set(true)
 		end
 	})
 

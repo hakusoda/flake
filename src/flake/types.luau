@@ -108,10 +108,8 @@ export type userInterface = baseSystem & {
 	appComponents: Fusion.Value<{appComponent}>,
 	notifications: Fusion.Value<{notification}>,
 	touchMenuItems: Fusion.Value<{touchMenuItem}>,
-	flakeInfoVisible: Fusion.Value<boolean>,
 	touchMenuVisible: Fusion.Value<boolean>,
 	commandBarVisible: Fusion.Value<boolean>,
-	commandListVisible: Fusion.Value<boolean>,
 
 	addAppComponent: (self: userInterface, component: appComponent) -> (),
 	addTouchMenuItem: (self: userInterface, item: touchMenuItem) -> (),

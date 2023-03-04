@@ -3,6 +3,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local isServer = RunService:IsServer()
+local isClient = RunService:IsClient()
 
 local root = script.Parent
 local classes = root.classes
@@ -71,6 +72,11 @@ function addons:getById(id: string)
 end
 
 function addons:loadAddon(module: Instance)
+	local context = module:GetAttribute("context")
+	if (context == "server" and not isServer) or (context == "client" and not isClient) then
+		return
+	end
+	
 	xpcall(function()
 		if module:IsA("Folder") then
 			for _,i in module:GetChildren() do
@@ -78,7 +84,7 @@ function addons:loadAddon(module: Instance)
 			end
 		elseif module:IsA("ModuleScript") then
 			if module.Name == "MainModule" then
-				module = require(module) :: any
+				return self:loadAddon(require(module) :: any)
 			end
 			local addon: types.baseAddon = require(module).new(self) :: any
 			self.loaded:set(llama.List.join(self.loaded:get(), {addon}))

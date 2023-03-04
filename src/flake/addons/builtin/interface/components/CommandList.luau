@@ -1,26 +1,30 @@
 --!strict
-local flake = script.Parent.Parent.Parent
+local root = script.Parent.Parent
+local flake = root.Parent.Parent.Parent
 local libraries = flake.libraries
 local components = script.Parent
+local components2 = flake.userInterface.components
 
 local types = require(flake.types)
 local Fusion = require(libraries.Fusion)
-local Window = require(components.Window)
-local InputLabel = require(components.InputLabel)
+local Window = require(components2.Window)
+local interface = require(root.types)
+local InputLabel = require(components2.InputLabel)
 
 local New, Children, Computed, ForValues = Fusion.New, Fusion.Children, Fusion.Computed, Fusion.ForValues
 export type CommandListProps = {
-	flake: types.flake
+	flake: types.flake,
+	addon: interface.interfaceAddon
 }
 return function(props: CommandListProps)
 	local flake = props.flake
+	local interface = props.addon
 	return Window {
-		icon = "rbxassetid://11568224787",
 		title = "Available Commands",
-		height = 250,
-		visible = flake.userInterface.commandListVisible,
+		height = 256,
+		visible = interface.commandListVisible,
 		onClose = function()
-			flake.userInterface.commandListVisible:set(false)
+			interface.commandListVisible:set(false)
 		end,
 		[Children] = {
 			New "ScrollingFrame" {
