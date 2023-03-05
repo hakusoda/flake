@@ -142,7 +142,9 @@ export type promptOptions = {
 
 export type connectionArgs = {any}
 export type networking = baseSystem & {
+	key: string,
 	connection: RemoteEvent,
+	requestKey: RemoteFunction,
 
 	sendAction: (self: networking, action: number, args: connectionArgs) -> (),
 	sendPlayerAction: (self: networking, player: Player, action: number, args: connectionArgs) -> (),
