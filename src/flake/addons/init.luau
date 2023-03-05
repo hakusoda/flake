@@ -39,6 +39,11 @@ function addons:initialize()
 		self.addonFolder = flakeFolder:WaitForChild("addons") :: Folder
 	end
 
+	self:log("initialized")
+	task.defer(self.loadAddons, self)
+end
+
+function addons:loadAddons()
 	self:loadAddon(script.builtin)
 	self:loadAddon(self.addonFolder)
 	self.addonFolder.ChildAdded:Connect(function(child)
@@ -50,16 +55,16 @@ function addons:initialize()
 		local toImport = self.flake.config.importAddons
 		if typeof(toImport) == "table" then
 			for _,i in toImport do
-				if typeof(i) == "number" then
-					xpcall(function()
-						(require(i) :: any).Parent = self.addonFolder
-					end, warn)
-				end
+				task.defer(function()
+					if typeof(i) == "number" then
+						xpcall(function()
+							(require(i) :: any).Parent = self.addonFolder
+						end, warn)
+					end
+				end)
 			end
 		end
 	end
-
-	self:log("initialized")
 end
 
 function addons:getById(id: string)
@@ -89,6 +94,7 @@ function addons:loadAddon(module: Instance)
 			local addon: types.baseAddon = require(module).new(self) :: any
 			self.loaded:set(llama.List.join(self.loaded:get(), {addon}))
 			
+			self:log(`imported addon: {addon.id} v{addon.version} by {table.concat(addon.authors, ", ")}`)
 			task.defer(addon.initialize, addon)
 		end
 	end, function(err)

@@ -42,7 +42,8 @@ export type addons = baseSystem & {
 	addonFolder: Folder,
 	
 	getById: (self: addons, id: string) -> baseAddon?,
-	loadAddon: (self: addons, module: Instance) -> ()
+	loadAddon: (self: addons, module: Instance) -> (),
+	loadAddons: (self: addons) -> ()
 }
 
 export type commands = baseSystem & {
