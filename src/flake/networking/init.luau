@@ -57,8 +57,6 @@ function networking:initialize()
 		self.connection.OnClientEvent:Connect(function(key: string, action: number, args: types.connectionArgs)
 			if key == self.key then
 				self:onAction(nil, action, args)
-			else
-				self:log(`received invalid key for action {action}`)
 			end
 		end)
 	end
