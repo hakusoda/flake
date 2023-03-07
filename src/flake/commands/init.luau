@@ -43,6 +43,10 @@ function commands:getByAlias(alias: string)
 end
 
 function commands:create(id: string)
+	if table.find(self.flake.config.disableCommands, id) then
+		return command.new(id, self)
+	end
+	
 	local command = command.new(id, self)
 	local chatCommand = command.chatCommand
 	if chatCommand then

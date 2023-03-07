@@ -2,5 +2,7 @@
 return {
 	hidden = false,
 	authorized = {},
-	importAddons = {}
+	importAddons = {},
+	disableAddons = {},
+	disableCommands = {}
 }

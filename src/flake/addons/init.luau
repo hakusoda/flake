@@ -91,11 +91,14 @@ function addons:loadAddon(module: Instance)
 			if module.Name == "MainModule" then
 				return self:loadAddon(require(module) :: any)
 			end
-			local addon: types.baseAddon = require(module).new(self) :: any
-			self.loaded:set(llama.List.join(self.loaded:get(), {addon}))
-			
-			self:log(`imported addon: {addon.id} v{addon.version} by {table.concat(addon.authors, ", ")}`)
-			task.defer(addon.initialize, addon)
+			local class: types.baseAddon = require(module) :: any
+			if not table.find(self.flake.config.disableAddons, class.id) then
+				local addon = class.new(self)
+				self.loaded:set(llama.List.join(self.loaded:get(), {addon}))
+				
+				self:log(`imported addon: {addon.id} v{addon.version} by {table.concat(addon.authors, ", ")}`)
+				task.defer(addon.initialize, addon)
+			end
 		end
 	end, function(err)
 		if isServer then

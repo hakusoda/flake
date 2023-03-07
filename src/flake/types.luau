@@ -32,7 +32,9 @@ export type flake = {
 export type flakeConfig = {
 	hidden: boolean,
 	authorized: {number},
-	importAddons: {number}
+	importAddons: {number},
+	disableAddons: {string},
+	disableCommands: {string}
 }
 
 export type addons = baseSystem & {
