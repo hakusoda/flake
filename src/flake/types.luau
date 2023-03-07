@@ -55,7 +55,7 @@ export type commands = baseSystem & {
 	create: (self: commands, id: string) -> command,
 
 	processCommand: (self: commands, command: command, executor: Player, arguments: any) -> (),
-	processCommandString: (self: commands, executor: Player, text: string) -> (),
+	processCommandString: (self: commands, executor: Player, text: string, ignoreLevel: boolean?) -> (),
 	processArgument: (self: commands, player: Player, argument: commandArgument, text: {string}, pos: number) -> (),
 
 	execute: (self: commands, command: command, player: Player, args: {any}) -> ()

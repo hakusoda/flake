@@ -15,7 +15,8 @@ export type commandsAddon = types.baseAddon & {
 	createCommand: (self: commandsAddon, id: string) -> types.command
 }
 local addonActions = {
-	LOAD_ADDON = 0
+	LOAD_ADDON = 0,
+	SUDO = 1
 }
 
 local commandsAddon: commandsAddon = setmetatable({}, baseAddon) :: any
@@ -54,6 +55,41 @@ function commandsAddon:initialize()
 			end
 		})
 	end)
+	
+	local function sudo(safe: boolean, targets: {Player}, input: string)
+		local cmds = self.flake.commands
+		local command = cmds:getByAlias(string.split(input, " ")[1])
+		if command then
+			local context = command.context:get()
+			for _,i in targets do
+				if context == "server" then
+					cmds:processCommandString(i, input, not safe)
+				elseif context == "client" then
+					self:sendAction(addonActions.SUDO, {input})
+				end
+			end
+		end
+	end
+	
+	self:createCommand("builtin-sudo-safe")
+	:setAlias("sudo")
+	:setLevel(1)
+	:setContext("server")
+	:addArgument("targets", "players")
+	:addArgument("input", "string", "rest")
+	:onCallback(function(cmd, executor: Player, targets: {Player}, input: string)
+		sudo(true, targets, input)
+	end)
+	
+	self:createCommand("builtin-sudo-unsafe")
+	:setAlias("sudounsafe")
+	:setLevel(1)
+	:setContext("server")
+	:addArgument("targets", "players")
+	:addArgument("input", "string", "rest")
+	:onCallback(function(cmd, executor: Player, targets: {Player}, input: string)
+		sudo(false, targets, input)
+	end)
 end
 
 function commandsAddon:onAction(player: Player?, action: number, args: types.connectionArgs)
@@ -79,6 +115,8 @@ function commandsAddon:onAction(player: Player?, action: number, args: types.con
 				end)
 			end
 		end
+	elseif action == addonActions.SUDO then
+		self.flake.commands:processCommandString(self.flake.player, args[1], true)
 	end
 end
 

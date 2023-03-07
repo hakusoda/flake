@@ -78,7 +78,7 @@ function commands:processCommand(command: types.command, executor: Player, argum
 	self:execute(command, executor, arguments)
 end
 
-function commands:processCommandString(player: Player, text: string)
+function commands:processCommandString(player: Player, text: string, ignoreLevel: boolean?)
 	local text2 = string.split(text, " ")
 	local command = self:getByAlias(text2[1])
 	table.remove(text2, 1)
@@ -87,7 +87,7 @@ function commands:processCommandString(player: Player, text: string)
 	if not command:isInContext() then
 		return
 	end
-	if not command:hasPermission(player) then
+	if not command:hasPermission(player) and not ignoreLevel then
 		local level = self.flake.permissions:getPlayerLevel(player)
 		self.flake:notifyPlayer(player, "Command error", "You do not have permission to run <b>"..command.id.."</b>.")
 		return self:log(player.Name.."'s level ("..level..") is not high enough to run", command.id, "("..command.level:get()..")")
