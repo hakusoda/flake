@@ -22,8 +22,8 @@ function command.new(id: string, system: types.commands): types.command
 	self.level = Value(0)
 	self.match = "default"
 	self.system = system
-	self.aliases = Value({})
 	self.context = Value("server")
+	self.aliases = Value({"unknown"})
 	self.arguments = Value({})
 
 	self.callbacks = {}
