@@ -1,37 +1,47 @@
 --!strict
-local root = script.Parent.Parent
-local flake = root.Parent.Parent.Parent
-local libraries = flake.libraries
-local components = script.Parent
+local root = script.Parent.Parent.Parent.Parent.Parent
+local libraries = root.libraries
 
-local types = require(flake.types)
+local types = require(root.types)
+local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
-local Window = require(flake.userInterface.components.Window)
-local interface = require(root.types)
+local Window = require(root.userInterface.components.Window)
 
-local New, Computed, Children, ForValues = Fusion.New, Fusion.Computed, Fusion.Children, Fusion.ForValues
+local New, Children = Fusion.New, Fusion.Children
+function getAuthor(author: string | { name: string, icon: string })
+	if typeof(author) == "string" then
+		return {
+			name = author,
+			icon = "rbxassetid://11259235980"
+		}
+	end
+	return author :: any
+end
+
 export type AddonProps = {
 	addon: types.baseAddon,
 	onClose: () -> ()
 }
 return function(props: AddonProps)
 	local addon = props.addon
+	local author = getAuthor(addon.authors[1])
 	return Window {
-		title = "About Addon",
+		title = "Addon Information",
 		width = 512,
-		height = 144,
+		height = 284,
 		onClose = props.onClose,
 		visible = Fusion.Value(true),
 		[Children] = {
-			New "UIListLayout" { Padding = UDim.new(0, 16) },
+			New "UIListLayout" {
+				Padding = UDim.new(0, 16),
+				SortOrder = Enum.SortOrder.LayoutOrder
+			},
 			New "Frame" {
 				Size = UDim2.fromScale(1, 0),
-				AutomaticSize = Enum.AutomaticSize.XY,
+				AutomaticSize = Enum.AutomaticSize.Y,
 				BackgroundColor3 = Color3.fromRGB(45, 45, 45),
 				[Children] = {
-					New "UICorner" {
-						CornerRadius = UDim.new(0, 8)
-					},
+					New "UICorner" { CornerRadius = UDim.new(0, 8) },
 					New "UIPadding" {
 						PaddingTop = UDim.new(0, 8),
 						PaddingLeft = UDim.new(0, 8),
@@ -41,12 +51,12 @@ return function(props: AddonProps)
 					New "ImageLabel" {
 						Size = UDim2.fromOffset(64, 64),
 						Image = addon.icon,
-						BackgroundTransparency = 1
+						Transparency = 1
 					},
 					New "Frame" {
 						Size = UDim2.fromOffset(0, 64),
 						Position = UDim2.fromOffset(80, 0),
-						BackgroundTransparency = 1,
+						Transparency = 1,
 						[Children] = {
 							New "UIListLayout" {
 								Padding = UDim.new(0, 4),
@@ -70,6 +80,75 @@ return function(props: AddonProps)
 								BackgroundTransparency = 1
 							}
 						}
+					}
+				}
+			},
+			New "Frame" {
+				Size = UDim2.fromScale(1, 0),
+				LayoutOrder = 1,
+				AutomaticSize = Enum.AutomaticSize.Y,
+				BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+				[Children] = {
+					New "UICorner" { CornerRadius = UDim.new(0, 8) },
+					New "UIPadding" {
+						PaddingTop = UDim.new(0, 8),
+						PaddingLeft = UDim.new(0, 8),
+						PaddingRight = UDim.new(0, 8),
+						PaddingBottom = UDim.new(0, 8)
+					},
+					New "ImageLabel" {
+						Size = UDim2.fromOffset(64, 64),
+						Image = author.icon,
+						Transparency = 1
+					},
+					New "Frame" {
+						Size = UDim2.fromOffset(0, 64),
+						Position = UDim2.fromOffset(80, 0),
+						Transparency = 1,
+						[Children] = {
+							New "UIListLayout" {
+								Padding = UDim.new(0, 4),
+								VerticalAlignment = Enum.VerticalAlignment.Center
+							},
+							New "TextLabel" {
+								Text = `Created by <b>{author.name}</b>`,
+								TextSize = 16,
+								RichText = true,
+								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
+								TextColor3 = Color3.new(.8, .8, .8),
+								AutomaticSize = Enum.AutomaticSize.XY,
+								BackgroundTransparency = 1
+							},
+							#addon.authors > 1 and New "TextLabel" {
+								Text = `...and {table.concat(llama.List.map(llama.List.shift(addon.authors), function(author)
+									return getAuthor(author).name
+								end), ", ")}`,
+								TextSize = 12,
+								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
+								TextColor3 = Color3.new(.6, .6, .6),
+								AutomaticSize = Enum.AutomaticSize.XY,
+								BackgroundTransparency = 1
+							} or nil :: any
+						}
+					}
+				}
+			},
+			New "Frame" {
+				Size = UDim2.new(1, 0, 0, 28),
+				LayoutOrder = 1,
+				AutomaticSize = Enum.AutomaticSize.Y,
+				BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+				[Children] = {
+					New "UICorner" { CornerRadius = UDim.new(0, 8) },
+					New "TextLabel" {
+						Text = `<b>ID:</b>  {addon.id}`,
+						TextSize = 12,
+						RichText = true,
+						Position = UDim2.fromOffset(12, 8),
+						FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
+						TextColor3 = Color3.new(.8, .8, .8),
+						AutomaticSize = Enum.AutomaticSize.XY,
+						BackgroundTransparency = 1
 					}
 				}
 			}

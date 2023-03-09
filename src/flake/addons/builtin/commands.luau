@@ -24,7 +24,10 @@ commandsAddon.__index = commandsAddon :: any
 commandsAddon.id = "builtin-commands"
 commandsAddon.name = "Commands"
 commandsAddon.icon = "rbxassetid://11259281331"
-commandsAddon.authors = {"Voxelified"}
+commandsAddon.authors = {{
+	name = "Voxelified",
+	icon = "rbxassetid://12730560612"
+}, "Blookerss"}
 commandsAddon.description = "Provides built-in commands"
 commandsAddon.version = "1.0.0"
 

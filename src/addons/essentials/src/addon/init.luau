@@ -29,9 +29,12 @@ local actions = {
 
 local essentialsAddon: types.essentialsAddon = setmetatable({}, baseAddon) :: any
 essentialsAddon.__index = essentialsAddon :: any
-essentialsAddon.id = "essentials"
+essentialsAddon.id = "flake-essentials"
 essentialsAddon.name = "flake Essentials"
-essentialsAddon.authors = {"Voxelified"}
+essentialsAddon.authors = {{
+	name = "Voxelified",
+	icon = "rbxassetid://12730560612"
+}, "Blookerss"}
 essentialsAddon.description = "Useful commands & more for flake"
 essentialsAddon.version = "1.0.0"
 
@@ -158,9 +161,9 @@ function essentialsAddon:initialize()
 	self:createCommand("essentials-rejoin")
 	:setAlias("rejoin")
 	:setLevel(0)
-	:setContext("server")
+	:setContext("client")
 	:onCallback(function(cmd, executor: Player)
-		TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, executor, nil, nil)
+		TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, nil, nil, nil, script.teleport)
 	end)
 
 	self:createCommand("essentials-respawn")

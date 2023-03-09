@@ -2,8 +2,8 @@
 local root = script.Parent.Parent
 local flake = root.Parent.Parent.Parent
 local libraries = flake.libraries
-local components = script.Parent
 
+local util = require(flake.util)
 local types = require(flake.types)
 local Fusion = require(libraries.Fusion)
 local Window = require(flake.userInterface.components.Window)
@@ -144,7 +144,7 @@ return function(props: FlakeInfoProps)
 															VerticalAlignment = Enum.VerticalAlignment.Center
 														},
 														New "TextLabel" {
-															Text = `{addon.name or addon.id} <font size=\"8\" color=\"#c8c8c8\">v{addon.version or "0.0.0"} by {table.concat(addon.authors, ", ")}</font>{string.find(addon.id, "builtin") == 1 and "   <font size=\"8\" color=\"#c8c8c8\"><sc>(BUILT-IN ADDON)</sc></font>" or ""}`,
+															Text = `{addon.name or addon.id} <font size=\"8\" color=\"#c8c8c8\">v{addon.version or "0.0.0"} by {util.authorsToString(addon.authors)}</font>{string.find(addon.id, "builtin") == 1 and "   <font size=\"8\" color=\"#c8c8c8\"><sc>(BUILT-IN ADDON)</sc></font>" or ""}`,
 															TextSize = 12,
 															RichText = true,
 															FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),

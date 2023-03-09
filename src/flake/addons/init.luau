@@ -9,6 +9,7 @@ local root = script.Parent
 local classes = root.classes
 local libraries = root.libraries
 
+local util = require(root.util)
 local types = require(root.types)
 local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
@@ -96,7 +97,7 @@ function addons:loadAddon(module: Instance)
 				local addon = class.new(self)
 				self.loaded:set(llama.List.join(self.loaded:get(), {addon}))
 				
-				self:log(`imported addon: {addon.id} v{addon.version} by {table.concat(addon.authors, ", ")}`)
+				self:log(`imported addon: {addon.id} v{addon.version} by {util.authorsToString(addon.authors)}`)
 				task.defer(addon.initialize, addon)
 			end
 		end

@@ -190,7 +190,10 @@ export type baseAddon = {
 	flake: flake,
 	system: addons,
 	version: string,
-	authors: {string},
+	authors: {string | {
+		name: string,
+		icon: string
+	}},
 	actions: { [string]: number },
 	description: string,
 	eventCallbacks: {any},

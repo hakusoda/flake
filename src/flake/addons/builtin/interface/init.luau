@@ -23,7 +23,10 @@ interfaceAddon.__index = interfaceAddon :: any
 interfaceAddon.id = "builtin-interface"
 interfaceAddon.name = "User Interface"
 interfaceAddon.icon = "rbxassetid://11259281331"
-interfaceAddon.authors = {"Voxelified"}
+interfaceAddon.authors = {{
+	name = "Voxelified",
+	icon = "rbxassetid://12730560612"
+}, "Blookerss"}
 interfaceAddon.description = "Provides additional interfaces"
 interfaceAddon.version = "1.0.0"
 
