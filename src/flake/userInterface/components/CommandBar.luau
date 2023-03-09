@@ -19,6 +19,7 @@ export type CommandBarProps = {
 }
 return function(props: CommandBarProps)
 	local flake = props.flake
+	local visible = flake.userInterface.commandBarVisible
 	local touchEnabled = UserInputService.TouchEnabled
 
 	local flash = Value(false)
@@ -31,7 +32,7 @@ return function(props: CommandBarProps)
 		if time - lastTime >= 0.5 then
 			lastTime = time
 			local textBox = textBox:get()
-			if textBox and flake.userInterface.commandBarVisible:get() then
+			if textBox and visible:get() then
 				textBox:CaptureFocus()
 				if not touchEnabled then
 					flash:set(not flash:get())
@@ -58,14 +59,7 @@ return function(props: CommandBarProps)
 		return matches
 	end)
 	local matchedCommand = Computed(function()
-		for _,command in flake.commands.commands:get() do
-			for _,alias in command.aliases:get() do
-				if matchText:get() == alias then
-					return command
-				end
-			end
-		end
-		return nil :: any
+		return flake.commands:getByAlias(matchText:get())
 	end)
 
 	local match = Computed(function()
@@ -84,7 +78,7 @@ return function(props: CommandBarProps)
 				text = string.format("<font color=\"#%s\">%s</font>", color:ToHex(), text)
 			end
 		else
-			text = "cmds"
+			text = "commands"
 		end
 		local color = command and Color3.new(1, 1, 1) or Color3.fromRGB(226, 90, 93)
 		if match then
@@ -92,48 +86,50 @@ return function(props: CommandBarProps)
 		end
 
 		local textBox = textBox:get()
-		if flash and textBox then
+		if flash:get() and textBox then
 			text ..= "<br/><font transparency=\"1\">"..string.sub(original, 1, textBox.CursorPosition).."</font>_"
 		end
 		return text
 	end)
+	local function close()
+		local textBox = textBox:get()
+		if textBox then
+			textBox.Text = ""
+		end
+		inputText:set("")
+		visible:set(false)
+	end
 	local function finish()
 		local text = inputText:get()
 		local alias = string.split(text, " ")[1]
-		local commands = flake.commands
-		local command = commands:getByAlias(alias)
-		inputText:set("")
-		textBox:get().Text = ""
-		flake.userInterface.commandBarVisible:set(false)
-		
-		if command then
-			if command:hasPermission(flake.player) then
-				local context = command.context:get()
-				if context == "server" or context == "both" then
-					flake.networking:sendAction(flakeActions.EXECUTE_COMMAND_STRING, {text})
-				end
-				if context == "client" or context == "both" then
-					task.defer(commands.processCommandString, commands, flake.player, text)
+		if #alias > 0 then
+			local commands = flake.commands
+			local command = commands:getByAlias(alias)
+			if command then
+				if command:hasPermission(flake.player) then
+					local context = command.context:get()
+					if context == "server" or context == "both" then
+						flake.networking:sendAction(flakeActions.EXECUTE_COMMAND_STRING, {text})
+					end
+					if context == "client" or context == "both" then
+						task.defer(commands.processCommandString, commands, flake.player, text)
+					end
+				else
+					flake.userInterface:notify("Command error", "You do not have permission to run <b>"..alias.."</b>.")
 				end
 			else
-				flake.userInterface:notify("Command error", "You do not have permission to run <b>"..alias.."</b>.")
+				flake.userInterface:notify("Command error", "<b>"..alias.."</b> is not a valid command.")
 			end
-		else
-			flake.userInterface:notify("Command error", "<b>"..alias.."</b> is not a valid command.")
 		end
+		
+		close()
 	end
 
 	return Window {
-		icon = "rbxassetid://11568224787",
 		title = "Command Bar",
 		height = 150,
-		visible = flake.userInterface.commandBarVisible,
-		onClose = function()
-			inputText:set("")
-			flake.userInterface.commandBarVisible:set(false)
-
-			textBox:get().Text = ""
-		end,
+		onClose = close,
+		visible = visible,
 		[Children] = {
 			InputLabel { "Type a command" },
 			New "TextBox" {
@@ -188,9 +184,6 @@ return function(props: CommandBarProps)
 						else
 							text = string.gsub(text, "\t", "")
 						end
-
-						--setting the CursorPosition doesn't work???
-						textBox:get().CursorPosition = string.len(text)
 					end
 					inputText:set(text)
 				end,
@@ -204,14 +197,11 @@ return function(props: CommandBarProps)
 			New "TextLabel" {
 				Text = touchEnabled and "You may experience issues with typing on your device." or "Press TAB to use autocomplete (basic & prone to issues)",
 				TextSize = 10,
-				Position = UDim2.fromOffset(0, 48),
+				Position = UDim2.fromOffset(0, 76),
 				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
 				TextColor3 = Color3.new(.6, .6, .6),
 				AutomaticSize = Enum.AutomaticSize.XY,
-				BackgroundTransparency = 1,
-				[Children] = New "UIPadding" {
-					PaddingTop = UDim.new(0, 24)
-				}
+				BackgroundTransparency = 1
 			}
 		}
 	}
