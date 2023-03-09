@@ -129,7 +129,7 @@ function userInterface:notify(title: string?, body: string, icon: string | types
 		body = body,
 		icon = realIcon,
 		title = title,
-		endTime = os.time() + 5
+		timeLength = 5
 	}
 	list:set(llama.List.join(list:get(), {data}))
 	SoundService:PlayLocalSound(sounds.notify)

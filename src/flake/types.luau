@@ -127,7 +127,7 @@ export type notification = {
 	body: string,
 	icon: notificationIcon,
 	title: string?,
-	endTime: number
+	timeLength: number
 }
 export type notificationIcon = {
 	image: string,
