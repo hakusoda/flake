@@ -134,8 +134,9 @@ function userInterface:notify(title: string?, body: string, icon: string | types
 	list:set(llama.List.join(list:get(), {data}))
 	SoundService:PlayLocalSound(sounds.notify)
 	
-	task.wait(8)
-	list:set(llama.List.removeValue(list:get(), data))
+	task.delay(7, function()
+		list:set(llama.List.removeValue(list:get(), data))
+	end)
 end
 
 return userInterface
