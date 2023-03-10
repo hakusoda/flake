@@ -1,7 +1,11 @@
 --!strict
+local RunService = game:GetService("RunService")
+
 local root = script.Parent.Parent
 
 local types = require(root.types)
+
+local isStudio = RunService:IsStudio()
 
 local baseSystem: types.baseSystem = {} :: any
 baseSystem.__index = baseSystem
@@ -21,12 +25,14 @@ function baseSystem:initialize()
 end
 
 function baseSystem:emitEvent(name: string, ...)
-	for _,call in pairs(self.eventCallbacks) do
+	for _,call in self.eventCallbacks do
 		if call[1] == name then
 			call[2](...)
 		end
 	end
-	self:log("emitted", name, "event")
+	if isStudio then
+		self:log("emitted", name, "event")
+	end
 end
 
 function baseSystem:onEvent(name: string, callback)
