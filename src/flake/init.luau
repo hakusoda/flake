@@ -22,7 +22,7 @@ local isClient = RunService:IsClient()
 
 local flake: types.flake = {} :: any
 flake.__index = flake
-flake.version = "1.0.0"
+flake.version = "0.0.1-alpha.1"
 
 flake.libraries = libraries
 
