@@ -32,16 +32,20 @@ export type flake = {
 export type flakeConfig = {
 	hidden: boolean,
 	authorized: {number},
-	importAddons: {number}
+	importAddons: {number},
+	disableAddons: {string},
+	disableCommands: {string}
 }
 
 export type addons = baseSystem & {
 	__index: addons,
 
-	addons: { [string]: baseAddon },
+	loaded: Fusion.Value<{baseAddon}>,
 	addonFolder: Folder,
 
-	loadAddon: (self: addons, module: Instance) -> ()
+	getById: (self: addons, id: string) -> baseAddon?,
+	loadAddon: (self: addons, module: Instance) -> (),
+	loadAddons: (self: addons) -> ()
 }
 
 export type commands = baseSystem & {
@@ -53,7 +57,7 @@ export type commands = baseSystem & {
 	create: (self: commands, id: string) -> command,
 
 	processCommand: (self: commands, command: command, executor: Player, arguments: any) -> (),
-	processCommandString: (self: commands, executor: Player, text: string) -> (),
+	processCommandString: (self: commands, executor: Player, text: string, ignoreLevel: boolean?) -> (),
 	processArgument: (self: commands, player: Player, argument: commandArgument, text: {string}, pos: number) -> (),
 
 	execute: (self: commands, command: command, player: Player, args: {any}) -> ()
@@ -107,10 +111,8 @@ export type userInterface = baseSystem & {
 	appComponents: Fusion.Value<{appComponent}>,
 	notifications: Fusion.Value<{notification}>,
 	touchMenuItems: Fusion.Value<{touchMenuItem}>,
-	flakeInfoVisible: Fusion.Value<boolean>,
 	touchMenuVisible: Fusion.Value<boolean>,
 	commandBarVisible: Fusion.Value<boolean>,
-	commandListVisible: Fusion.Value<boolean>,
 
 	addAppComponent: (self: userInterface, component: appComponent) -> (),
 	addTouchMenuItem: (self: userInterface, item: touchMenuItem) -> (),
@@ -125,7 +127,7 @@ export type notification = {
 	body: string,
 	icon: notificationIcon,
 	title: string?,
-	endTime: number
+	timeLength: number
 }
 export type notificationIcon = {
 	image: string,
@@ -143,7 +145,9 @@ export type promptOptions = {
 
 export type connectionArgs = {any}
 export type networking = baseSystem & {
+	key: string,
 	connection: RemoteEvent,
+	requestKey: RemoteFunction,
 
 	sendAction: (self: networking, action: number, args: connectionArgs) -> (),
 	sendPlayerAction: (self: networking, player: Player, action: number, args: connectionArgs) -> (),
@@ -186,7 +190,10 @@ export type baseAddon = {
 	flake: flake,
 	system: addons,
 	version: string,
-	authors: {string},
+	authors: {string | {
+		name: string,
+		icon: string
+	}},
 	actions: { [string]: number },
 	description: string,
 	eventCallbacks: {any},
