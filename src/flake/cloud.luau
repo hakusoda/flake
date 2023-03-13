@@ -6,24 +6,18 @@ local ServerStorage = game:GetService("ServerStorage")
 
 local isStudio = RunService:IsStudio()
 local isServer = RunService:IsServer()
-local isClient = RunService:IsClient()
 
 local root = script.Parent
-local classes = root.classes
 local libraries = root.libraries
 
 local types = require(root.types)
 local llama = require(libraries.llama)
 local supabase = require(libraries.supabase)
-local baseSystem = require(classes.baseSystem)
+local createSystem = require(root.helpers.createSystem)
 
-local cloud: types.cloud = setmetatable({}, baseSystem) :: any
-cloud.__index = cloud :: any
-cloud.name = "cloud"
-
+local cloud: types.cloud, buildSystem = createSystem("cloud", "☁️")
 function cloud.new(flake: types.flake)
-	local self: types.cloud = setmetatable(baseSystem.new(flake), cloud :: any) :: any
-	self.emoji = "☁️"
+	local self = buildSystem(flake)
 	self.restUrl = "https://cloud-api.flake.voxelified.com/v1"
 	
 	if isServer then -- yes, this is using a public key :)
@@ -40,7 +34,7 @@ function cloud.new(flake: types.flake)
 	return self
 end
 
-function cloud:initialize()
+function cloud:initialise()
 	local self = self :: types.cloud
 	local config = self.flake.config.cloud
 	if isServer then
@@ -81,7 +75,7 @@ function cloud:initialize()
 		end)
 	end
 	
-	self:log("initialized")
+	self:log("initialised")
 end
 
 function cloud:updatePlayers(list: {Player})

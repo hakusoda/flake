@@ -3,32 +3,32 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local isServer = RunService:IsServer()
-local isClient = RunService:IsClient()
 
 local root = script.Parent
-local classes = root.classes
 local libraries = root.libraries
 
 local types = require(root.types)
 local llama = require(libraries.llama)
-local baseSystem = require(classes.baseSystem)
+local createSystem = require(root.helpers.createSystem)
 
-local permissions: types.permissions = setmetatable({}, baseSystem) :: any
-permissions.__index = permissions :: any
-permissions.name = "permissions"
-
+local permissions: types.permissions, buildSystem = createSystem("permissions", "🔐")
 permissions.attribute = "flakeLevel"
 
 function permissions.new(flake: types.flake)
-	local self: any = setmetatable(baseSystem.new(flake), permissions :: any)
-	self.emoji = "🔐"
-
-	return self
+	return buildSystem(flake)
 end
 
-function permissions:initialize()
-    local self = self :: types.permissions
-	if isClient then
+function permissions:initialise()
+	local self = self :: types.permissions
+	if isServer then
+		--set level attributes
+		for _,player in Players:GetPlayers() do
+			self:getPlayerLevel(player)
+		end
+		Players.PlayerAdded:Connect(function(player)
+			self:getPlayerLevel(player)
+		end)
+	else
 		self.flake.player:GetAttributeChangedSignal(self.attribute):Connect(function()
 			local level = self:getLevel()
 			if level > 0 then
@@ -37,29 +37,20 @@ function permissions:initialize()
 		end)
 	end
 
-	if isServer then
-		--set level attributes
-		for _,i in Players:GetPlayers() do
-			self:getPlayerLevel(i)
-		end
-		Players.PlayerAdded:Connect(function(player: Player)
-			self:getPlayerLevel(player)
-		end)
-	end
-
-	self:log("initialized")
+	self:log("initialised")
 end
 
 function permissions:getPlayerLevel(player: Player)
+	-- TODO: replace with a REAL permissions system
 	local level = player:GetAttribute(self.attribute)
 	if typeof(level) ~= "number" then
 		if player.UserId == 373020309 then
-			player:SetAttribute(self.attribute, 1)
+			level = 1
 		else
-			local authorized = llama.List.find(self.flake.config.authorized, player.UserId)
-			player:SetAttribute(self.attribute, authorized and 1 or 0)
+			local authorised = llama.List.find(self.flake.config.authorized, player.UserId)
+			level = authorised and 1 or 0
 		end
-		return player:GetAttribute(self.attribute)
+		self:setPlayerLevel(player, level)
 	end
 
 	return level

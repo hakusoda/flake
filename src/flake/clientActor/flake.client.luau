@@ -1,5 +1,3 @@
 --!strict
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local module = ReplicatedStorage:WaitForChild("flakeModule")
-require(module).new()
+local module = game:GetService("ReplicatedStorage"):WaitForChild("flakeModule")
+require(module).startFlake()

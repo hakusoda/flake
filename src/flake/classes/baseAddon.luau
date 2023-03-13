@@ -26,7 +26,7 @@ function baseAddon:initialize()
 end
 
 function baseAddon:emitEvent(name: string, ...)
-	for _,call in pairs(self.eventCallbacks) do
+	for _,call in self.eventCallbacks do
 		if call[1] == name then
 			call[2](...)
 		end
@@ -39,10 +39,10 @@ function baseAddon:onEvent(name: string, callback)
 end
 
 function baseAddon:onAction(player: Player?, action: number, args: types.connectionArgs)
-	local actionName = ""
-	for key, val in pairs(self.actions) do
-		if action == val then
-			actionName = key
+	local actionName
+	for name, value in self.actions do
+		if action == value then
+			actionName = name
 		end
 	end
 

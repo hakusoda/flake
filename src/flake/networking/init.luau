@@ -1,54 +1,55 @@
 --!strict
+-- this system is responsible for handling
+-- server & client communication for flake & addons
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 
 local isServer = RunService:IsServer()
 
 local root = script.Parent
-local classes = root.classes
 
 local data = require(script.data)
 local types = require(root.types)
-local baseSystem = require(classes.baseSystem)
+local createSystem = require(root.helpers.createSystem)
 
-local networking: types.networking = setmetatable({}, baseSystem) :: any
-networking.__index = networking :: any
-networking.name = "networking"
-
+local networking: types.networking, buildSystem = createSystem("networking", "📡")
 function networking.new(flake: types.flake)
-	local self = setmetatable(baseSystem.new(flake), networking :: any) :: any
-	self.emoji = "🔌"
+	local self = buildSystem(flake)
 	self.connection = flake.connection
 
-	return self :: any
+	return self
 end
 
-function networking:initialize()
+function networking:initialise()
     local self = self :: types.networking
 	if isServer then
+		-- TODO: use a different generation method
 		self.key = HttpService:GenerateGUID()
 		
 		local acquiredFrom = {}
 		self.requestKey = Instance.new("RemoteFunction")
 		self.requestKey.Name = "requestKey"
 		self.requestKey.Parent = script
-		self.requestKey.OnServerInvoke = function(player: Player)
+		self.requestKey.OnServerInvoke = function(player)
 			if acquiredFrom[player] then
-				return player:Kick()
+				return player:Kick() -- only once!
 			end
 			
 			acquiredFrom[player] = true
 			return self.key
 		end
 		
-		self.connection.OnServerEvent:Connect(function(player: Player, action: number, args: types.connectionArgs)
+		self.connection.OnServerEvent:Connect(function(player, action: number, args: types.connectionArgs)
 			self:onAction(player, action, args)
 		end)
 	else
 		self.requestKey = script:WaitForChild("requestKey")
+		
 		repeat
-			pcall(function()
+			xpcall(function()
 				self.key = self.requestKey:InvokeServer()
+			end, function()
+				self:log("key request failed, retrying in 5 seconds")
 			end)
 			task.wait(5)
 		until self.key
@@ -61,7 +62,7 @@ function networking:initialize()
 		end)
 	end
 
-	self:log("initialized")
+	self:log("initialised")
 end
 
 function networking:sendAction(action: number, args: types.connectionArgs)
@@ -83,9 +84,10 @@ function networking:onAction(player: Player?, action: number, args: types.connec
 	assert(args, "Missing args argument")
 
 	local actionName
-	for key, val in data.actions :: any do
-		if action == val then
-			actionName = key
+	for name, value in data.actions :: { [string]: number } do
+		if action == value then
+			actionName = name
+			break
 		end
 	end
 

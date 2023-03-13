@@ -23,10 +23,10 @@ export type flake = {
 
 	flakeFolder: Folder,
 
-	new: () -> flake,
+	startFlake: () -> (),
 
-	initialize: (self: flake) -> (),
-	addClientActor: (self: flake) -> (),
+	initialise: (self: flake) -> (),
+	addClientLoader: (self: flake) -> (),
 	
 	closeServer: (self: flake) -> (),
 
@@ -199,14 +199,15 @@ export type baseSystem = {
 	emoji: string,
 	eventCallbacks: {any},
 
-	new: (flake: flake) -> baseSystem,
+	new: (flake: flake) -> any,
+	build: (flake: flake, extend: any) -> baseSystem,
 
-	initialize: (self: baseSystem) -> (),
+	initialise: (self: baseSystem) -> (),
+	
+	onEvent: (self: baseSystem, name: string, callback: (...any) -> ()) -> (),
+	emitEvent: (self: baseSystem, name: string, ...any) -> (),
 
-	emitEvent: <T>(self: T, name: string, ...any) -> (),
-	onEvent: <T>(self: T, name: string, callback: (...any) -> ()) -> (),
-
-	log: <T>(self: T, ...any) -> ()
+	log: (self: baseSystem, ...any) -> ()
 }
 export type baseAddon = {
 	__index: baseAddon,
@@ -226,14 +227,16 @@ export type baseAddon = {
 	eventCallbacks: {any},
 
 	new: (system: addons) -> baseAddon,
+	
+	-- not using "initialise" here for compatibility
 	initialize: (self: baseAddon) -> (),
-
-	emitEvent: (self: baseAddon, name: string, ...any) -> (),
+	
 	onEvent: (self: baseAddon, name: string, callback: (...any) -> ()) -> (),
+	emitEvent: (self: baseAddon, name: string, ...any) -> (),
 
 	onAction: (self: baseAddon, player: Player?, action: number, args: { [number]: any }) -> (),
-	sendAction: <T>(self: T, action: number, args: connectionArgs) -> (),
-	sendPlayerAction: <T>(self: T, player: Player, action: number, args: connectionArgs) -> (),
+	sendAction: (self: baseAddon, action: number, args: connectionArgs) -> (),
+	sendPlayerAction: (self: baseAddon, player: Player, action: number, args: connectionArgs) -> (),
 
 	log: (self: baseAddon, ...any) -> ()
 }

@@ -23,31 +23,43 @@ local isClient = RunService:IsClient()
 
 local flake: types.flake = {} :: any
 flake.__index = flake
-flake.version = "0.0.1-alpha.1"
 
+flake.emoji = "🍫"
+flake.version = "0.0.1-alpha.1"
 flake.libraries = libraries
 
-function flake.new()
-	local self: any = setmetatable({}, flake) :: any
-	self.emoji = "🍫"
-	self.player = Players.LocalPlayer
-	self.addons = addons.new(self)
-	self.commands = commands.new(self)
-	self.permissions = permissions.new(self)
+function flake.startFlake()
+	local self: types.flake = setmetatable({}, flake) :: any
+	self:log(`starting flake v{self.version}`)
 	if isClient then
-		self.userInterface = userInterface.new(self)
+		self:log("flake is an open-source, modern & experimental Roblox Admin System created by Voxelified 😊")
 	end
-
-	self:initialize()
-	return self
-end
-
-function flake:initialize()
+	
 	if isServer then
+		-- see the networking system
 		self.connection = Instance.new("RemoteEvent")
 		self.connection.Name = "connection"
 		self.connection.Parent = script
+	else
+		self.connection = script:WaitForChild("connection")
+		self.flakeFolder = ReplicatedStorage:WaitForChild("flake")
+	end
+	
+	self.player = Players.LocalPlayer
+	self.networking = networking.new(self)
+	
+	self.addons = addons.new(self)
+	self.commands = commands.new(self)
+	self.permissions = permissions.new(self)
+	
+	if isClient then
+		self.userInterface = userInterface.new(self)
+	end
+	self:initialise()
+end
 
+function flake:initialise()
+	if isServer then
 		script.Name = "flakeModule"
 		script.Parent = ReplicatedStorage
 
@@ -68,7 +80,7 @@ function flake:initialize()
 		self.config.cloud = llama.Dictionary.join(defaultConfig.cloud, self.config.cloud)
 
 		self.flakeFolder.Parent = ReplicatedStorage
-		self:addClientActor()
+		task.defer(self.addClientLoader, self)
 		
 		Players.PlayerAdded:Connect(function(player)
 			if self.serverClosed then
@@ -76,39 +88,35 @@ function flake:initialize()
 			end
 		end)
 	else
-		self.connection = script:WaitForChild("connection")
-
-		self.flakeFolder = ReplicatedStorage:WaitForChild("flake")
-
 		local config = self.flakeFolder:WaitForChild("config")
 		self.config = llama.Dictionary.join(require(defaultConfig) :: types.flakeConfig,
 			require(config) :: any
 		) :: types.flakeConfig
 	end
-
-	self.networking = networking.new(self) :: any
-
-	self.networking:initialize()
-	self.permissions:initialize()
-	self.commands:initialize()
-	self.addons:initialize()
+	
+	-- initialisation order is important!
+	self.networking:initialise()
+	self.permissions:initialise()
+	self.commands:initialise()
+	self.addons:initialise()
 	
 	local cloudConfig = self.config.cloud
 	if cloudConfig.enabled then
 		local cloud = cloud.new(self)
-		self.cloud = cloud :: any
+		self.cloud = cloud
 		
-		task.defer(cloud.initialize, cloud)
+		task.defer(cloud.initialise, cloud)
 	else
 		self:log("cloud system is disabled")
 	end
-	if self.userInterface then
-		self.userInterface:initialize()
+	
+	if isClient then
+		self.userInterface:initialise()
 	end
-	self:log("flake", self.version, "is ready for use!")
+	self:log(`flake v{self.version} is ready for use!`)
 end
 
-function flake:addClientActor()
+function flake:addClientLoader()
 	local actor = script.clientActor
 	actor:Clone().Parent = StarterPlayerScripts
 
@@ -117,15 +125,18 @@ function flake:addClientActor()
 	gui.ResetOnSpawn = false
 	actor:Clone().Parent = gui
 
-	for _,i in Players:GetPlayers() do
-		gui:Clone().Parent = i.PlayerGui
+	for _,player in Players:GetPlayers() do
+		task.defer(function()
+			gui:Clone().Parent = player.PlayerGui
+		end)
 	end
 end
 
 function flake:closeServer()
+	-- will improve this later
 	self.serverClosed = true
-	for _,i in Players:GetPlayers() do
-		i:Kick("server closed")
+	for _,player in Players:GetPlayers() do
+		player:Kick("server closed")
 	end
 end
 

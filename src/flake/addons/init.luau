@@ -6,32 +6,26 @@ local isServer = RunService:IsServer()
 local isClient = RunService:IsClient()
 
 local root = script.Parent
-local classes = root.classes
 local libraries = root.libraries
 
 local util = require(root.util)
 local types = require(root.types)
 local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
-local baseSystem = require(classes.baseSystem)
+local createSystem = require(root.helpers.createSystem)
 
-local addons: types.addons = setmetatable({}, baseSystem) :: any
-addons.__index = addons :: any
-addons.name = "addons"
-
+local addons: types.addons, buildSystem = createSystem("addons", "🧩")
 function addons.new(flake: types.flake)
-	local self = setmetatable(baseSystem.new(flake), addons :: any) :: any
-	self.emoji = "🧩"
+	local self = buildSystem(flake)
 	self.loaded = Fusion.Value({})
 
 	return self
 end
 
-function addons:initialize()
+function addons:initialise()
 	local self = self :: types.addons
 	if isServer then
 		local flakeFolder = self.flake.flakeFolder
-
 		self.addonFolder = flakeFolder:FindFirstChild("addons") or Instance.new("Folder") :: any
 		self.addonFolder.Name = "addons"
 		self.addonFolder.Parent = flakeFolder
@@ -40,13 +34,17 @@ function addons:initialize()
 		self.addonFolder = flakeFolder:WaitForChild("addons") :: Folder
 	end
 
-	self:log("initialized")
+	self:log("initialised")
 	task.defer(self.loadAddons, self)
 end
 
 function addons:loadAddons()
-	self:loadAddon(script.builtin)
-	self:loadAddon(self.addonFolder)
+	local folder = self.addonFolder
+	local builtin = script.builtin
+	self:log(`importing {#folder:GetChildren()} community addon(s) & {#builtin:GetChildren()} built-in addon(s)`)
+	
+	self:loadAddon(builtin)
+	self:loadAddon(folder)
 	self.addonFolder.ChildAdded:Connect(function(child)
 		self:log(`scheduled "{child.Name}" to be loaded`)
 		task.delay(5, self.loadAddon, self, child)
@@ -55,11 +53,11 @@ function addons:loadAddons()
 	if isServer then
 		local toImport = self.flake.config.importAddons
 		if typeof(toImport) == "table" then
-			for _,i in toImport do
+			for _,module in toImport do
 				task.defer(function()
 					if typeof(i) == "number" then
 						xpcall(function()
-							(require(i) :: any).Parent = self.addonFolder
+							(require(module) :: any).Parent = self.addonFolder
 						end, warn)
 					end
 				end)
@@ -85,8 +83,8 @@ function addons:loadAddon(module: Instance)
 	
 	xpcall(function()
 		if module:IsA("Folder") then
-			for _,i in module:GetChildren() do
-				self:loadAddon(i)
+			for _,child in module:GetChildren() do
+				self:loadAddon(child)
 			end
 		elseif module:IsA("ModuleScript") then
 			if module.Name == "MainModule" then

@@ -2,30 +2,25 @@
 local Players = game:GetService("Players")
 
 local root = script.Parent
-local classes = root.classes
 local libraries = root.libraries
 
 local types = require(root.types)
 local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
 local command = require(script.command)
-local baseSystem = require(classes.baseSystem)
+local createSystem = require(root.helpers.createSystem)
 
 local Value = Fusion.Value
-local commands: types.commands = setmetatable({}, baseSystem) :: any
-commands.__index = commands :: any
-commands.name = "commands"
-
+local commands: types.commands, buildSystem = createSystem("commands", "📒")
 function commands.new(flake: types.flake)
-	local self = setmetatable(baseSystem.new(flake), commands :: any) :: any
-	self.emoji = "📂"
+	local self = buildSystem(flake)
 	self.commands = Value({})
 
 	return self
 end
 
-function commands:initialize()
-	self:log("initialized")
+function commands:initialise()
+	self:log("initialised")
 end
 
 function commands:getById(id: string)

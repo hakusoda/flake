@@ -3,7 +3,7 @@
     "tree": {
         "$className": "DataModel",
         "ServerScriptService": {
-            "FlakeActor": {
+            "FlakeLoader": {
                 "$className": "Actor",
                 "$properties": {
                     "Attributes": {

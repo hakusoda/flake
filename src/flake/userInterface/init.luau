@@ -5,7 +5,6 @@ local UserInputService = game:GetService("UserInputService")
 
 local root = script.Parent
 local sounds = script.sounds
-local classes = root.classes
 local libraries = root.libraries
 local components = script.components
 
@@ -14,21 +13,16 @@ local types = require(root.types)
 local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
 local TouchMenu = require(components.TouchMenu)
-local baseSystem = require(classes.baseSystem)
 local CommandBar = require(components.CommandBar)
+local createSystem = require(root.helpers.createSystem)
 local Notifications = require(components.Notifications)
 
 local New, Ref, Value, Children, OnChange = Fusion.New, Fusion.Ref, Fusion.Value, Fusion.Children, Fusion.OnChange
-
-local userInterface: types.userInterface = setmetatable({}, baseSystem) :: any
-userInterface.__index = userInterface :: any
-userInterface.name = "userInterface"
-
+local userInterface: types.userInterface, buildSystem = createSystem("userInterface", "💻")
 userInterface.components = components
 
 function userInterface.new(flake: types.flake)
-	local self: any = setmetatable(baseSystem.new(flake), userInterface :: any)
-	self.emoji = "💻"
+	local self = buildSystem(flake)
 	self.prompts = Value({})
 	self.notifications = Value({})
 	self.appComponents = Value({})
@@ -39,7 +33,7 @@ function userInterface.new(flake: types.flake)
 	return self
 end
 
-function userInterface:initialize()
+function userInterface:initialise()
 	local self = self :: types.userInterface
 
 	local gui = Value((nil :: any) :: ScreenGui)
@@ -57,7 +51,7 @@ function userInterface:initialize()
 		end
 	}
 
-	UserInputService.InputEnded:Connect(function(input: InputObject, gameProcessedEvent: boolean)
+	UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
 		if not gameProcessedEvent then
 			local keycode = input.KeyCode
 			if keycode == Enum.KeyCode.Comma and (not self.flake.config.hidden or self.flake.permissions:getLevel() > 0) then
@@ -77,7 +71,8 @@ function userInterface:initialize()
 	self:addAppComponent(TouchMenu)
 	self:addAppComponent(CommandBar)
 	self:addAppComponent(Notifications)
-
+	
+	-- TODO: add more touch menu items
 	self:addTouchMenuItem({
 		icon = "rbxassetid://11568197675",
 		onClick = function()
@@ -85,7 +80,7 @@ function userInterface:initialize()
 		end
 	})
 
-	self:log("initialized")
+	self:log("initialised")
 end
 
 function userInterface:addAppComponent(component: any)
@@ -105,7 +100,7 @@ end
 function userInterface:createPrompt(options: types.promptOptions, windowOptions: types.windowOptions?)
 	local list = self.prompts
 	local data: types.prompt = {
-		id = HttpService:GenerateGUID(),
+		id = HttpService:GenerateGUID(false),
 		body = options.body,
 		title = options.title,
 		cancelButton = options.cancelButton,
@@ -134,7 +129,7 @@ function userInterface:notify(title: string?, body: string, icon: string | types
 	list:set(llama.List.join(list:get(), {data}))
 	SoundService:PlayLocalSound(sounds.notify)
 	
-	task.delay(7, function()
+	task.delay(data.timeLength + 2, function()
 		list:set(llama.List.removeValue(list:get(), data))
 	end)
 end
