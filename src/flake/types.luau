@@ -1,16 +1,22 @@
 --!strict
-local Fusion = require(script.Parent.libraries.Fusion)
+local libraries = script.Parent.libraries
+
+local Fusion = require(libraries.Fusion.PubTypes)
+local supabase = require(libraries.supabase.types)
 
 export type flake = {
 	__index: flake,
 	emoji: string,
 	player: Player,
-	addons: addons,
 	config: flakeConfig,
 	version: string,
-	commands: commands,
 	libraries: Folder,
 	connection: RemoteEvent,
+	serverClosed: boolean,
+	
+	cloud: cloud?,
+	addons: addons,
+	commands: commands,
 	networking: networking,
 	permissions: permissions,
 	userInterface: userInterface,
@@ -21,6 +27,8 @@ export type flake = {
 
 	initialize: (self: flake) -> (),
 	addClientActor: (self: flake) -> (),
+	
+	closeServer: (self: flake) -> (),
 
 	notifyPlayer: (self: flake, player: Player, title: string?, body: string, icon: string | notificationIcon | nil) -> (),
 
@@ -30,11 +38,30 @@ export type flake = {
 	log: (self: flake, ...any) -> ()
 }
 export type flakeConfig = {
+	cloud: {
+		enabled: boolean,
+		updateInterval: number
+	},
 	hidden: boolean,
 	authorized: {number},
 	importAddons: {number},
 	disableAddons: {string},
 	disableCommands: {string}
+}
+export type cloudServerConfig = {
+	accessKey: string
+}
+
+export type cloud = baseSystem & {
+	__index: cloud,
+	
+	restUrl: string,
+	config2: cloudServerConfig,
+	supabase: supabase.supabase,
+	serverCloudId: number,
+	
+	request: <T>(self: cloud, path: string, method: 'GET' | 'POST'?, body: any?) -> T,
+	updatePlayers: (self: cloud, list: {Player}) -> ()
 }
 
 export type addons = baseSystem & {

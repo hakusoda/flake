@@ -8,6 +8,7 @@ local StarterPlayerScripts = StarterPlayer:WaitForChild("StarterPlayerScripts")
 local libraries = script:WaitForChild("libraries")
 
 local types = require(script:WaitForChild("types"))
+local cloud = require(script:WaitForChild("cloud"))
 local llama = require(libraries:WaitForChild("llama"))
 local addons = require(script:WaitForChild("addons"))
 local actions = require(script:WaitForChild("networking"):WaitForChild("data")).actions
@@ -31,7 +32,7 @@ function flake.new()
 	self.emoji = "🍫"
 	self.player = Players.LocalPlayer
 	self.addons = addons.new(self)
-    self.commands = commands.new(self)
+	self.commands = commands.new(self)
 	self.permissions = permissions.new(self)
 	if isClient then
 		self.userInterface = userInterface.new(self)
@@ -59,13 +60,21 @@ function flake:initialize()
 
 		local baseAddon = script.classes.baseAddon:Clone()
 		baseAddon.Parent = self.flakeFolder
-
-		self.config = llama.Dictionary.join(require(defaultConfig) :: types.flakeConfig,
+		
+		local defaultConfig = require(defaultConfig)
+		self.config = llama.Dictionary.join(defaultConfig :: types.flakeConfig,
 			require(config) :: any
 		) :: types.flakeConfig
+		self.config.cloud = llama.Dictionary.join(defaultConfig.cloud, self.config.cloud)
 
 		self.flakeFolder.Parent = ReplicatedStorage
 		self:addClientActor()
+		
+		Players.PlayerAdded:Connect(function(player)
+			if self.serverClosed then
+				return player:Kick("server closed")
+			end
+		end)
 	else
 		self.connection = script:WaitForChild("connection")
 
@@ -79,12 +88,21 @@ function flake:initialize()
 
 	self.networking = networking.new(self) :: any
 
-    self.networking:initialize()
+	self.networking:initialize()
 	self.permissions:initialize()
 	self.commands:initialize()
 	self.addons:initialize()
-
-    if self.userInterface then
+	
+	local cloudConfig = self.config.cloud
+	if cloudConfig.enabled then
+		local cloud = cloud.new(self)
+		self.cloud = cloud :: any
+		
+		task.defer(cloud.initialize, cloud)
+	else
+		self:log("cloud system is disabled")
+	end
+	if self.userInterface then
 		self.userInterface:initialize()
 	end
 	self:log("flake", self.version, "is ready for use!")
@@ -101,6 +119,13 @@ function flake:addClientActor()
 
 	for _,i in Players:GetPlayers() do
 		gui:Clone().Parent = i.PlayerGui
+	end
+end
+
+function flake:closeServer()
+	self.serverClosed = true
+	for _,i in Players:GetPlayers() do
+		i:Kick("server closed")
 	end
 end
 
