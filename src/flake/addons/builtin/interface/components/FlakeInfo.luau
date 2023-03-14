@@ -18,7 +18,7 @@ return function(props: FlakeInfoProps)
 	local flake = props.flake
 	local addons = flake.addons.loaded
 	local interface = props.addon
-	
+
 	local visible = interface.flakeInfoVisible
 	return Window {
 		title = "flake Information",
@@ -83,7 +83,7 @@ return function(props: FlakeInfoProps)
 			},
 			New "Frame" {
 				Size = UDim2.fromScale(1, 0),
-				BackgroundTransparency = 1,
+				Transparency = 1,
 				[Children] = {
 					New "TextLabel" {
 						Text = Computed(function()
@@ -98,9 +98,11 @@ return function(props: FlakeInfoProps)
 					New "ScrollingFrame" {
 						Size = UDim2.new(1, 0, 0, 120),
 						Position = UDim2.fromOffset(0, 18),
+						Transparency = 1,
 						ScrollBarThickness = 4,
+						ScrollingDirection = Enum.ScrollingDirection.Y,
 						AutomaticCanvasSize = Enum.AutomaticSize.Y,
-						BackgroundTransparency = 1,
+						ScrollBarImageColor3 = Color3.new(1, 1, 1),
 						[Children] = {
 							New "UIListLayout" {
 								Padding = UDim.new(0, 8)

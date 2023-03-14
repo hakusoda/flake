@@ -37,7 +37,7 @@ return function(props: TouchMenuProps)
 			Transparency = 1,
 			[Children] = {
 				Computed(function()
-					if alphaSpring:get() == 0 then
+					if alpha:get() == 0 then
 						return nil :: any
 					end
 					return New "Frame" {
