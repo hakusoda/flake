@@ -15,18 +15,18 @@ export type TouchMenuProps = {
 	flake: types.flake
 }
 return function(props: TouchMenuProps)
-	local flake = props.flake
+	local interface = props.flake.userInterface
 	
 	local alpha = Value(0)
 	local alphaSpring = Spring(alpha, 16)
 	return Computed(function()
-		if not flake.userInterface.touchMenuVisible:get() then
+		if not interface.touchMenuVisible:get() then
 			return nil :: any
 		end
 		return New "ImageLabel" {
 			Size = UDim2.fromOffset(400, 48),
 			Image = images.TOUCH_MENU_BG,
-			Position = UDim2.fromScale(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0, -interface.gui.AbsolutePosition.Y - 36),
 			ScaleType = Enum.ScaleType.Slice,
 			SliceCenter = Rect.new(48, 0, 168, 48),
 			ImageColor3 = Color3.fromRGB(60, 60, 60),
@@ -34,6 +34,9 @@ return function(props: TouchMenuProps)
 				return Vector2.new(0.5, 1 - alphaSpring:get())
 			end),
 			Transparency = 1,
+			ImageTransparency = Computed(function()
+				return (alpha:get() == 1 or alphaSpring:get() > 0.01) and 0 or 1
+			end),
 			[Children] = {
 				Computed(function()
 					if alpha:get() == 0 then
@@ -50,7 +53,7 @@ return function(props: TouchMenuProps)
 								VerticalAlignment = Enum.VerticalAlignment.Center,
 								HorizontalAlignment = Enum.HorizontalAlignment.Center
 							},
-							ForPairs(props.flake.userInterface.touchMenuItems, function(key, item)
+							ForPairs(interface.touchMenuItems, function(key, item)
 								return key, New "ImageButton" {
 									Size = UDim2.fromOffset(40, 40),
 									Image = item.icon,

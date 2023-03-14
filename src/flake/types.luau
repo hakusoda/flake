@@ -133,7 +133,9 @@ export type touchMenuItem = {
 	onClick: () -> ()
 }
 export type userInterface = baseSystem & {
+	gui: ScreenGui,
 	prompts: Fusion.Value<{prompt}>,
+	playerGui: PlayerGui,
 	components: Folder,
 	appComponents: Fusion.Value<{appComponent}>,
 	notifications: Fusion.Value<{notification}>,
@@ -154,6 +156,7 @@ export type notification = {
 	body: string,
 	icon: notificationIcon,
 	title: string?,
+	exiting: Fusion.Value<boolean>,
 	timeLength: number
 }
 export type notificationIcon = {

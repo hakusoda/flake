@@ -18,7 +18,7 @@ local CommandBar = require(components.CommandBar)
 local createSystem = require(root.helpers.createSystem)
 local Notifications = require(components.Notifications)
 
-local New, Ref, Value, Children, OnChange = Fusion.New, Fusion.Ref, Fusion.Value, Fusion.Children, Fusion.OnChange
+local New, Value, Children, OnChange = Fusion.New, Fusion.Value, Fusion.Children, Fusion.OnChange
 local userInterface: types.userInterface, buildSystem = createSystem("userInterface", "💻")
 userInterface.components = components
 
@@ -36,21 +36,20 @@ end
 
 function userInterface:initialise()
 	local self = self :: types.userInterface
-
-	local gui = Value((nil :: any) :: ScreenGui)
-	New "ScreenGui" {
+	self.playerGui = self.flake.player:WaitForChild("PlayerGui") :: PlayerGui
+	self.gui = New "ScreenGui" {
 		Name = "flakeInterface",
-		Parent = self.flake.player:WaitForChild("PlayerGui"),
-		DisplayOrder = 2147483647,
+		Parent = self.playerGui,
 		ResetOnSpawn = false,
+		DisplayOrder = 2147483647,
+		ScreenInsets = Enum.ScreenInsets.None,
 		IgnoreGuiInset = true,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		[Ref] = gui,
 		[Children] = App { flake = self.flake },
 		[OnChange "Enabled"] = function()
-			gui:get().Enabled = true
+			self.gui.Enabled = true
 		end
-	}
+	} :: ScreenGui
 
 	UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
 		if not gameProcessedEvent then
@@ -125,11 +124,13 @@ function userInterface:notify(title: string?, body: string, icon: string | types
 		body = body,
 		icon = realIcon,
 		title = title,
+		exiting = Value(false),
 		timeLength = 5
 	}
 	list:set(llama.List.join(list:get(), {data}))
 	SoundService:PlayLocalSound(sounds.notify)
 	
+	task.delay(data.timeLength, data.exiting.set, data.exiting, true)
 	task.delay(data.timeLength + 2, function()
 		list:set(llama.List.removeValue(list:get(), data))
 	end)
