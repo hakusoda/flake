@@ -22,7 +22,10 @@ local interfaceAddon: types.interfaceAddon = setmetatable({}, baseAddon) :: any
 interfaceAddon.__index = interfaceAddon :: any
 interfaceAddon.id = "builtin-interface"
 interfaceAddon.name = "User Interface"
-interfaceAddon.icon = "rbxassetid://11259281331"
+interfaceAddon.icon = {
+	main = "rbxassetid://12782343310",
+	list = "rbxassetid://12782630681"
+}
 interfaceAddon.authors = {{
 	name = "Voxelified",
 	icon = "rbxassetid://12730560612"

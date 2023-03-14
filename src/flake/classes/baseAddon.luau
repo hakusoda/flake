@@ -7,7 +7,10 @@ local baseAddon = {} :: types.baseAddon
 baseAddon.__index = baseAddon
 baseAddon.id = "baseAddon"
 baseAddon.name = "Base Addon"
-baseAddon.icon = "rbxassetid://11259235980"
+baseAddon.icon = {
+	main = "rbxassetid://12782863561",
+	list = "rbxassetid://12782864342"
+}
 baseAddon.authors = {"Anonymous"}
 baseAddon.description = "placeholder"
 baseAddon.version = "0.0.0"

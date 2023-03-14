@@ -1,7 +1,5 @@
 --!strict
-local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
-local TweenService = game:GetService("TweenService")
 
 local root = script.Parent.Parent
 local flake = root.Parent
@@ -9,6 +7,7 @@ local sounds = root.sounds
 local libraries = flake.libraries
 
 local types = require(flake.types)
+local images = require(root.images)
 local Fusion = require(libraries.Fusion)
 
 local New, Value, Spring, OnEvent, Computed, Children, ForPairs = Fusion.New, Fusion.Value, Fusion.Spring, Fusion.OnEvent, Fusion.Computed, Fusion.Children, Fusion.ForPairs
@@ -26,7 +25,7 @@ return function(props: TouchMenuProps)
 		end
 		return New "ImageLabel" {
 			Size = UDim2.fromOffset(400, 48),
-			Image = "rbxassetid://11568047819",
+			Image = images.TOUCH_MENU_BG,
 			Position = UDim2.fromScale(0.5, 0),
 			ScaleType = Enum.ScaleType.Slice,
 			SliceCenter = Rect.new(48, 0, 168, 48),
@@ -70,12 +69,12 @@ return function(props: TouchMenuProps)
 				end, Fusion.cleanup) :: any,
 				New "ImageButton" {
 					Size = UDim2.fromOffset(140, 24),
-					Image = "rbxassetid://11568040458",
+					Image = images.TOUCH_MENU_BG,
 					Position = UDim2.fromScale(0.5, 1),
 					ScaleType = Enum.ScaleType.Slice,
 					LayoutOrder = 1,
 					AnchorPoint = Vector2.new(0.5, 0),
-					SliceCenter = Rect.new(24, 0, 84, 24),
+					SliceCenter = Rect.new(48, 16, 168, 16),
 					ImageColor3 = Color3.fromRGB(60, 60, 60),
 					Transparency = 1,
 					[Children] = New "TextLabel" {

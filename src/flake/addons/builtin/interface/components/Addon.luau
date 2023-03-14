@@ -1,11 +1,14 @@
 --!strict
 local root = script.Parent.Parent.Parent.Parent.Parent
 local libraries = root.libraries
+local userInterface = root.userInterface
 
+local util = require(root.util)
 local types = require(root.types)
 local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
-local Window = require(root.userInterface.components.Window)
+local images = require(userInterface.images)
+local Window = require(userInterface.components.Window)
 
 local New, Children = Fusion.New, Fusion.Children
 function getAuthor(author: string | { name: string, icon: string })
@@ -50,7 +53,7 @@ return function(props: AddonProps)
 					},
 					New "ImageLabel" {
 						Size = UDim2.fromOffset(64, 64),
-						Image = addon.icon,
+						Image = util.getAddonIcon(addon.icon).main,
 						Transparency = 1
 					},
 					New "Frame" {

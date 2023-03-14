@@ -16,21 +16,22 @@ local camera = workspace.CurrentCamera
 local New, Value, Spring, OnEvent, Cleanup, OnChange, Children, Computed, Observer = Fusion.New, Fusion.Value, Fusion.Spring, Fusion.OnEvent, Fusion.Cleanup, Fusion.OnChange, Fusion.Children, Fusion.Computed, Fusion.Observer
 
 export type WindowButtonProps = {
+	image: string,
 	onClick: () -> ()
 }
 function WindowButton(props: WindowButtonProps)
 	return New "TextButton" {
-		AutomaticSize = Enum.AutomaticSize.XY,
+		Size = UDim2.fromOffset(28, 28),
 		BackgroundColor3 = Color3.fromRGB(45, 45, 45),
 		[Children] = {
-			New "UICorner" { CornerRadius = UDim.new(0.5, 0) },
-			New "UIPadding" {
-				PaddingTop = UDim.new(0, 8),
-				PaddingLeft = UDim.new(0, 8),
-				PaddingRight = UDim.new(0, 8),
-				PaddingBottom = UDim.new(0, 8)
-			},
-			props[Children]
+			New "UICorner" { CornerRadius = UDim.new(0, 12) },
+			New "ImageLabel" {
+				Size = UDim2.fromOffset(12, 12),
+				Image = props.image,
+				Position = UDim2.fromOffset(8, 8),
+				ImageColor3 = Color3.fromRGB(140, 140, 140),
+				Transparency = 1
+			}
 		},
 		[OnEvent "Activated"] = props.onClick
 	}
@@ -201,7 +202,7 @@ return function(props: WindowProps)
 					},
 
 					New "Frame" {
-						Position = UDim2.new(1, -10, 0.5, 0),
+						Position = UDim2.new(1, -6, 0.5, 0),
 						AnchorPoint = Vector2.new(1, 0.5),
 						Transparency = 1,
 						AutomaticSize = Enum.AutomaticSize.XY,
@@ -210,16 +211,11 @@ return function(props: WindowProps)
 								Padding = UDim.new(0, 16)
 							},
 							WindowButton {
+								image = "rbxassetid://11249698455",
 								onClick = function()
 									SoundService:PlayLocalSound(sounds.buttonPress)
 									props.onClose()
-								end,
-								[Children] = New "ImageLabel" {
-									Size = UDim2.fromOffset(12, 12),
-									Image = "rbxassetid://11249698455",
-									ImageColor3 = Color3.fromRGB(140, 140, 140),
-									Transparency = 1
-								}
+								end
 							}
 						}
 					}

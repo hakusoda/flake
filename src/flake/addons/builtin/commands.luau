@@ -23,7 +23,10 @@ local commandsAddon: commandsAddon = setmetatable({}, baseAddon) :: any
 commandsAddon.__index = commandsAddon :: any
 commandsAddon.id = "builtin-commands"
 commandsAddon.name = "Commands"
-commandsAddon.icon = "rbxassetid://11259281331"
+commandsAddon.icon = {
+	main = "rbxassetid://12782343310",
+	list = "rbxassetid://12782630681"
+}
 commandsAddon.authors = {{
 	name = "Voxelified",
 	icon = "rbxassetid://12730560612"

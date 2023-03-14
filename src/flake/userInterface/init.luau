@@ -11,6 +11,7 @@ local components = script.components
 local App = require(components.App)
 local types = require(root.types)
 local llama = require(libraries.llama)
+local images = require(script.images)
 local Fusion = require(libraries.Fusion)
 local TouchMenu = require(components.TouchMenu)
 local CommandBar = require(components.CommandBar)
@@ -74,7 +75,7 @@ function userInterface:initialise()
 	
 	-- TODO: add more touch menu items
 	self:addTouchMenuItem({
-		icon = "rbxassetid://11568197675",
+		icon = images.COMMAND_BAR_ICON,
 		onClick = function()
 			self.commandBarVisible:set(true)
 		end

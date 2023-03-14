@@ -2,11 +2,13 @@
 local root = script.Parent.Parent
 local flake = root.Parent.Parent.Parent
 local libraries = flake.libraries
+local userInterface = flake.userInterface
 
 local util = require(flake.util)
 local types = require(flake.types)
 local Fusion = require(libraries.Fusion)
-local Window = require(flake.userInterface.components.Window)
+local images = require(userInterface.images)
+local Window = require(userInterface.components.Window)
 local interface = require(root.types)
 
 local New, OnEvent, Computed, Children, ForValues = Fusion.New, Fusion.OnEvent, Fusion.Computed, Fusion.Children, Fusion.ForValues
@@ -48,7 +50,7 @@ return function(props: FlakeInfoProps)
 					},
 					New "ImageLabel" {
 						Size = UDim2.fromOffset(64, 64),
-						Image = "rbxassetid://11259281331",
+						Image = images.FLAKE_ICON,
 						BackgroundTransparency = 1
 					},
 					New "Frame" {
@@ -125,13 +127,13 @@ return function(props: FlakeInfoProps)
 											PaddingBottom = UDim.new(0, 8)
 										},
 										New "Frame" {
+											Transparency = 1,
 											AutomaticSize = Enum.AutomaticSize.XY,
-											BackgroundTransparency = 1,
 											[Children] = {
 												New "ImageLabel" {
 													Size = UDim2.fromOffset(40, 40),
-													Image = addon.icon,
-													BackgroundTransparency = 1,
+													Image = util.getAddonIcon(addon.icon).list,
+													Transparency = 1,
 													[Children] = New "UICorner" {
 														CornerRadius = UDim.new(0, 4)
 													}
@@ -139,7 +141,7 @@ return function(props: FlakeInfoProps)
 												New "Frame" {
 													Size = UDim2.fromOffset(0, 40),
 													Position = UDim2.fromOffset(48, 0),
-													BackgroundTransparency = 1,
+													Transparency = 1,
 													[Children] = {
 														New "UIListLayout" {
 															Padding = UDim.new(0, 1),
