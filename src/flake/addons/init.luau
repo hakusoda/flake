@@ -55,7 +55,7 @@ function addons:loadAddons()
 		if typeof(toImport) == "table" then
 			for _,module in toImport do
 				task.defer(function()
-					if typeof(i) == "number" then
+					if typeof(module) == "number" then
 						xpcall(function()
 							(require(module) :: any).Parent = self.addonFolder
 						end, warn)
