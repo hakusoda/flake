@@ -214,6 +214,10 @@ export type addonIcon = {
 	main: string, -- recommended size: 128x128
 	list: string -- recommended size: 80x80
 }
+export type addonAuthor = {
+	name: string,
+	icon: string -- recommended size: 128x128
+}
 export type baseAddon = {
 	__index: baseAddon,
 
@@ -223,10 +227,7 @@ export type baseAddon = {
 	flake: flake,
 	system: addons,
 	version: string,
-	authors: {string | {
-		name: string,
-		icon: string -- recommended size: 128x128
-	}},
+	authors: {string | addonAuthor},
 	actions: { [string]: number },
 	description: string,
 	eventCallbacks: {any},

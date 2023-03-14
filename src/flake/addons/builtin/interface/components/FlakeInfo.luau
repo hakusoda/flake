@@ -2,16 +2,17 @@
 local root = script.Parent.Parent
 local flake = root.Parent.Parent.Parent
 local libraries = flake.libraries
+local components = script.Parent
 local userInterface = flake.userInterface
 
-local util = require(flake.util)
 local types = require(flake.types)
 local Fusion = require(libraries.Fusion)
 local images = require(userInterface.images)
 local Window = require(userInterface.components.Window)
 local interface = require(root.types)
+local AddonListItem = require(components.AddonListItem)
 
-local New, OnEvent, Computed, Children, ForValues = Fusion.New, Fusion.OnEvent, Fusion.Computed, Fusion.Children, Fusion.ForValues
+local New, Computed, Children, ForValues = Fusion.New, Fusion.Computed, Fusion.Children, Fusion.ForValues
 export type FlakeInfoProps = {
 	flake: types.flake,
 	addon: interface.interfaceAddon
@@ -39,9 +40,7 @@ return function(props: FlakeInfoProps)
 				AutomaticSize = Enum.AutomaticSize.XY,
 				BackgroundColor3 = Color3.fromRGB(45, 45, 45),
 				[Children] = {
-					New "UICorner" {
-						CornerRadius = UDim.new(0, 8)
-					},
+					New "UICorner" {},
 					New "UIPadding" {
 						PaddingTop = UDim.new(0, 8),
 						PaddingLeft = UDim.new(0, 8),
@@ -51,15 +50,16 @@ return function(props: FlakeInfoProps)
 					New "ImageLabel" {
 						Size = UDim2.fromOffset(64, 64),
 						Image = images.FLAKE_ICON,
-						BackgroundTransparency = 1
+						Transparency = 1
 					},
 					New "Frame" {
 						Size = UDim2.fromOffset(0, 64),
 						Position = UDim2.fromOffset(80, 0),
-						BackgroundTransparency = 1,
+						Transparency = 1,
 						[Children] = {
 							New "UIListLayout" {
 								Padding = UDim.new(0, 4),
+								SortOrder = Enum.SortOrder.LayoutOrder,
 								VerticalAlignment = Enum.VerticalAlignment.Center
 							},
 							New "TextLabel" {
@@ -76,6 +76,7 @@ return function(props: FlakeInfoProps)
 								TextSize = 12,
 								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
 								TextColor3 = Color3.new(.6, .6, .6),
+								LayoutOrder = 1,
 								AutomaticSize = Enum.AutomaticSize.XY,
 								BackgroundTransparency = 1
 							}
@@ -110,65 +111,9 @@ return function(props: FlakeInfoProps)
 								Padding = UDim.new(0, 8)
 							},
 							ForValues(addons, function(addon: types.baseAddon)
-								return New "TextButton" {
-									Size = UDim2.new(1, 0, 0, 56),
-									BackgroundColor3 = Color3.fromRGB(45, 45, 45),
-									[OnEvent "Activated"] = function()
-										interface.viewAddon:set(addon)
-									end,
-									[Children] = {
-										New "UICorner" {
-											CornerRadius = UDim.new(0, 8)
-										},
-										New "UIPadding" {
-											PaddingTop = UDim.new(0, 8),
-											PaddingLeft = UDim.new(0, 8),
-											PaddingRight = UDim.new(0, 8),
-											PaddingBottom = UDim.new(0, 8)
-										},
-										New "Frame" {
-											Transparency = 1,
-											AutomaticSize = Enum.AutomaticSize.XY,
-											[Children] = {
-												New "ImageLabel" {
-													Size = UDim2.fromOffset(40, 40),
-													Image = util.getAddonIcon(addon.icon).list,
-													Transparency = 1,
-													[Children] = New "UICorner" {
-														CornerRadius = UDim.new(0, 4)
-													}
-												},
-												New "Frame" {
-													Size = UDim2.fromOffset(0, 40),
-													Position = UDim2.fromOffset(48, 0),
-													Transparency = 1,
-													[Children] = {
-														New "UIListLayout" {
-															Padding = UDim.new(0, 1),
-															VerticalAlignment = Enum.VerticalAlignment.Center
-														},
-														New "TextLabel" {
-															Text = `{addon.name or addon.id} <font size=\"8\" color=\"#c8c8c8\">v{addon.version or "0.0.0"} by {util.authorsToString(addon.authors)}</font>{string.find(addon.id, "builtin") == 1 and "   <font size=\"8\" color=\"#c8c8c8\"><sc>(BUILT-IN ADDON)</sc></font>" or ""}`,
-															TextSize = 12,
-															RichText = true,
-															FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-															TextColor3 = Color3.new(.8, .8, .8),
-															AutomaticSize = Enum.AutomaticSize.XY,
-															BackgroundTransparency = 1
-														},
-														addon.description and New "TextLabel" {
-															Text = addon.description,
-															TextSize = 10,
-															FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-															TextColor3 = Color3.new(.6, .6, .6),
-															AutomaticSize = Enum.AutomaticSize.XY,
-															BackgroundTransparency = 1
-														} or nil :: any
-													}
-												}
-											}
-										}
-									}
+								return AddonListItem {
+									addon = addon,
+									interface = interface
 								}
 							end, Fusion.cleanup) :: any
 						}

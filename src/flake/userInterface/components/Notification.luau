@@ -40,11 +40,8 @@ return function(props: NotificationProps)
 				PaddingRight = UDim.new(0, 20),
 				PaddingBottom = UDim.new(0, 12)
 			},
-			New "UIListLayout" {
-				Padding = UDim.new(0, 32),
-				FillDirection = Enum.FillDirection.Horizontal
-			},
 			New "Frame" {
+				Position = UDim2.fromOffset(0, 64),
 				Transparency = 1,
 				AutomaticSize = Enum.AutomaticSize.X,
 				[Children] = {
@@ -78,7 +75,7 @@ return function(props: NotificationProps)
 					Size = UDim2.fromOffset(32, 32),
 					Image = data.icon.image,
 					Position = UDim2.fromScale(0.5, 0.5),
-					AnchorPoint = Vector2.new(0.5, 0.5),
+					AnchorPoint = Vector2.one / 2,
 					ImageColor3 = data.icon.color,
 					ImageTransparency = Computed(function()
 						return 1 - math.max(alphaSpring:get() - 0.5, 0) / 0.5

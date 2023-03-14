@@ -12,7 +12,7 @@ return function(props: InputLabelProps)
 		Text = props[1],
 		TextSize = 14,
 		Position = props.Position,
-		FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
+		FontFace = Font.fromName("GothamSSm"),
 		TextColor3 = Color3.fromRGB(240, 240, 240),
 		LayoutOrder = props.LayoutOrder,
 		AutomaticSize = Enum.AutomaticSize.XY,

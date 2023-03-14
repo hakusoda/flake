@@ -41,7 +41,7 @@ export type WindowProps = {
 	title: string,
 	width: number?,
 	height: number?,
-	onClose: () -> (),
+	onClose: () -> ()?,
 	visible: Fusion.StateObject<boolean>?,
 	position: UDim2?
 }
@@ -141,7 +141,7 @@ return function(props: WindowProps)
 		end
 	end)
 	
-	local alphaSpring = Spring(alpha, 24)
+	local alphaSpring = Spring(alpha, 32)
 	local positionSpring = Spring(position, 32, 1)
 	
 	local lastAlpha = 0
@@ -158,7 +158,7 @@ return function(props: WindowProps)
 		Size = size,
 		Position = positionSpring,
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundColor3 = Color3.fromRGB(36, 36, 36),
+		BackgroundColor3 = Color3.fromRGB(35, 35, 35),
 		GroupTransparency = Computed(function()
 			return 1 - alphaSpring:get()
 		end),
@@ -214,7 +214,16 @@ return function(props: WindowProps)
 								image = "rbxassetid://11249698455",
 								onClick = function()
 									SoundService:PlayLocalSound(sounds.buttonPress)
-									props.onClose()
+									
+									local callback = props.onClose
+									if callback then
+										callback()
+									else
+										local visible = props.visible :: any
+										if visible.set then
+											visible:set(false)
+										end
+									end
 								end
 							}
 						}

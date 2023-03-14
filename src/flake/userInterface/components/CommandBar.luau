@@ -133,11 +133,10 @@ return function(props: CommandBarProps)
 		[Children] = {
 			InputLabel { "Type a command" },
 			New "TextBox" {
-				Size = UDim2.fromScale(1, 0),
+				Size = UDim2.new(1, 0, 0, 28),
 				TextSize = 12,
 				Position = UDim2.fromOffset(0, 24),
 				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-				AutomaticSize = Enum.AutomaticSize.Y,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				TextTransparency = 1,
 				ClearTextOnFocus = false,
@@ -145,23 +144,19 @@ return function(props: CommandBarProps)
 				[Ref] = textBox,
 				[Cleanup] = flashConnection,
 				[Children] = {
-					New "UICorner" {
-						CornerRadius = UDim.new(0, 8)
-					},
+					New "UICorner" {},
 					New "UIPadding" {
-						PaddingTop = UDim.new(0, 8),
 						PaddingLeft = UDim.new(0, 12),
-						PaddingRight = UDim.new(0, 12),
-						PaddingBottom = UDim.new(0, 8)
+						PaddingRight = UDim.new(0, 12)
 					},
 					New "TextLabel" {
 						Text = text,
+						Size = UDim2.fromScale(1, 1),
 						TextSize = 12,
 						RichText = true,
-						FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
+						FontFace = Font.fromName("GothamSSm"),
 						LineHeight = 0,
 						TextColor3 = #inputText == 0 and Color3.fromRGB(140, 140, 140) or Color3.fromRGB(240, 240, 240),
-						AutomaticSize = Enum.AutomaticSize.XY,
 						TextXAlignment = Enum.TextXAlignment.Left,
 						BackgroundTransparency = 1
 					}
@@ -198,11 +193,12 @@ return function(props: CommandBarProps)
 
 			New "TextLabel" {
 				Text = touchEnabled and "You may experience issues with typing on your device." or "Press TAB to use autocomplete (basic & prone to issues)",
+				Size = UDim2.new(1, 0, 0, 10),
 				TextSize = 10,
 				Position = UDim2.fromOffset(0, 76),
-				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
+				FontFace = Font.fromName("GothamSSm"),
 				TextColor3 = Color3.new(.6, .6, .6),
-				AutomaticSize = Enum.AutomaticSize.XY,
+				TextXAlignment = Enum.TextXAlignment.Left,
 				BackgroundTransparency = 1
 			}
 		}

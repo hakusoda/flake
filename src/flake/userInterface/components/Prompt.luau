@@ -34,14 +34,14 @@ return function(props: PromptProps)
 				TextSize = 14,
 				RichText = true,
 				Position = UDim2.fromOffset(0, 8),
-				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
+				FontFace = Font.fromName("GothamSSm"),
 				TextColor3 = Color3.new(.9, .9, .9),
 				BackgroundTransparency = 1
 			},
 			New "Frame" {
 				Size = UDim2.fromScale(1, 0),
 				Position = UDim2.fromOffset(0, 40),
-				BackgroundTransparency = 1,
+				Transparency = 1,
 				[Children] = {
 					New "UIListLayout" {
 						Padding = UDim.new(0, 16),

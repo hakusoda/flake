@@ -11,23 +11,13 @@ local images = require(userInterface.images)
 local Window = require(userInterface.components.Window)
 
 local New, Children = Fusion.New, Fusion.Children
-function getAuthor(author: string | { name: string, icon: string })
-	if typeof(author) == "string" then
-		return {
-			name = author,
-			icon = "rbxassetid://11259235980"
-		}
-	end
-	return author :: any
-end
-
 export type AddonProps = {
 	addon: types.baseAddon,
 	onClose: () -> ()
 }
 return function(props: AddonProps)
 	local addon = props.addon
-	local author = getAuthor(addon.authors[1])
+	local author = util.getAddonAuthor(addon.authors[1])
 	return Window {
 		title = "Addon Information",
 		width = 512,
@@ -124,7 +114,7 @@ return function(props: AddonProps)
 							},
 							#addon.authors > 1 and New "TextLabel" {
 								Text = `...and {table.concat(llama.List.map(llama.List.shift(addon.authors), function(author)
-									return getAuthor(author).name
+									return util.getAddonAuthor(author).name
 								end), ", ")}`,
 								TextSize = 12,
 								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),

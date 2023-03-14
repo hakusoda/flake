@@ -2,12 +2,13 @@
 local root = script.Parent.Parent
 local flake = root.Parent.Parent.Parent
 local libraries = flake.libraries
-local components = flake.userInterface.components
+local components = script.Parent
 
 local types = require(flake.types)
 local Fusion = require(libraries.Fusion)
-local Window = require(components.Window)
+local Window = require(flake.userInterface.components.Window)
 local interface = require(root.types)
+local CommandListItem = require(components.CommandListItem)
 
 local New, Children, Computed, ForPairs = Fusion.New, Fusion.Children, Fusion.Computed, Fusion.ForPairs
 export type CommandListProps = {
@@ -30,15 +31,10 @@ return function(props: CommandListProps)
 		title = "Available Commands",
 		height = 252,
 		visible = interface.commandListVisible,
-		onClose = function()
-			interface.commandListVisible:set(false)
-		end,
 		[Children] = {
 			New "ScrollingFrame" {
 				Size = UDim2.new(1, 0, 0, 188),
-				CanvasSize = UDim2.fromScale(0, 0),
 				Transparency = 1,
-				BorderSizePixel = 0,
 				ScrollBarThickness = 8,
 				ScrollingDirection = Enum.ScrollingDirection.Y,
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -49,28 +45,9 @@ return function(props: CommandListProps)
 						SortOrder = Enum.SortOrder.LayoutOrder
 					},
 					ForPairs(commands, function(key, command)
-						return key, New "TextLabel" {
-							Size = UDim2.fromScale(1, 0),
-							Text = Computed(function()
-								local aliases = command.aliases:get()
-								return string.format("%s%s(%s)", aliases[1] or "", aliases[2] and (", "..aliases[2].." ") or " ", command.id)
-							end),
-							TextSize = 12,
-							FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-							TextColor3 = Color3.new(.9, .9, .9),
-							LayoutOrder = key,
-							AutomaticSize = Enum.AutomaticSize.Y,
-							TextXAlignment = Enum.TextXAlignment.Left,
-							BackgroundColor3 = Color3.fromRGB(45, 45, 45),
-							[Children] = {
-								New "UICorner" {},
-								New "UIPadding" {
-									PaddingTop = UDim.new(0, 6),
-									PaddingLeft = UDim.new(0, 8),
-									PaddingRight = UDim.new(0, 8),
-									PaddingBottom = UDim.new(0, 6)
-								}
-							}
+						return key, CommandListItem {
+							key = key,
+							command = command
 						}
 					end, Fusion.cleanup) :: any
 				}

@@ -18,7 +18,7 @@ return function(props: TouchMenuProps)
 	local flake = props.flake
 	
 	local alpha = Value(0)
-	local alphaSpring = Spring(alpha, 8)
+	local alphaSpring = Spring(alpha, 16)
 	return Computed(function()
 		if not flake.userInterface.touchMenuVisible:get() then
 			return nil :: any
@@ -74,7 +74,7 @@ return function(props: TouchMenuProps)
 					ScaleType = Enum.ScaleType.Slice,
 					LayoutOrder = 1,
 					AnchorPoint = Vector2.new(0.5, 0),
-					SliceCenter = Rect.new(48, 16, 168, 16),
+					SliceCenter = Rect.new(96, 24, 336, 24),
 					ImageColor3 = Color3.fromRGB(60, 60, 60),
 					Transparency = 1,
 					[Children] = New "TextLabel" {
