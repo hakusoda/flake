@@ -4,6 +4,7 @@ local flake = root.Parent
 local libraries = flake.libraries
 local components = script.Parent
 
+local t = require(flake.localisation)()
 local types = require(flake.types)
 local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
@@ -50,7 +51,7 @@ return function(props: PromptProps)
 						HorizontalAlignment = Enum.HorizontalAlignment.Center
 					},
 					Button {
-						Text = "Confirm",
+						Text = t("action.confirm"),
 						OnClick = function()
 							close()
 							
@@ -61,7 +62,7 @@ return function(props: PromptProps)
 						end
 					},
 					data.cancelButton and Button {
-						Text = "Cancel",
+						Text = t("action.cancel"),
 						Theme = "secondary",
 						OnClick = function()
 							close()

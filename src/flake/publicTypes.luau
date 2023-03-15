@@ -114,12 +114,13 @@ export type userInterface = baseSystem & {
 	createPrompt: (self: userInterface, options: promptOptions, windowOptions: windowOptions?) -> (),
 	updateTouchMenu: (self: userInterface) -> ()
 }
+export type translatable = Fusion.CanBeState<string>
 export type appComponent = (props: { flake: flake }) -> any
 export type notification = {
 	id: string,
-	body: string,
+	body: translatable,
 	icon: notificationIcon,
-	title: string?,
+	title: translatable?,
 	exiting: Fusion.Value<boolean>,
 	timeLength: number
 }
@@ -131,8 +132,8 @@ export type prompt = promptOptions & {
 	id: string
 }
 export type promptOptions = {
-	body: string,
-	title: string,
+	body: translatable,
+	title: translatable,
 	cancelButton: () -> ()?,
 	confirmButton: () -> ()?
 }

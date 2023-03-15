@@ -3,7 +3,8 @@ local Fusion = require(script.Parent.Parent.Parent.libraries.Fusion)
 local New, Children = Fusion.New, Fusion.Children
 
 export type InputLabelProps = {
-	[number]: string,
+	[number]: Fusion.CanBeState<string>,
+	
 	Position: UDim2?,
 	LayoutOrder: number?
 }

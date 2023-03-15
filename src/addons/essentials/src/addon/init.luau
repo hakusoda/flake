@@ -99,7 +99,7 @@ function addon:initialize()
 	:onCallback(function(cmd, executor: Player)
 		self:sendPlayerAction(executor, actions.TEST2, {})
 	end)
-	
+
 	self:createCommand("essentials-test3")
 	:setAlias("test3")
 	:setLevel(0)
@@ -111,7 +111,7 @@ function addon:initialize()
 			image = "rbxassetid://12619591785"
 		})
 	end)
-	
+
 	self:createCommand("essentials-teleport-to")
 	:setAlias("goto", "to")
 	:setLevel(1)
@@ -349,7 +349,7 @@ function addon:initialize()
 	:addArgument("text", "string", "rest")
 	:onCallback(function(cmd, executor: Player, targets: {Player}, text: string)
 		for _,target in targets do
-			self.flake:notifyPlayer(target, "Notication from <b>"..executor.DisplayName.."</b>", text)
+			self.flake:notifyPlayer(target, "Notification from <b>"..executor.DisplayName.."</b>", text)
 		end
 	end)
 
@@ -425,7 +425,7 @@ function addon:initialize()
 				target.Character = new
 
 				new.Parent = workspace
-				
+
 				if char then
 					new:PivotTo(char:GetPivot())
 					char:Destroy()
@@ -449,7 +449,7 @@ function addon:initialize()
 				target.Character = new
 
 				new.Parent = workspace
-				
+
 				if char then
 					new:PivotTo(char:GetPivot())
 					char:Destroy()
@@ -502,7 +502,7 @@ function addon:initialize()
 			end
 		end)
 	end]]
-	
+
 	self:createCommand("essentials-authorize")
 	:setAlias("authorize")
 	:setLevel(1)

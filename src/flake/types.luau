@@ -6,12 +6,16 @@ local Fusion = require(libraries.Fusion.PubTypes)
 local supabase = require(libraries.supabase.types)
 local publicTypes = require(root.publicTypes)
 
+export type auditLog = {
+	actionType: "command-executed"
+}
 export type flake = {
 	__index: flake,
 	emoji: string,
 	player: Player,
 	config: flakeConfig,
 	version: string,
+	auditLogs: {auditLog},
 	connection: RemoteEvent,
 	serverClosed: boolean,
 	
@@ -132,10 +136,11 @@ export type userInterface = baseSystem & {
 	addAppComponent: (self: userInterface, component: appComponent) -> (),
 	addTouchMenuItem: (self: userInterface, item: touchMenuItem) -> (),
 
-	notify: (self: userInterface, title: string?, body: string, icon: string | notificationIcon | nil) -> (),
+	notify: (self: userInterface, title: translatable?, body: translatable, icon: string | notificationIcon | nil) -> (),
 	createPrompt: (self: userInterface, options: promptOptions, windowOptions: windowOptions?) -> (),
 	updateTouchMenu: (self: userInterface) -> ()
 }
+export type translatable = publicTypes.translatable
 export type appComponent = (props: { flake: flake }) -> any
 export type notification = publicTypes.notification
 export type notificationIcon = publicTypes.notificationIcon

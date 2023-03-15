@@ -6,6 +6,7 @@ local flake = root.Parent
 local sounds = root.sounds
 local libraries = flake.libraries
 
+local t = require(flake.localisation)()
 local types = require(flake.types)
 local images = require(root.images)
 local Fusion = require(libraries.Fusion)
@@ -81,7 +82,7 @@ return function(props: TouchMenuProps)
 					ImageColor3 = Color3.fromRGB(60, 60, 60),
 					Transparency = 1,
 					[Children] = New "TextLabel" {
-						Text = "flake menu",
+						Text = t("touch-menu"),
 						Size = UDim2.fromScale(1, 1),
 						TextSize = 14,
 						FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),

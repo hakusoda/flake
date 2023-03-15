@@ -40,6 +40,7 @@ function userInterface:initialise()
 	self.gui = New "ScreenGui" {
 		Name = "flakeInterface",
 		Parent = self.playerGui,
+		AutoLocalize = false,
 		ResetOnSpawn = false,
 		DisplayOrder = 2147483647,
 		ScreenInsets = Enum.ScreenInsets.None,
@@ -109,7 +110,7 @@ function userInterface:createPrompt(options: types.promptOptions, windowOptions:
 	list:set(llama.List.join(list:get(), {data}))
 end
 
-function userInterface:notify(title: string?, body: string, icon: string | types.notificationIcon | nil)
+function userInterface:notify(title: types.translatable?, body: types.translatable, icon: string | types.notificationIcon | nil)
 	local list = self.notifications
 	
 	local realIcon = icon and llama.Dictionary.join({

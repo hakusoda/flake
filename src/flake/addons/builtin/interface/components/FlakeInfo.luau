@@ -5,6 +5,7 @@ local libraries = flake.libraries
 local components = script.Parent
 local userInterface = flake.userInterface
 
+local t = require(flake.localisation)()
 local types = require(flake.types)
 local Fusion = require(libraries.Fusion)
 local images = require(userInterface.images)
@@ -24,7 +25,7 @@ return function(props: FlakeInfoProps)
 
 	local visible = interface.flakeInfoVisible
 	return Window {
-		title = "flake Information",
+		title = t("flake-info"),
 		width = 512,
 		height = 298,
 		onClose = function()
@@ -63,7 +64,7 @@ return function(props: FlakeInfoProps)
 								VerticalAlignment = Enum.VerticalAlignment.Center
 							},
 							New "TextLabel" {
-								Text = `flake <font size=\"12\" color=\"#c8c8c8\">v{flake.version}</font>`,
+								Text = t("flake-info.name", {flake}),
 								TextSize = 16,
 								RichText = true,
 								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
@@ -72,7 +73,7 @@ return function(props: FlakeInfoProps)
 								BackgroundTransparency = 1
 							},
 							New "TextLabel" {
-								Text = "A simple, modern & experimental admin system.",
+								Text = t("flake-info.summary"),
 								TextSize = 12,
 								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
 								TextColor3 = Color3.new(.6, .6, .6),
@@ -90,7 +91,7 @@ return function(props: FlakeInfoProps)
 				[Children] = {
 					New "TextLabel" {
 						Text = Computed(function()
-							return `This experience is using {#addons:get()} addons:`
+							return t("flake-info.addons", {#addons:get()}):get()
 						end),
 						TextSize = 12,
 						FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),

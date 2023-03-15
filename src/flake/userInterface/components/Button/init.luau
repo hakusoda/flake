@@ -1,5 +1,4 @@
 --!strict
-local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
 
 local root = script.Parent.Parent
@@ -12,7 +11,7 @@ local ButtonThemes = require(script.themes)
 
 local New, Ref, Value, Spring, OnEvent, Computed, Children = Fusion.New, Fusion.Ref, Fusion.Value, Fusion.Spring, Fusion.OnEvent, Fusion.Computed, Fusion.Children
 export type ButtonProps = {
-	Text: string?,
+	Text: Fusion.CanBeState<string>?,
 	Theme: string?,
 	OnClick: () -> ()?,
 	Disabled: boolean?,

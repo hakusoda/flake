@@ -5,16 +5,25 @@ local root = script.Parent.Parent.Parent
 local types = require(root.types)
 local libraries = root.libraries
 
+local t = require(root.localisation)()
 local Fusion = require(libraries.Fusion)
 
 local New, Value, Tween, Spring, Children, Computed = Fusion.New, Fusion.Value, Fusion.Tween, Fusion.Spring, Fusion.Children, Fusion.Computed
 local params = Instance.new("GetTextBoundsParams")
 params.Font = Font.fromName("GothamSSm")
 
-function getBounds(text: string, size: number)
-	params.Size = size
-	params.Text = string.gsub(text, "<.->", "")
-	return TextService:GetTextBoundsAsync(params)
+function getBounds(text: types.translatable, size: number): Fusion.StateObject<Vector2>
+	if typeof(text) == "string" then
+		params.Size = size
+		params.Text = string.gsub(text, "<.->", "")
+		return Value(TextService:GetTextBoundsAsync(params))
+	else
+		return Computed(function()
+			params.Size = size
+			params.Text = string.gsub(text:get(), "<.->", "")
+			return TextService:GetTextBoundsAsync(params)
+		end)
+	end
 end
 
 export type NotificationProps = {
@@ -34,9 +43,13 @@ return function(props: NotificationProps)
 	local textBounds1 = getBounds(data.title or "Notification", 14)
 	local textBounds2 = getBounds(data.body or "Notification body", 12)
 	
-	local textWidth = math.max(textBounds1.X, textBounds2.X)
+	local textWidth = Computed(function()
+		return math.max(textBounds1:get().X, textBounds2:get().X)
+	end)
 	return New "Frame" {
-		Size = UDim2.fromOffset(textWidth + 96, 54),
+		Size = Computed(function()
+			return UDim2.fromOffset(textWidth:get() + 96, 54)
+		end),
 		Position = Computed(function()
 			local alpha = alphaSpring:get() - alpha2Spring:get()
 			return UDim2.new(1, -16 * alpha, 1, -62 * posSpring:get() - 32)
@@ -55,7 +68,9 @@ return function(props: NotificationProps)
 				PaddingBottom = UDim.new(0, 12)
 			},
 			New "TextLabel" {
-				Size = UDim2.fromOffset(textBounds1.X, 14),
+				Size = Computed(function()
+					return UDim2.fromOffset(textBounds1:get().X, 14)
+				end),
 				Text = data.title or "Notification",
 				TextSize = 14,
 				RichText = true,
@@ -64,7 +79,9 @@ return function(props: NotificationProps)
 				BackgroundTransparency = 1
 			},
 			New "TextLabel" {
-				Size = UDim2.fromOffset(textBounds2.X, 12),
+				Size = Computed(function()
+					return UDim2.fromOffset(textBounds2:get().X, 12)
+				end),
 				Text = data.body or "Notification body",
 				TextSize = 12,
 				RichText = true,
@@ -75,7 +92,9 @@ return function(props: NotificationProps)
 			},
 			New "Frame" {
 				Size = UDim2.fromOffset(32, 32),
-				Position = UDim2.fromOffset(textWidth + 24, 0),
+				Position = Computed(function()
+					return UDim2.fromOffset(textWidth:get() + 24, 0)
+				end),
 				Transparency = 1,
 				[Children] = New "ImageLabel" {
 					Size = UDim2.fromOffset(32, 32),

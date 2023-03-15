@@ -4,54 +4,49 @@ local RunService = game:GetService("RunService")
 local isServer = RunService:IsServer()
 
 local flake = script.Parent.Parent.Parent
-local classes = flake.classes
+local helpers = flake.helpers
 
+local t = require(flake.localisation)()
 local types = require(flake.types)
-local baseAddon = require(classes.baseAddon)
+local createAddon = require(helpers.createAddon)
 
 export type commandsAddon = types.baseAddon & {
-	loadAddonCommand: types.command,
-
-	createCommand: (self: commandsAddon, id: string) -> types.command
+	loadAddonCommand: types.command
 }
 local addonActions = {
 	LOAD_ADDON = 0,
 	SUDO = 1
 }
 
-local commandsAddon: commandsAddon = setmetatable({}, baseAddon) :: any
-commandsAddon.__index = commandsAddon :: any
-commandsAddon.id = "builtin-commands"
-commandsAddon.name = "Commands"
-commandsAddon.icon = {
+local addon: commandsAddon, buildAddon = createAddon("builtin-commands", "Commands", "0.0.1-alpha.1")
+addon.icon = {
 	main = "rbxassetid://12782343310",
 	list = "rbxassetid://12782630681"
 }
-commandsAddon.authors = {{
+addon.authors = {{
 	name = "Voxelified",
-	icon = "rbxassetid://12730560612"
+	icon = "rbxassetid://12782685021"
 }, "Blookerss"}
-commandsAddon.description = "Provides built-in commands"
-commandsAddon.version = "1.0.0"
+addon.description = "Provides advanced commands"
 
-function commandsAddon.new(system: types.addons)
-	local self = setmetatable(baseAddon.new(system), commandsAddon :: any) :: any
+function addon.new(system: types.addons)
+	local self = buildAddon(system)
 	self.actions = addonActions
 
 	return self
 end
 
-function commandsAddon:initialize()
+function addon:initialize()
 	local self = self :: commandsAddon
 	self.loadAddonCommand = self:createCommand("builtin-load-addon")
-	:setAlias("loadaddon")
+	:setAlias("loadaddon", "importaddon")
 	:setLevel(1)
 	:setContext("client")
 	:addArgument("id", "number")
 	:onCallback(function(cmd, executor: Player, id: number)
 		self.flake.userInterface:createPrompt({
-			title = "Confirm Addon Import",
-			body = "Are you sure you want to load <b>"..id.."</b>?<br/>The contained model may be dangerous!",
+			title = t("addon-import"),
+			body = t("addon-import.body", {id}),
 
 			confirmButton = function()
 				self:sendAction(addonActions.LOAD_ADDON, {id})
@@ -98,9 +93,9 @@ function commandsAddon:initialize()
 	end)
 end
 
-function commandsAddon:onAction(player: Player?, action: number, args: types.connectionArgs)
+function addon:onAction(player: Player?, action: number, args: types.connectionArgs)
 	local self = self :: commandsAddon
-	baseAddon.onAction(self, player, action, args)
+	self.base.onAction(self, player, action, args)
 
 	if action == addonActions.LOAD_ADDON then
 		if isServer then
@@ -126,8 +121,4 @@ function commandsAddon:onAction(player: Player?, action: number, args: types.con
 	end
 end
 
-function commandsAddon:createCommand(id: string): types.command
-	return self.flake.commands:create(id)
-end
-
-return commandsAddon
+return addon

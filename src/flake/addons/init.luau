@@ -8,6 +8,7 @@ local isClient = RunService:IsClient()
 local root = script.Parent
 local libraries = root.libraries
 
+local t = require(root.localisation)()
 local util = require(root.util)
 local types = require(root.types)
 local llama = require(libraries.llama)
@@ -107,7 +108,7 @@ function addons:loadAddon(module: Instance)
 				end
 			end
 		else
-			self.flake.userInterface:notify("Addon System Error (Client)", `Failed to import <b>{module.Name}</b>.`)
+			self.flake.userInterface:notify(t("error.addon-error"), t("error.addon-import-fail", {module.Name}))
 		end
 		self:log("import error!", err)
 	end)

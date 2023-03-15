@@ -7,6 +7,7 @@ local flake = root.Parent
 local libraries = flake.libraries
 local components = script.Parent
 
+local t = require(flake.localisation)()
 local types = require(flake.types)
 local Fusion = require(libraries.Fusion)
 local Window = require(components.Window)
@@ -115,10 +116,10 @@ return function(props: CommandBarProps)
 						task.defer(commands.processCommandString, commands, flake.player, text)
 					end
 				else
-					flake.userInterface:notify("Command error", "You do not have permission to run <b>"..alias.."</b>.")
+					flake.userInterface:notify(t("error.command"), t("error.no-permission", {alias}))
 				end
 			else
-				flake.userInterface:notify("Command error", "<b>"..alias.."</b> is not a valid command.")
+				flake.userInterface:notify(t("error.command"), t("error.invalid-command", {alias}))
 			end
 		end
 		
@@ -126,12 +127,12 @@ return function(props: CommandBarProps)
 	end
 
 	return Window {
-		title = "Command Bar",
+		title = t("command-bar"),
 		height = 150,
 		onClose = close,
 		visible = visible,
 		[Children] = {
-			InputLabel { "Type a command" },
+			InputLabel { t("command-bar.type") },
 			New "TextBox" {
 				Size = UDim2.new(1, 0, 0, 28),
 				TextSize = 12,
@@ -192,8 +193,8 @@ return function(props: CommandBarProps)
 			},
 
 			New "TextLabel" {
-				Text = touchEnabled and "You may experience issues with typing on your device." or "Press TAB to use autocomplete (basic & prone to issues)",
 				Size = UDim2.new(1, 0, 0, 10),
+				Text = t(`command-bar.info.{touchEnabled}`),
 				TextSize = 10,
 				Position = UDim2.fromOffset(0, 76),
 				FontFace = Font.fromName("GothamSSm"),

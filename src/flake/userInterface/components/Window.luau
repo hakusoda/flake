@@ -38,8 +38,8 @@ function WindowButton(props: WindowButtonProps)
 end
 
 export type WindowProps = {
-	title: string,
 	width: number?,
+	title: Fusion.CanBeState<string>,
 	height: number?,
 	onClose: () -> ()?,
 	visible: Fusion.StateObject<boolean>?,

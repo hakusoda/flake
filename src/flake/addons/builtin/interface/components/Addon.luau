@@ -3,6 +3,7 @@ local root = script.Parent.Parent.Parent.Parent.Parent
 local libraries = root.libraries
 local userInterface = root.userInterface
 
+local t = require(root.localisation)()
 local util = require(root.util)
 local types = require(root.types)
 local llama = require(libraries.llama)
@@ -19,7 +20,7 @@ return function(props: AddonProps)
 	local addon = props.addon
 	local author = util.getAddonAuthor(addon.authors[1])
 	return Window {
-		title = "Addon Information",
+		title = t("addon-info"),
 		width = 512,
 		height = 284,
 		visible = Value(true),
@@ -56,7 +57,7 @@ return function(props: AddonProps)
 								VerticalAlignment = Enum.VerticalAlignment.Center
 							},
 							New "TextLabel" {
-								Text = `{addon.name} <font size=\"12\" color=\"#c8c8c8\">v{addon.version}</font>`,
+								Text = t("addon-info.name", {addon}),
 								TextSize = 16,
 								RichText = true,
 								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
@@ -104,7 +105,7 @@ return function(props: AddonProps)
 								VerticalAlignment = Enum.VerticalAlignment.Center
 							},
 							New "TextLabel" {
-								Text = `Created by <b>{author.name}</b>`,
+								Text = t("addon-info.author", {addon}),
 								TextSize = 16,
 								RichText = true,
 								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
@@ -113,9 +114,9 @@ return function(props: AddonProps)
 								BackgroundTransparency = 1
 							},
 							#addon.authors > 1 and New "TextLabel" {
-								Text = `...and {table.concat(llama.List.map(llama.List.shift(addon.authors), function(author)
+								Text = t("addon-info.author2", {table.concat(llama.List.map(llama.List.shift(addon.authors), function(author)
 									return util.getAddonAuthor(author).name
-								end), ", ")}`,
+								end), ", ")}),
 								TextSize = 12,
 								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
 								TextColor3 = Color3.new(.6, .6, .6),
@@ -129,7 +130,7 @@ return function(props: AddonProps)
 			New "TextLabel" {
 				Size = UDim2.new(1, 0, 0, 28),
 				Text = Computed(function()
-					return `    <b>ID:</b>  {addon.id}        <b>Commands:</b>  {#addon.commands:get()}`
+					return t("addon-info.extra", {addon.id, (#addon.commands:get()) :: any}):get()
 				end),
 				TextSize = 12,
 				RichText = true,

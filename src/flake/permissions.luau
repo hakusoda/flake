@@ -7,6 +7,7 @@ local isServer = RunService:IsServer()
 local root = script.Parent
 local libraries = root.libraries
 
+local t = require(root.localisation)()
 local types = require(root.types)
 local llama = require(libraries.llama)
 local createSystem = require(root.helpers.createSystem)
@@ -32,7 +33,7 @@ function permissions:initialise()
 		self.flake.player:GetAttributeChangedSignal(self.attribute):Connect(function()
 			local level = self:getLevel()
 			if level > 0 then
-				self.flake.userInterface:notify("Permission level changed", "Your level is now "..level)
+				self.flake.userInterface:notify(t("notification.user-level-changed"), t("notification.user-level-changed.body", {level}))
 			end
 		end)
 	end

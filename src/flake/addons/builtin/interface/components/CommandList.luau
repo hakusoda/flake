@@ -4,6 +4,7 @@ local flake = root.Parent.Parent.Parent
 local libraries = flake.libraries
 local components = script.Parent
 
+local t = require(flake.localisation)()
 local types = require(flake.types)
 local Fusion = require(libraries.Fusion)
 local Window = require(flake.userInterface.components.Window)
@@ -28,7 +29,7 @@ return function(props: CommandListProps)
 		return list
 	end)
 	return Window {
-		title = "Available Commands",
+		title = t("command-list"),
 		height = 252,
 		visible = interface.commandListVisible,
 		[Children] = {
