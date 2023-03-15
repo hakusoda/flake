@@ -35,7 +35,7 @@ return function(props: CommandListProps)
 			New "ScrollingFrame" {
 				Size = UDim2.new(1, 0, 0, 188),
 				Transparency = 1,
-				ScrollBarThickness = 8,
+				ScrollBarThickness = 4,
 				ScrollingDirection = Enum.ScrollingDirection.Y,
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
 				ScrollBarImageColor3 = Color3.new(1, 1, 1),

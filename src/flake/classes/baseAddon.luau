@@ -1,6 +1,14 @@
 --!strict
 local RunService = game:GetService("RunService")
 
+local root = script.Parent.Parent
+local libraries = root.libraries
+
+local util = require(root.util)
+local types = require(root.types)
+local llama = require(libraries.llama)
+local Fusion = require(libraries.Fusion)
+
 local isServer = RunService:IsServer()
 
 local baseAddon = {} :: types.baseAddon
@@ -17,8 +25,10 @@ baseAddon.version = "0.0.0"
 
 function baseAddon.new(system: types.addons)
 	local self = setmetatable({}, baseAddon)
+	self.base = baseAddon
 	self.flake = system.flake
 	self.system = system
+	self.commands = Fusion.Value({})
 	self.eventCallbacks = {}
 
 	return self :: any
@@ -38,7 +48,7 @@ function baseAddon:emitEvent(name: string, ...)
 end
 
 function baseAddon:onEvent(name: string, callback)
-	table.insert(self.eventCallbacks, {name, callback})
+	table.insert(self.eventCallbacks, {name, callback :: any})
 end
 
 function baseAddon:onAction(player: Player?, action: number, args: types.connectionArgs)
@@ -66,8 +76,16 @@ function baseAddon:sendPlayerAction(player: Player, action: number, args: types.
 	return self.flake.networking:sendPlayerAction(player, 2, {self.id, action, args})
 end
 
+function baseAddon:createCommand(id: string)
+	local command = self.flake.commands:create(id):setSource(self)
+	local commands = self.commands
+	commands:set(util.concat(commands:get(), {command}))
+	
+	return command
+end
+
 function baseAddon:log(...)
-	warn("[flake:"..self.id.."]:", ...)
+	warn(`[flake:addons:{self.id}]:`, ...)
 end
 
 return baseAddon

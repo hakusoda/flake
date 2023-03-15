@@ -6,21 +6,17 @@ local RunService = game:GetService("RunService")
 local GameSettings = UserSettings():GetService("UserGameSettings")
 local ContentProvider = game:GetService("ContentProvider")
 local UserInputService = game:GetService("UserInputService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local root = script.Parent.Parent
-local flake = ReplicatedStorage.flakeModule :: any
 local player = Players.LocalPlayer
 local libraries = root.libraries
-local userInterface = flake.userInterface
-local flakeComponents = userInterface.components
+local addonHelper = root.addonHelper
 
+local ui = require(addonHelper.ui)
 local types = require(root.types)
 local llama = require(libraries.llama)
-local Fusion = require(root.Fusion)
-local Window = require(flakeComponents.Window) :: any
-local flakeTypes = require(root.flakeTypes)
-local InputLabel = require(flakeComponents.InputLabel) :: any
+local Fusion = require(root.addonHelper.Fusion)
+local flakeTypes = require(addonHelper.types)
 local FormatNumber = require(root.FormatNumber.Simple)
 
 local formatNumber = FormatNumber.Format
@@ -224,7 +220,7 @@ function InfoCategory(props: InfoCategoryProps)
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundTransparency = 1,
 			[Children] = {
-				InputLabel { data[1] },
+				ui.inputLabel { data[1] },
 				New "ImageButton" {
 					Size = UDim2.fromOffset(16, 16),
 					Image = "rbxassetid://11699907635",
@@ -270,22 +266,18 @@ export type ClientInfoProps = {
 	addon: types.essentialsAddon
 }
 return function(props: ClientInfoProps)
-	local visible = props.addon.clientInfoVisible
-	return Window {
+	return ui.window {
 		icon = "rbxassetid://11568224787",
 		title = "Client Information",
 		height = 258,
-		visible = visible,
-		onClose = function()
-			visible:set(false)
-		end,
+		visible = props.addon.clientInfoVisible,
 		[Children] = New "ScrollingFrame" {
 			Size = UDim2.new(1, 0, 0, 196),
-			CanvasSize = UDim2.fromScale(1, 0),
-			BorderSizePixel = 0,
+			Transparency = 1,
 			ScrollBarThickness = 4,
+			ScrollingDirection = Enum.ScrollingDirection.Y,
 			AutomaticCanvasSize = Enum.AutomaticSize.Y,
-			BackgroundTransparency = 1,
+			ScrollBarImageColor3 = Color3.new(1, 1, 1),
 			[Children] = {
 				New "UIPadding" {
 					PaddingRight = UDim.new(0, 8)

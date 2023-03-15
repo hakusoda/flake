@@ -2,7 +2,6 @@
 local RunService = game:GetService("RunService")
 
 local flake = script.Parent.Parent.Parent
-local classes = flake.classes
 local libraries = flake.libraries
 local components = script.components
 
@@ -10,31 +9,27 @@ local types = require(script.types)
 local llama = require(libraries.llama)
 local Addon = require(components.Addon)
 local Fusion = require(libraries.Fusion)
-local baseAddon = require(classes.baseAddon)
 local FlakeInfo = require(components.FlakeInfo)
 local flakeTypes = require(flake.types)
 local CommandList = require(components.CommandList)
+local createAddon = require(flake.helpers.createAddon)
 
 local isClient = RunService:IsClient()
 
 local Value, Computed = Fusion.Value, Fusion.Computed
-local interfaceAddon: types.interfaceAddon = setmetatable({}, baseAddon) :: any
-interfaceAddon.__index = interfaceAddon :: any
-interfaceAddon.id = "builtin-interface"
-interfaceAddon.name = "User Interface"
-interfaceAddon.icon = {
+local addon: types.interfaceAddon, buildAddon = createAddon("builtin-interface", "User Interface", "0.0.1-alpha.1")
+addon.icon = {
 	main = "rbxassetid://12782343310",
 	list = "rbxassetid://12782630681"
 }
-interfaceAddon.authors = {{
+addon.authors = {{
 	name = "Voxelified",
-	icon = "rbxassetid://12730560612"
+	icon = "rbxassetid://12782685021"
 }, "Blookerss"}
-interfaceAddon.description = "Provides additional interfaces"
-interfaceAddon.version = "1.0.0"
+addon.description = "Provides additional interfaces"
 
-function interfaceAddon.new(system: flakeTypes.addons)
-	local self: types.interfaceAddon = setmetatable(baseAddon.new(system), interfaceAddon :: any) :: any
+function addon.new(system: flakeTypes.addons)
+	local self = buildAddon(system)
 	self.viewAddon = Value(nil)
 	self.flakeInfoVisible = Value(false)
 	self.commandListVisible = Value(false)
@@ -42,7 +37,7 @@ function interfaceAddon.new(system: flakeTypes.addons)
 	return self
 end
 
-function interfaceAddon:initialize()
+function addon:initialize()
 	local self = self :: types.interfaceAddon
 	self:createCommand("builtin-info")
 	:setAlias("info")
@@ -94,8 +89,4 @@ function interfaceAddon:initialize()
 	end
 end
 
-function interfaceAddon:createCommand(id: string): flakeTypes.command
-	return self.flake.commands:create(id)
-end
-
-return interfaceAddon
+return addon

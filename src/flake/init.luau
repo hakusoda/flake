@@ -26,7 +26,6 @@ flake.__index = flake
 
 flake.emoji = "🍫"
 flake.version = "0.0.1-alpha.1"
-flake.libraries = libraries
 
 function flake.startFlake()
 	local self: types.flake = setmetatable({}, flake) :: any
@@ -69,9 +68,6 @@ function flake:initialise()
 		local config = self.flakeFolder:FindFirstChild("config") or defaultConfig:Clone()
 		config.Name = "config"
 		config.Parent = self.flakeFolder
-
-		local baseAddon = script.classes.baseAddon:Clone()
-		baseAddon.Parent = self.flakeFolder
 		
 		local defaultConfig = require(defaultConfig)
 		self.config = llama.Dictionary.join(defaultConfig :: types.flakeConfig,

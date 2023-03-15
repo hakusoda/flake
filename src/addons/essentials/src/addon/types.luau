@@ -1,11 +1,11 @@
 --!strict
 local root = script.Parent
-local types = require(root.flakeTypes)
-local Fusion = require(root.Fusion)
-export type essentialsAddon = types.baseAddon & {
-	clientInfoVisible: Fusion.Value<boolean>,
+local helper = root.addonHelper
 
-	createCommand: (self: essentialsAddon, id: string) -> types.command
+local types = require(helper.types)
+local Fusion = require(helper.Fusion.PubTypes)
+export type essentialsAddon = types.baseAddon & {
+	clientInfoVisible: Fusion.Value<boolean>
 }
 
 return ""

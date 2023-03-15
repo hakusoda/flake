@@ -55,9 +55,18 @@ function command:setAlias(primary: string, secondary: string?)
 	return self
 end
 
+function command:setSource(source: types.baseAddon)
+	self.source = source
+	return self
+end
+
 function command:setContext(context: types.commandContext)
 	self.context:set(context)
 	return self
+end
+
+function command:getSource()
+	return self.source
 end
 
 function command:isInContext(): boolean

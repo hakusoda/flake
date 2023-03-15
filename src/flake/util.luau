@@ -40,4 +40,12 @@ function util.getAddonAuthor(author: string | types.addonAuthor): types.addonAut
 	end
 end
 
+function util.concat<T>(t1: { T }, t2: { T }): { T }
+	local new = table.create(#t1 + #t2)
+	table.move(t1, 1, #t1, 1, new)
+	table.move(t2, 1, #t2, #t1 + 1, new)
+	
+	return new
+end
+
 return util

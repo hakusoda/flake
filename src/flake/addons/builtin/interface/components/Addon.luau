@@ -10,7 +10,7 @@ local Fusion = require(libraries.Fusion)
 local images = require(userInterface.images)
 local Window = require(userInterface.components.Window)
 
-local New, Children = Fusion.New, Fusion.Children
+local New, Value, Children, Computed = Fusion.New, Fusion.Value, Fusion.Children, Fusion.Computed
 export type AddonProps = {
 	addon: types.baseAddon,
 	onClose: () -> ()
@@ -22,8 +22,8 @@ return function(props: AddonProps)
 		title = "Addon Information",
 		width = 512,
 		height = 284,
+		visible = Value(true),
 		onClose = props.onClose,
-		visible = Fusion.Value(true),
 		[Children] = {
 			New "UIListLayout" {
 				Padding = UDim.new(0, 16),
@@ -126,23 +126,20 @@ return function(props: AddonProps)
 					}
 				}
 			},
-			New "Frame" {
+			New "TextLabel" {
 				Size = UDim2.new(1, 0, 0, 28),
+				Text = Computed(function()
+					return `    <b>ID:</b>  {addon.id}        <b>Commands:</b>  {#addon.commands:get()}`
+				end),
+				TextSize = 12,
+				RichText = true,
+				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
+				TextColor3 = Color3.new(.8, .8, .8),
 				LayoutOrder = 1,
-				AutomaticSize = Enum.AutomaticSize.Y,
+				TextXAlignment = Enum.TextXAlignment.Left,
 				BackgroundColor3 = Color3.fromRGB(45, 45, 45),
 				[Children] = {
-					New "UICorner" { CornerRadius = UDim.new(0, 8) },
-					New "TextLabel" {
-						Text = `<b>ID:</b>  {addon.id}`,
-						TextSize = 12,
-						RichText = true,
-						Position = UDim2.fromOffset(12, 8),
-						FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-						TextColor3 = Color3.new(.8, .8, .8),
-						AutomaticSize = Enum.AutomaticSize.XY,
-						BackgroundTransparency = 1
-					}
+					New "UICorner" {}
 				}
 			}
 		}

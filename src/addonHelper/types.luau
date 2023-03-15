@@ -1,20 +1,12 @@
 --!strict
-local root = script.Parent
-local libraries = root.libraries
-
-local Fusion = require(libraries.Fusion.PubTypes)
-local supabase = require(libraries.supabase.types)
-local publicTypes = require(root.publicTypes)
-
+local Fusion = require(script.Parent.Fusion.PubTypes)
 export type flake = {
-	__index: flake,
 	emoji: string,
 	player: Player,
 	config: flakeConfig,
 	version: string,
-	connection: RemoteEvent,
 	serverClosed: boolean,
-	
+
 	cloud: cloud?,
 	addons: addons,
 	commands: commands,
@@ -24,43 +16,32 @@ export type flake = {
 
 	flakeFolder: Folder,
 
-	startFlake: () -> (),
-
-	initialise: (self: flake) -> (),
-	addClientLoader: (self: flake) -> (),
-	
 	closeServer: (self: flake) -> (),
 
 	notifyPlayer: (self: flake, player: Player, title: string?, body: string, icon: string | notificationIcon | nil) -> (),
 
 	sendAction: (self: flake, action: number, args: connectionArgs) -> (),
-	sendPlayerAction: (self: flake, player: Player, action: number, args: connectionArgs) -> (),
-
-	log: (self: flake, ...any) -> ()
+	sendPlayerAction: (self: flake, player: Player, action: number, args: connectionArgs) -> ()
 }
-export type flakeConfig = publicTypes.flakeConfig
-export type cloudServerConfig = {
-	accessKey: string
+export type flakeConfig = {
+	cloud: {
+		enabled: boolean,
+		updateInterval: number
+	},
+	hidden: boolean,
+	authorized: {number},
+	importAddons: {number},
+	disableAddons: {string},
+	disableCommands: {string}
 }
 
 export type cloud = baseSystem & {
-	__index: cloud,
-	
-	restUrl: string,
-	config2: cloudServerConfig,
-	supabase: supabase.supabase,
-	serverCloudId: number,
-	
-	request: <T>(self: cloud, path: string, method: 'GET' | 'POST'?, body: any?) -> T,
-	updatePlayers: (self: cloud, list: {Player}) -> ()
+
 }
 
 export type addons = baseSystem & {
-	__index: addons,
-
 	loaded: Fusion.Value<{baseAddon}>,
-	addonFolder: Folder,
-	
+
 	getById: (self: addons, id: string) -> baseAddon?,
 	loadAddon: (self: addons, module: Instance) -> (),
 	loadAddons: (self: addons) -> ()
@@ -81,30 +62,26 @@ export type commands = baseSystem & {
 	execute: (self: commands, command: command, player: Player, args: {any}) -> ()
 }
 
-export type commandContext = publicTypes.commandContext
-export type commandArgumentType = publicTypes.commandArgumentType
-export type commandArgumentMatch = publicTypes.commandArgumentMatch
-export type commandArgument = publicTypes.commandArgument
+export type commandContext = "server" | "client" | "both"
+export type commandArgumentType = "string" | "strings" | "number" | "players"
+export type commandArgumentMatch = "default" | "rest"
+export type commandArgument = {
+	id: string,
+	type: commandArgumentType,
+	match: commandArgumentMatch
+}
 export type command = {
-	__index: command,
-
 	id: string,
 	level: Fusion.Value<number>,
-	system: commands,
-	source: baseAddon?,
 	aliases: Fusion.Value<{string}>,
 	context: Fusion.Value<commandContext>,
 	arguments: Fusion.Value<{commandArgument}>,
-	callbacks: {(self: command, ...any) -> ()},
-	chatCommand: TextChatCommand?,
-
-	new: (id: string, system: commands) -> command,
 
 	setLevel: (self: command, level: number) -> command,
 	setAlias: (self: command, primary: string, secondary: string?) -> command,
 	setSource: (self: command, source: baseAddon) -> command,
 	setContext: (self: command, context: commandContext) -> command,
-	
+
 	getSource: (self: command) -> baseAddon?,
 
 	isInContext: (self: command) -> boolean,
@@ -116,16 +93,17 @@ export type command = {
 	hasPermission: (self: command, player: Player) -> boolean
 }
 
-export type windowOptions = publicTypes.windowOptions
-export type touchMenuItem = publicTypes.touchMenuItem
+export type windowOptions = {
+	title: string?
+}
+export type touchMenuItem = {
+	icon: string,
+	onClick: () -> ()
+}
 export type userInterface = baseSystem & {
 	gui: ScreenGui,
-	prompts: Fusion.Value<{prompt}>,
 	playerGui: PlayerGui,
 	components: Folder,
-	appComponents: Fusion.Value<{appComponent}>,
-	notifications: Fusion.Value<{notification}>,
-	touchMenuItems: Fusion.Value<{touchMenuItem}>,
 	touchMenuVisible: Fusion.Value<boolean>,
 	commandBarVisible: Fusion.Value<boolean>,
 
@@ -137,17 +115,30 @@ export type userInterface = baseSystem & {
 	updateTouchMenu: (self: userInterface) -> ()
 }
 export type appComponent = (props: { flake: flake }) -> any
-export type notification = publicTypes.notification
-export type notificationIcon = publicTypes.notificationIcon
-export type prompt = publicTypes.prompt
-export type promptOptions = publicTypes.promptOptions
+export type notification = {
+	id: string,
+	body: string,
+	icon: notificationIcon,
+	title: string?,
+	exiting: Fusion.Value<boolean>,
+	timeLength: number
+}
+export type notificationIcon = {
+	image: string,
+	color: Color3?
+}
+export type prompt = promptOptions & {
+	id: string
+}
+export type promptOptions = {
+	body: string,
+	title: string,
+	cancelButton: () -> ()?,
+	confirmButton: () -> ()?
+}
 
-export type connectionArgs = publicTypes.connectionArgs
+export type connectionArgs = {any}
 export type networking = baseSystem & {
-	key: string,
-	connection: RemoteEvent,
-	requestKey: RemoteFunction,
-
 	sendAction: (self: networking, action: number, args: connectionArgs) -> (),
 	sendPlayerAction: (self: networking, player: Player, action: number, args: connectionArgs) -> (),
 
@@ -164,26 +155,20 @@ export type permissions = baseSystem & {
 }
 
 export type baseSystem = {
-	__index: baseSystem,
-
 	name: string,
-	flake: flake,
 	emoji: string,
-	eventCallbacks: {any},
 
-	new: (flake: flake) -> any,
-	build: (flake: flake, extend: any) -> baseSystem,
-
-	initialise: (self: baseSystem) -> (),
-	
-	onEvent: (self: baseSystem, name: string, callback: (...any) -> ()) -> (),
-	emitEvent: (self: baseSystem, name: string, ...any) -> (),
-
-	log: (self: baseSystem, ...any) -> ()
+	onEvent: (self: baseSystem, name: string, callback: (...any) -> ()) -> ()
 }
 
-export type addonIcon = publicTypes.addonIcon
-export type addonAuthor = publicTypes.addonAuthor
+export type addonIcon = {
+	main: string, -- recommended size: 128x128
+	list: string -- recommended size: 80x80
+}
+export type addonAuthor = {
+	name: string,
+	icon: string -- recommended size: 128x128
+}
 export type baseAddon = {
 	__index: baseAddon,
 
@@ -201,19 +186,19 @@ export type baseAddon = {
 	eventCallbacks: {any},
 
 	new: (system: addons) -> baseAddon,
-	
+
 	-- not using "initialise" here for compatibility
 	initialize: (self: baseAddon) -> (),
-	
+
 	onEvent: (self: baseAddon, name: string, callback: (...any) -> ()) -> (),
 	emitEvent: (self: baseAddon, name: string, ...any) -> (),
 
 	onAction: (self: baseAddon, player: Player?, action: number, args: { [number]: any }) -> (),
 	sendAction: (self: baseAddon, action: number, args: connectionArgs) -> (),
 	sendPlayerAction: (self: baseAddon, player: Player, action: number, args: connectionArgs) -> (),
-	
+
 	createCommand: (self: baseAddon, id: string) -> command,
-	
+
 	log: (self: baseAddon, ...any) -> ()
 }
 return ""

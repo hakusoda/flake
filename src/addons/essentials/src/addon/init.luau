@@ -2,51 +2,39 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local isClient = RunService:IsClient()
-local localPlayer = Players.LocalPlayer
-if isClient and os.clock() > 10 then
-	task.wait(5) -- wait for full replication
-end
 
-local flake = ReplicatedStorage.flake
-local libraries = script.libraries
-local components = script.components
+local libraries = script:WaitForChild("libraries")
+local components = script:WaitForChild("components")
 
-local vLua = require(script.vLua)
-local types = require(script.types)
-local llama = require(libraries.llama)
-local Fusion = require(script.Fusion)
-local flakeTypes = require(script.flakeTypes)
-local baseAddon = require(flake.baseAddon) :: flakeTypes.baseAddon
-local ClientInfo = require(components.ClientInfo)
+local vLua = require(script:WaitForChild("vLua"))
+local types = require(script:WaitForChild("types"))
+local llama = require(libraries:WaitForChild("llama"))
+local ClientInfo = require(components:WaitForChild("ClientInfo"))
+local Fusion, createAddon = require(script:WaitForChild("addonHelper"))()
 
 local Value = Fusion.Value
 local actions = {
 	TEST2 = 0
 }
 
-local essentialsAddon: types.essentialsAddon = setmetatable({}, baseAddon) :: any
-essentialsAddon.__index = essentialsAddon :: any
-essentialsAddon.id = "flake-essentials"
-essentialsAddon.name = "flake Essentials"
-essentialsAddon.authors = {{
+local addon: types.essentialsAddon, buildAddon = createAddon("flake-essentials", "flake Essentials", "1.0.0")
+addon.authors = {{
 	name = "Voxelified",
 	icon = "rbxassetid://12730560612"
 }, "Blookerss"}
-essentialsAddon.description = "Useful commands & more for flake"
-essentialsAddon.version = "1.0.0"
+addon.description = "Useful commands & more for flake"
 
-function essentialsAddon.new(system)
-	local self: any = setmetatable(baseAddon.new(system), essentialsAddon :: any)
+function addon.new(system)
+	local self = buildAddon(system)
 	self.actions = actions
 	self.clientInfoVisible = Value(false)
 
 	return self
 end
 
-function essentialsAddon:initialize()
+function addon:initialize()
 	local self = self :: types.essentialsAddon
 
 	self:createCommand("essentials-kill")
@@ -491,7 +479,7 @@ function essentialsAddon:initialize()
 		})
 	end
 
-	local flying = false
+	--[[local flying = false
 	self:createCommand("essentials-fly")
 	:setAlias("fly")
 	:setLevel(1)
@@ -513,11 +501,22 @@ function essentialsAddon:initialize()
 				end
 			end
 		end)
-	end
+	end]]
+	
+	self:createCommand("essentials-authorize")
+	:setAlias("authorize")
+	:setLevel(1)
+	:setContext("server")
+	:addArgument("targets", "players")
+	:onCallback(function(cmd, executor, targets: {Player})
+		for _,player in targets do
+			self.flake.permissions:setPlayerLevel(player, 1)
+		end
+	end)
 end
 
-function essentialsAddon:onAction(player: Player?, action: number, args: flakeTypes.connectionArgs)
-	baseAddon.onAction(self :: any, player, action, args)
+function addon:onAction(player: Player?, action: number, args)
+	self.base.onAction(self, player, action, args)
 
 	if action == actions.TEST2 then
 		if isClient then
@@ -526,8 +525,4 @@ function essentialsAddon:onAction(player: Player?, action: number, args: flakeTy
 	end
 end
 
-function essentialsAddon:createCommand(id: string): flakeTypes.command
-	return self.flake.commands:create(id)
-end
-
-return essentialsAddon
+return addon
