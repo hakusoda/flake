@@ -6,16 +6,15 @@ local Fusion = require(libraries.Fusion.PubTypes)
 local supabase = require(libraries.supabase.types)
 local publicTypes = require(root.publicTypes)
 
-export type auditLog = {
-	actionType: "command-executed"
-}
+export type auditLog = publicTypes.auditLog
+export type auditLogAction = publicTypes.auditLogAction
 export type flake = {
 	__index: flake,
 	emoji: string,
 	player: Player,
 	config: flakeConfig,
 	version: string,
-	auditLogs: {auditLog},
+	auditLogs: Fusion.Value<{auditLog}>,
 	connection: RemoteEvent,
 	serverClosed: boolean,
 	
@@ -33,8 +32,11 @@ export type flake = {
 	initialise: (self: flake) -> (),
 	addClientLoader: (self: flake) -> (),
 	
+	addAuditLog: (self: flake, target: string, player: Player?, action: auditLogAction) -> (),
+	
 	closeServer: (self: flake) -> (),
-
+	
+	kickPlayer: (self: flake, target: Player, reason: string?, executor: Player?) -> (),
 	notifyPlayer: (self: flake, player: Player, title: string?, body: string, icon: string | notificationIcon | nil) -> (),
 
 	sendAction: (self: flake, action: number, args: connectionArgs) -> (),
@@ -78,11 +80,10 @@ export type commands = baseSystem & {
 
 	create: (self: commands, id: string) -> command,
 
-	processCommand: (self: commands, command: command, executor: Player, arguments: any) -> (),
 	processCommandString: (self: commands, executor: Player, text: string, ignoreLevel: boolean?) -> (),
 	processArgument: (self: commands, player: Player, argument: commandArgument, text: {string}, pos: number) -> (),
 
-	execute: (self: commands, command: command, player: Player, args: {any}) -> ()
+	execute: (self: commands, command: command, player: Player, args: {any}, sourceString: string?) -> ()
 }
 
 export type commandContext = publicTypes.commandContext
@@ -98,6 +99,7 @@ export type command = {
 	source: baseAddon?,
 	aliases: Fusion.Value<{string}>,
 	context: Fusion.Value<commandContext>,
+	shouldLog: Fusion.Value<boolean>,
 	arguments: Fusion.Value<{commandArgument}>,
 	callbacks: {(self: command, ...any) -> ()},
 	chatCommand: TextChatCommand?,
@@ -108,6 +110,7 @@ export type command = {
 	setAlias: (self: command, primary: string, secondary: string?) -> command,
 	setSource: (self: command, source: baseAddon) -> command,
 	setContext: (self: command, context: commandContext) -> command,
+	setShouldLog: (self: command, value: boolean) -> command,
 	
 	getSource: (self: command) -> baseAddon?,
 

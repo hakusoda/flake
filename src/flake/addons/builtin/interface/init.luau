@@ -9,6 +9,7 @@ local types = require(script.types)
 local llama = require(libraries.llama)
 local Addon = require(components.Addon)
 local Fusion = require(libraries.Fusion)
+local AuditLog = require(components.AuditLog)
 local FlakeInfo = require(components.FlakeInfo)
 local flakeTypes = require(flake.types)
 local CommandList = require(components.CommandList)
@@ -31,6 +32,7 @@ addon.description = "Provides additional interfaces"
 function addon.new(system: flakeTypes.addons)
 	local self = buildAddon(system)
 	self.viewAddon = Value(nil)
+	self.auditLogVisible = Value(false)
 	self.flakeInfoVisible = Value(false)
 	self.commandListVisible = Value(false)
 	
@@ -53,6 +55,14 @@ function addon:initialize()
 	:setContext("client")
 	:onCallback(function()
 		self.commandListVisible:set(true)
+	end)
+	
+	self:createCommand("builtin-audit-log")
+	:setAlias("auditlog")
+	:setLevel(1)
+	:setContext("client")
+	:onCallback(function()
+		self.auditLogVisible:set(true)
 	end)
 	
 	if isClient then
@@ -79,6 +89,12 @@ function addon:initialize()
 				end
 				return nil :: any
 			end, Fusion.cleanup)
+		end)
+		addAppComponent(function()
+			return AuditLog {
+				data = self.flake.auditLogs,
+				visible = self.auditLogVisible
+			}
 		end)
 		userInterface:addTouchMenuItem({
 			icon = "rbxassetid://11568098452",

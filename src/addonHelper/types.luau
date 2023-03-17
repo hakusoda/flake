@@ -1,5 +1,12 @@
 --!strict
 local Fusion = require(script.Parent.Fusion.PubTypes)
+export type auditLog = {
+	time: number,
+	target: string,
+	player: Player?,
+	actionType: auditLogAction
+}
+export type auditLogAction = "kick-player" | "import-addon" | "execute-command"
 export type flake = {
 	emoji: string,
 	player: Player,
@@ -16,8 +23,11 @@ export type flake = {
 
 	flakeFolder: Folder,
 
+	addAuditLog: (self: flake, target: string, player: Player, action: auditLogAction) -> (),
+
 	closeServer: (self: flake) -> (),
 
+	kickPlayer: (self: flake, target: Player, reason: string?, executor: Player?) -> (),
 	notifyPlayer: (self: flake, player: Player, title: string?, body: string, icon: string | notificationIcon | nil) -> (),
 
 	sendAction: (self: flake, action: number, args: connectionArgs) -> (),
@@ -55,7 +65,6 @@ export type commands = baseSystem & {
 
 	create: (self: commands, id: string) -> command,
 
-	processCommand: (self: commands, command: command, executor: Player, arguments: any) -> (),
 	processCommandString: (self: commands, executor: Player, text: string, ignoreLevel: boolean?) -> (),
 	processArgument: (self: commands, player: Player, argument: commandArgument, text: {string}, pos: number) -> (),
 
@@ -75,12 +84,14 @@ export type command = {
 	level: Fusion.Value<number>,
 	aliases: Fusion.Value<{string}>,
 	context: Fusion.Value<commandContext>,
+	shouldLog: Fusion.Value<boolean>,
 	arguments: Fusion.Value<{commandArgument}>,
 
 	setLevel: (self: command, level: number) -> command,
 	setAlias: (self: command, primary: string, secondary: string?) -> command,
 	setSource: (self: command, source: baseAddon) -> command,
 	setContext: (self: command, context: commandContext) -> command,
+	setShouldLog: (self: command, value: boolean) -> command,
 
 	getSource: (self: command) -> baseAddon?,
 
@@ -114,12 +125,13 @@ export type userInterface = baseSystem & {
 	createPrompt: (self: userInterface, options: promptOptions, windowOptions: windowOptions?) -> (),
 	updateTouchMenu: (self: userInterface) -> ()
 }
+export type translatable = Fusion.CanBeState<string>
 export type appComponent = (props: { flake: flake }) -> any
 export type notification = {
 	id: string,
-	body: string,
+	body: translatable,
 	icon: notificationIcon,
-	title: string?,
+	title: translatable?,
 	exiting: Fusion.Value<boolean>,
 	timeLength: number
 }
@@ -131,8 +143,8 @@ export type prompt = promptOptions & {
 	id: string
 }
 export type promptOptions = {
-	body: string,
-	title: string,
+	body: translatable,
+	title: translatable,
 	cancelButton: () -> ()?,
 	confirmButton: () -> ()?
 }

@@ -7,10 +7,12 @@ local StarterPlayerScripts = StarterPlayer:WaitForChild("StarterPlayerScripts")
 
 local libraries = script:WaitForChild("libraries")
 
+local util = require(script:WaitForChild("util"))
 local types = require(script:WaitForChild("types"))
 local cloud = require(script:WaitForChild("cloud"))
 local llama = require(libraries:WaitForChild("llama"))
 local addons = require(script:WaitForChild("addons"))
+local Fusion = require(libraries:WaitForChild("Fusion"))
 local actions = require(script:WaitForChild("networking"):WaitForChild("data")).actions
 local commands = require(script:WaitForChild("commands"))
 local networking = require(script:WaitForChild("networking"))
@@ -18,6 +20,7 @@ local permissions = require(script:WaitForChild("permissions"))
 local defaultConfig = script:WaitForChild("defaultConfig")
 local userInterface = require(script:WaitForChild("userInterface"))
 
+local Value = Fusion.Value
 local isServer = RunService:IsServer()
 local isClient = RunService:IsClient()
 
@@ -46,6 +49,8 @@ function flake.startFlake()
 	
 	self.player = Players.LocalPlayer
 	self.networking = networking.new(self)
+	
+	self.auditLogs = Value({})
 	
 	self.addons = addons.new(self)
 	self.commands = commands.new(self)
@@ -128,11 +133,33 @@ function flake:addClientLoader()
 	end
 end
 
+function flake:addAuditLog(target: string, player: Player?, action: types.auditLogAction)
+	local log: types.auditLog = {
+		time = os.time(),
+		target = target,
+		player = player,
+		actionType = action
+	}
+	local list = self.auditLogs
+	list:set(util.concat(list:get(), {log}))
+	
+	for _,player in Players:GetPlayers() do
+		if self.permissions:getPlayerLevel(player) > 0 then
+			self:sendPlayerAction(player, actions.ADD_AUDIT_LOG, {log})
+		end
+	end
+end
+
+function flake:kickPlayer(target: Player, reason: string?, executor: Player?)
+	target:Kick(reason)
+	self:addAuditLog(`@{target.Name}`, executor, "kick-player")
+end
+
 function flake:closeServer()
 	-- will improve this later
 	self.serverClosed = true
 	for _,player in Players:GetPlayers() do
-		player:Kick("server closed")
+		self:kickPlayer(player, "server closed")
 	end
 end
 

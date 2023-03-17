@@ -15,6 +15,11 @@ return {
 	
 	["command-list"] = "利用可能なコマンド",
 	
+	["audit-log"] = "監査ログ",
+	
+	["audit-log-action.kick-player"] = "蹴った",
+	["audit-log-action.import-addon"] = "インポートされたアドオン",
+	
 	["error.command"] = "コマンドエラー",
 	["error.addon-error"] = "アドオン エラー"
 }

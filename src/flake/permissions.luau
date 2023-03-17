@@ -3,6 +3,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local isServer = RunService:IsServer()
+local isStudio = RunService:IsStudio()
 
 local root = script.Parent
 local libraries = root.libraries
@@ -45,7 +46,7 @@ function permissions:getPlayerLevel(player: Player)
 	-- TODO: replace with a REAL permissions system
 	local level = player:GetAttribute(self.attribute)
 	if typeof(level) ~= "number" then
-		if player.UserId == 373020309 then
+		if isStudio or player.UserId == 373020309 then
 			level = 1
 		else
 			local authorised = llama.List.find(self.flake.config.authorized, player.UserId)

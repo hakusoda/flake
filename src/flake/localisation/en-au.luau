@@ -26,6 +26,12 @@ return {
 	["addon-import"] = "Confirm Addon Import",
 	["addon-import.body"] = "Are you sure you want to import <b>{1}</b>?<br/>The contained model may be dangerous!",
 	
+	["audit-log"] = "Audit Log",
+	
+	["audit-log-action.kick-player"] = "kicked",
+	["audit-log-action.import-addon"] = "imported addon",
+	["audit-log-action.execute-command"] = "executed",
+	
 	["error.command"] = "Command Error",
 	["error.addon-error"] = "Addon Error",
 	["error.no-permission"] = "You do not have permission to run {1}.",

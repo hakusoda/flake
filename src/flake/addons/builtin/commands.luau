@@ -38,8 +38,8 @@ end
 
 function addon:initialize()
 	local self = self :: commandsAddon
-	self.loadAddonCommand = self:createCommand("builtin-load-addon")
-	:setAlias("loadaddon", "importaddon")
+	self.loadAddonCommand = self:createCommand("builtin-import-addon")
+	:setAlias("importaddon", "loadaddon")
 	:setLevel(1)
 	:setContext("client")
 	:addArgument("id", "number")
@@ -107,6 +107,7 @@ function addon:onAction(player: Player?, action: number, args: types.connectionA
 					local value = require(args[1]) :: any
 					if typeof(value) == "Instance" and value:IsA("ModuleScript") then
 						value.Parent = self.flake.addons.addonFolder
+						self.flake:addAuditLog(value.Name, player, "import-addon")
 					else
 						self.flake:notifyPlayer(player, "Addon Import Failed", "A ModuleScript was not returned.")
 					end

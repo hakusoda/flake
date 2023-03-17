@@ -25,6 +25,7 @@ function command.new(id: string, system: types.commands): types.command
 	self.context = Value("server")
 	self.aliases = Value({"unknown"})
 	self.arguments = Value({})
+	self.shouldLog = Value(true)
 
 	self.callbacks = {}
 
@@ -62,6 +63,11 @@ end
 
 function command:setContext(context: types.commandContext)
 	self.context:set(context)
+	return self
+end
+
+function command:setShouldLog(value: boolean)
+	self.shouldLog:set(value)
 	return self
 end
 

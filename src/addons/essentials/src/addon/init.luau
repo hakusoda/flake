@@ -154,17 +154,6 @@ function addon:initialize()
 		TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, nil, nil, nil, script.teleport)
 	end)
 
-	self:createCommand("essentials-respawn")
-	:setAlias("respawn")
-	:setLevel(1)
-	:setContext("server")
-	:addArgument("targets", "players")
-	:onCallback(function(cmd, executor: Player, targets: {Player})
-		for _,player in targets do
-			task.defer(player.LoadCharacter, player)
-		end
-	end)
-
 	self:createCommand("essentials-refresh")
 	:setAlias("refresh")
 	:setLevel(1)
@@ -290,11 +279,13 @@ function addon:initialize()
 	:setAlias("kick")
 	:setLevel(1)
 	:setContext("server")
+	:setShouldLog(false)
 	:addArgument("targets", "players")
 	:addArgument("reason", "string", "rest")
 	:onCallback(function(cmd, executor: Player, targets: {Player}, reason: string)
 		for _,player in targets do
-			task.defer(player.Kick, player, reason)
+			--task.defer(player.Kick, player, reason)
+			self.flake:kickPlayer(player, reason, executor)
 		end
 		self.flake:notifyPlayer(executor, nil, "Kicked <b>"..#targets.."</b> player(s).")
 	end)

@@ -1,9 +1,11 @@
 --!strict
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local root = script.Parent
 local libraries = root.libraries
 
+local util = require(root.util)
 local types = require(root.types)
 local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
@@ -11,6 +13,8 @@ local command = require(script.command)
 local createSystem = require(root.helpers.createSystem)
 
 local Value = Fusion.Value
+local isServer = RunService:IsServer()
+
 local commands: types.commands, buildSystem = createSystem("commands", "📒")
 function commands.new(flake: types.flake)
 	local self = buildSystem(flake)
@@ -64,17 +68,13 @@ function commands:create(id: string)
 				arguments[key] = self:processArgument(player, arg, text2, key)
 			end
 
-			self:processCommand(command, player, arguments)
+			self:execute(command, player, arguments, text)
 		end)
 	end
 	self:emitEvent("COMMAND_CREATED")
 	
-	self.commands:set(llama.List.join(self.commands:get(), {command}))
+	self.commands:set(util.concat(self.commands:get(), {command}))
 	return command
-end
-
-function commands:processCommand(command: types.command, executor: Player, arguments)
-	self:execute(command, executor, arguments)
 end
 
 function commands:processCommandString(player: Player, text: string, ignoreLevel: boolean?)
@@ -97,12 +97,15 @@ function commands:processCommandString(player: Player, text: string, ignoreLevel
 		arguments[key] = self:processArgument(player, arg, text2, key)
 	end
 
-	self:execute(command, player, arguments)
+	self:execute(command, player, arguments, text)
 end
 
-function commands:execute(command: types.command, player: Player, args: {any})
+function commands:execute(command: types.command, player: Player, args: {any}, sourceString: string?)
 	for _,callback in command.callbacks do
 		task.spawn(callback, command, player, table.unpack(args))
+	end
+	if isServer and command.shouldLog:get() then
+		self.flake:addAuditLog(`/{sourceString or command.aliases:get()[1]}`, player, "execute-command")
 	end
 	self:log("executed command", command.id)
 end
@@ -119,11 +122,11 @@ function commands:processArgument(player: Player, argument: types.commandArgumen
 
 			local allPlayers = Players:GetPlayers()
 			if lower == "all" or lower == "@a" then
-				players = llama.List.join(players, allPlayers)
+				players = util.concat(players, allPlayers)
 				continue
 			end
 			if lower == "others" or lower == "@o" then
-				players = llama.List.join(players,
+				players = util.concat(players,
 					llama.List.filter(allPlayers, function(p)
 						return p.UserId ~= player.UserId
 					end
