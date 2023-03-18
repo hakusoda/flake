@@ -8,6 +8,7 @@ local libraries = flake.libraries
 local components = script.Parent
 
 local t = require(flake.localisation)()
+local theme = require(root.theme)()
 local types = require(flake.types)
 local Fusion = require(libraries.Fusion)
 local Window = require(components.Window)
@@ -136,12 +137,12 @@ return function(props: CommandBarProps)
 			New "TextBox" {
 				Size = UDim2.new(1, 0, 0, 28),
 				TextSize = 12,
+				FontFace = theme.font400,
 				Position = UDim2.fromOffset(0, 24),
-				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
 				TextXAlignment = Enum.TextXAlignment.Left,
 				TextTransparency = 1,
 				ClearTextOnFocus = false,
-				BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+				BackgroundColor3 = theme.backgroundSecondary,
 				[Ref] = textBox,
 				[Cleanup] = flashConnection,
 				[Children] = {
@@ -155,7 +156,7 @@ return function(props: CommandBarProps)
 						Size = UDim2.fromScale(1, 1),
 						TextSize = 12,
 						RichText = true,
-						FontFace = Font.fromName("GothamSSm"),
+						FontFace = theme.font400,
 						LineHeight = 0,
 						TextColor3 = #inputText == 0 and Color3.fromRGB(140, 140, 140) or Color3.fromRGB(240, 240, 240),
 						TextXAlignment = Enum.TextXAlignment.Left,
@@ -197,8 +198,8 @@ return function(props: CommandBarProps)
 				Text = t(`command-bar.info.{touchEnabled}`),
 				TextSize = 10,
 				Position = UDim2.fromOffset(0, 76),
-				FontFace = Font.fromName("GothamSSm"),
-				TextColor3 = Color3.new(.6, .6, .6),
+				FontFace = theme.font400,
+				TextColor3 = theme.textSecondary,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				BackgroundTransparency = 1
 			}

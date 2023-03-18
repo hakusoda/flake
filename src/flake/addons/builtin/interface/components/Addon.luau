@@ -7,8 +7,8 @@ local t = require(root.localisation)()
 local util = require(root.util)
 local types = require(root.types)
 local llama = require(libraries.llama)
+local theme = require(userInterface.theme)()
 local Fusion = require(libraries.Fusion)
-local images = require(userInterface.images)
 local Window = require(userInterface.components.Window)
 
 local New, Value, Children, Computed = Fusion.New, Fusion.Value, Fusion.Children, Fusion.Computed
@@ -31,9 +31,8 @@ return function(props: AddonProps)
 				SortOrder = Enum.SortOrder.LayoutOrder
 			},
 			New "Frame" {
-				Size = UDim2.fromScale(1, 0),
-				AutomaticSize = Enum.AutomaticSize.Y,
-				BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+				Size = UDim2.new(1, 0, 0, 80),
+				BackgroundColor3 = theme.backgroundSecondary,
 				[Children] = {
 					New "UICorner" { CornerRadius = UDim.new(0, 8) },
 					New "UIPadding" {
@@ -47,41 +46,33 @@ return function(props: AddonProps)
 						Image = util.getAddonIcon(addon.icon).main,
 						Transparency = 1
 					},
-					New "Frame" {
-						Size = UDim2.fromOffset(0, 64),
-						Position = UDim2.fromOffset(80, 0),
-						Transparency = 1,
-						[Children] = {
-							New "UIListLayout" {
-								Padding = UDim.new(0, 4),
-								VerticalAlignment = Enum.VerticalAlignment.Center
-							},
-							New "TextLabel" {
-								Text = t("addon-info.name", {addon}),
-								TextSize = 16,
-								RichText = true,
-								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-								TextColor3 = Color3.new(.8, .8, .8),
-								AutomaticSize = Enum.AutomaticSize.XY,
-								BackgroundTransparency = 1
-							},
-							New "TextLabel" {
-								Text = addon.description,
-								TextSize = 12,
-								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-								TextColor3 = Color3.new(.6, .6, .6),
-								AutomaticSize = Enum.AutomaticSize.XY,
-								BackgroundTransparency = 1
-							}
-						}
+					New "TextLabel" {
+						Size = UDim2.fromOffset(0, 16),
+						Text = t("addon-info.name", {addon}),
+						TextSize = 16,
+						RichText = true,
+						FontFace = theme.font500,
+						Position = UDim2.fromOffset(80, 14),
+						TextColor3 = theme.textPrimary,
+						TextXAlignment = Enum.TextXAlignment.Left,
+						BackgroundTransparency = 1
+					},
+					New "TextLabel" {
+						Text = addon.description,
+						Size = UDim2.fromOffset(0, 12),
+						TextSize = 12,
+						FontFace = theme.font400,
+						Position = UDim2.fromOffset(80, 34),
+						TextColor3 = theme.textSecondary,
+						TextXAlignment = Enum.TextXAlignment.Left,
+						BackgroundTransparency = 1
 					}
 				}
 			},
 			New "Frame" {
-				Size = UDim2.fromScale(1, 0),
+				Size = UDim2.new(1, 0, 0, 80),
 				LayoutOrder = 1,
-				AutomaticSize = Enum.AutomaticSize.Y,
-				BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+				BackgroundColor3 = theme.backgroundSecondary,
 				[Children] = {
 					New "UICorner" { CornerRadius = UDim.new(0, 8) },
 					New "UIPadding" {
@@ -95,36 +86,29 @@ return function(props: AddonProps)
 						Image = author.icon,
 						Transparency = 1
 					},
-					New "Frame" {
-						Size = UDim2.fromOffset(0, 64),
-						Position = UDim2.fromOffset(80, 0),
-						Transparency = 1,
-						[Children] = {
-							New "UIListLayout" {
-								Padding = UDim.new(0, 4),
-								VerticalAlignment = Enum.VerticalAlignment.Center
-							},
-							New "TextLabel" {
-								Text = t("addon-info.author", {addon}),
-								TextSize = 16,
-								RichText = true,
-								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-								TextColor3 = Color3.new(.8, .8, .8),
-								AutomaticSize = Enum.AutomaticSize.XY,
-								BackgroundTransparency = 1
-							},
-							#addon.authors > 1 and New "TextLabel" {
-								Text = t("addon-info.author2", {table.concat(llama.List.map(llama.List.shift(addon.authors), function(author)
-									return util.getAddonAuthor(author).name
-								end), ", ")}),
-								TextSize = 12,
-								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-								TextColor3 = Color3.new(.6, .6, .6),
-								AutomaticSize = Enum.AutomaticSize.XY,
-								BackgroundTransparency = 1
-							} or nil :: any
-						}
-					}
+					New "TextLabel" {
+						Size = UDim2.fromOffset(0, 16),
+						Text = t("addon-info.author", {author}),
+						TextSize = 16,
+						RichText = true,
+						FontFace = theme.font500,
+						Position = UDim2.fromOffset(80, 14),
+						TextColor3 = theme.textPrimary,
+						TextXAlignment = Enum.TextXAlignment.Left,
+						BackgroundTransparency = 1
+					},
+					#addon.authors > 1 and New "TextLabel" {
+						Size = UDim2.fromOffset(0, 12),
+						Text = t("addon-info.author2", {table.concat(llama.List.map(llama.List.shift(addon.authors), function(author)
+							return util.getAddonAuthor(author).name
+						end), ", ")}),
+						TextSize = 12,
+						FontFace = theme.font400,
+						Position = UDim2.fromOffset(80, 34),
+						TextColor3 = theme.textSecondary,
+						TextXAlignment = Enum.TextXAlignment.Left,
+						BackgroundTransparency = 1
+					} or nil :: any
 				}
 			},
 			New "TextLabel" {
@@ -134,14 +118,12 @@ return function(props: AddonProps)
 				end),
 				TextSize = 12,
 				RichText = true,
-				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-				TextColor3 = Color3.new(.8, .8, .8),
+				FontFace = theme.font400,
+				TextColor3 = theme.textPrimary,
 				LayoutOrder = 1,
 				TextXAlignment = Enum.TextXAlignment.Left,
-				BackgroundColor3 = Color3.fromRGB(45, 45, 45),
-				[Children] = {
-					New "UICorner" {}
-				}
+				BackgroundColor3 = theme.backgroundSecondary,
+				[Children] = New "UICorner" {}
 			}
 		}
 	}

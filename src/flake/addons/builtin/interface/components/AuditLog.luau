@@ -17,13 +17,13 @@ export type AuditLogProps = {
 return function(props: AuditLogProps)
 	local data = props.data
 	return Window {
-		icon = "rbxassetid://11260520498",
 		title = t("audit-log"),
 		width = 512,
-		height = 256,
+		height = 312,
 		visible = props.visible,
 		[Children] = New "ScrollingFrame" {
-			Size = UDim2.new(1, 0, 0, 188),
+			Size = UDim2.fromScale(1, 1),
+			CanvasSize = UDim2.fromScale(1, 1),
 			Transparency = 1,
 			ScrollBarThickness = 4,
 			ScrollingDirection = Enum.ScrollingDirection.Y,

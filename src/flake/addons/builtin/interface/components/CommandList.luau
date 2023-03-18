@@ -35,6 +35,7 @@ return function(props: CommandListProps)
 		[Children] = {
 			New "ScrollingFrame" {
 				Size = UDim2.new(1, 0, 0, 188),
+				CanvasSize = UDim2.fromScale(1, 1),
 				Transparency = 1,
 				ScrollBarThickness = 4,
 				ScrollingDirection = Enum.ScrollingDirection.Y,

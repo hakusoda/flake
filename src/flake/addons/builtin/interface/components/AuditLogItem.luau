@@ -6,6 +6,7 @@ local libraries = root.libraries
 
 local t = require(root.localisation)()
 local types = require(root.types)
+local theme = require(root.userInterface.theme)()
 local Fusion = require(libraries.Fusion)
 local images = require(root.userInterface.images)
 
@@ -47,7 +48,7 @@ return function(props: AuditLogItemProps)
 	return New "Frame" {
 		Size = UDim2.new(1, 0, 0, 56),
 		LayoutOrder = -props.key,
-		BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+		BackgroundColor3 = theme.backgroundSecondary,
 		[Children] = {
 			New "UICorner" {},
 			New "UIPadding" {
@@ -56,52 +57,37 @@ return function(props: AuditLogItemProps)
 				PaddingRight = UDim.new(0, 8),
 				PaddingBottom = UDim.new(0, 8)
 			},
-			New "Frame" {
-				Transparency = 1,
-				AutomaticSize = Enum.AutomaticSize.XY,
-				[Children] = {
-					New "ImageLabel" {
-						Size = UDim2.fromOffset(40, 40),
-						Image = player and `rbxthumb://id={player.UserId}&w=48&h=48&type=AvatarHeadShot` or images.PLACEHOLDER_ICON2,
-						BackgroundColor3 = Color3.fromRGB(55, 55, 55),
-						[Children] = New "UICorner" {
-							CornerRadius = UDim.new(0, 4)
-						}
-					},
-					New "Frame" {
-						Size = UDim2.fromOffset(0, 40),
-						Position = UDim2.fromOffset(48, 0),
-						Transparency = 1,
-						[Children] = {
-							New "UIListLayout" {
-								Padding = UDim.new(0, 1),
-								SortOrder = Enum.SortOrder.LayoutOrder,
-								VerticalAlignment = Enum.VerticalAlignment.Center
-							},
-							New "TextLabel" {
-								Text = Computed(function()
-									return `{player and `@{player.Name}` or "Server"} <font color=\"#969696\">{action:get()}</font> {data.target}`
-								end),
-								TextSize = 13,
-								RichText = true,
-								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-								TextColor3 = Color3.new(.8, .8, .8),
-								AutomaticSize = Enum.AutomaticSize.XY,
-								BackgroundTransparency = 1
-							},
-							New "TextLabel" {
-								Text = timeAgo(data.time),
-								TextSize = 12,
-								RichText = true,
-								FontFace = Font.fromName("GothamSSm"),
-								TextColor3 = Color3.new(.6, .6, .6),
-								LayoutOrder = 1,
-								AutomaticSize = Enum.AutomaticSize.XY,
-								BackgroundTransparency = 1
-							}
-						}
-					}
+			New "ImageLabel" {
+				Size = UDim2.fromOffset(40, 40),
+				Image = player and `rbxthumb://id={player.UserId}&w=48&h=48&type=AvatarHeadShot` or images.PLACEHOLDER_ICON2,
+				BackgroundColor3 = theme.backgroundPrimary,
+				[Children] = New "UICorner" {
+					CornerRadius = UDim.new(0, 4)
 				}
+			},
+			New "TextLabel" {
+				Size = UDim2.fromOffset(0, 13),
+				Text = Computed(function()
+					return `{player and `@{player.Name}` or "Server"} <font color=\"#{(theme.textSecondary :: any):get():ToHex()}\">{action:get()}</font> {data.target}`
+				end),
+				TextSize = 13,
+				RichText = true,
+				FontFace = theme.font500,
+				Position = UDim2.fromOffset(48, 7),
+				TextColor3 = theme.textPrimary,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				BackgroundTransparency = 1
+			},
+			New "TextLabel" {
+				Text = timeAgo(data.time),
+				Size = UDim2.fromOffset(0, 12),
+				TextSize = 12,
+				RichText = true,
+				FontFace = theme.font500,
+				Position = UDim2.fromOffset(48, 21),
+				TextColor3 = theme.textSecondary,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				BackgroundTransparency = 1
 			}
 		}
 	}

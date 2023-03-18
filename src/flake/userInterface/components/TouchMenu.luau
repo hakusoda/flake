@@ -7,6 +7,7 @@ local sounds = root.sounds
 local libraries = flake.libraries
 
 local t = require(flake.localisation)()
+local theme = require(root.theme)()
 local types = require(flake.types)
 local images = require(root.images)
 local Fusion = require(libraries.Fusion)
@@ -30,7 +31,7 @@ return function(props: TouchMenuProps)
 			Position = UDim2.new(0.5, 0, 0, -interface.gui.AbsolutePosition.Y - 36),
 			ScaleType = Enum.ScaleType.Slice,
 			SliceCenter = Rect.new(48, 0, 168, 48),
-			ImageColor3 = Color3.fromRGB(60, 60, 60),
+			ImageColor3 = theme.backgroundSecondary,
 			AnchorPoint = Computed(function()
 				return Vector2.new(0.5, 1 - alphaSpring:get())
 			end),
@@ -79,14 +80,14 @@ return function(props: TouchMenuProps)
 					LayoutOrder = 1,
 					AnchorPoint = Vector2.new(0.5, 0),
 					SliceCenter = Rect.new(96, 24, 336, 24),
-					ImageColor3 = Color3.fromRGB(60, 60, 60),
+					ImageColor3 = theme.backgroundSecondary,
 					Transparency = 1,
 					[Children] = New "TextLabel" {
 						Text = t("touch-menu"),
 						Size = UDim2.fromScale(1, 1),
 						TextSize = 14,
-						FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-						TextColor3 = Color3.fromRGB(240, 240, 240),
+						FontFace = theme.font500,
+						TextColor3 = theme.textPrimary,
 						BackgroundTransparency = 1
 					},
 					[OnEvent "Activated"] = function()

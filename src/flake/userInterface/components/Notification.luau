@@ -5,25 +5,20 @@ local root = script.Parent.Parent.Parent
 local types = require(root.types)
 local libraries = root.libraries
 
-local t = require(root.localisation)()
+local theme = require(root.userInterface.theme)()
 local Fusion = require(libraries.Fusion)
 
 local New, Value, Tween, Spring, Children, Computed = Fusion.New, Fusion.Value, Fusion.Tween, Fusion.Spring, Fusion.Children, Fusion.Computed
-local params = Instance.new("GetTextBoundsParams")
-params.Font = Font.fromName("GothamSSm")
-
 function getBounds(text: types.translatable, size: number): Fusion.StateObject<Vector2>
-	if typeof(text) == "string" then
-		params.Size = size
+	local params = Instance.new("GetTextBoundsParams")
+	params.Size = size
+	
+	return Computed(function()
+		local text = if typeof(text) == "string" then text else text:get()
+		params.Font = (theme.font400 :: any):get()
 		params.Text = string.gsub(text, "<.->", "")
-		return Value(TextService:GetTextBoundsAsync(params))
-	else
-		return Computed(function()
-			params.Size = size
-			params.Text = string.gsub(text:get(), "<.->", "")
-			return TextService:GetTextBoundsAsync(params)
-		end)
-	end
+		return TextService:GetTextBoundsAsync(params)
+	end)
 end
 
 export type NotificationProps = {
@@ -58,7 +53,7 @@ return function(props: NotificationProps)
 			local alpha = alphaSpring:get() - alpha2Spring:get()
 			return Vector2.new(alpha, 1)
 		end),
-		BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+		BackgroundColor3 = theme.backgroundPrimary,
 		[Children] = {
 			New "UICorner" { CornerRadius = UDim.new(0, 16) },
 			New "UIPadding" {
@@ -68,26 +63,24 @@ return function(props: NotificationProps)
 				PaddingBottom = UDim.new(0, 12)
 			},
 			New "TextLabel" {
-				Size = Computed(function()
-					return UDim2.fromOffset(textBounds1:get().X, 14)
-				end),
+				Size = UDim2.fromOffset(0, 14),
 				Text = data.title or "Notification",
 				TextSize = 14,
 				RichText = true,
-				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-				TextColor3 = Color3.new(.9, .9, .9),
+				FontFace = theme.font500,
+				TextColor3 = theme.textPrimary,
+				TextXAlignment = Enum.TextXAlignment.Left,
 				BackgroundTransparency = 1
 			},
 			New "TextLabel" {
-				Size = Computed(function()
-					return UDim2.fromOffset(textBounds2:get().X, 12)
-				end),
+				Size = UDim2.fromOffset(0, 12),
 				Text = data.body or "Notification body",
 				TextSize = 12,
 				RichText = true,
+				FontFace = theme.font400,
 				Position = UDim2.fromOffset(0, 18),
-				FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-				TextColor3 = Color3.new(.6, .6, .6),
+				TextColor3 = theme.textSecondary,
+				TextXAlignment = Enum.TextXAlignment.Left,
 				BackgroundTransparency = 1
 			},
 			New "Frame" {

@@ -5,10 +5,11 @@ local libraries = flake.libraries
 
 local util = require(flake.util)
 local types = require(flake.types)
+local theme = require(flake.userInterface.theme)()
 local Fusion = require(libraries.Fusion)
 local interface = require(root.types)
 
-local New, OnEvent, Children = Fusion.New, Fusion.OnEvent, Fusion.Children
+local New, OnEvent, Children, Computed = Fusion.New, Fusion.OnEvent, Fusion.Children, Fusion.Computed
 export type AddonListItemProps = {
 	addon: types.baseAddon,
 	interface: interface.interfaceAddon
@@ -17,7 +18,7 @@ return function(props: AddonListItemProps)
 	local addon = props.addon
 	return New "TextButton" {
 		Size = UDim2.new(1, 0, 0, 56),
-		BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+		BackgroundColor3 = theme.backgroundSecondary,
 		[OnEvent "Activated"] = function()
 			props.interface.viewAddon:set(addon)
 		end,
@@ -29,50 +30,37 @@ return function(props: AddonListItemProps)
 				PaddingRight = UDim.new(0, 8),
 				PaddingBottom = UDim.new(0, 8)
 			},
-			New "Frame" {
+			New "ImageLabel" {
+				Size = UDim2.fromOffset(40, 40),
+				Image = util.getAddonIcon(addon.icon).list,
 				Transparency = 1,
-				AutomaticSize = Enum.AutomaticSize.XY,
-				[Children] = {
-					New "ImageLabel" {
-						Size = UDim2.fromOffset(40, 40),
-						Image = util.getAddonIcon(addon.icon).list,
-						Transparency = 1,
-						[Children] = New "UICorner" {
-							CornerRadius = UDim.new(0, 4)
-						}
-					},
-					New "Frame" {
-						Size = UDim2.fromOffset(0, 40),
-						Position = UDim2.fromOffset(48, 0),
-						Transparency = 1,
-						[Children] = {
-							New "UIListLayout" {
-								Padding = UDim.new(0, 1),
-								SortOrder = Enum.SortOrder.LayoutOrder,
-								VerticalAlignment = Enum.VerticalAlignment.Center
-							},
-							New "TextLabel" {
-								Text = `{addon.name or addon.id} <font size=\"8\" color=\"#c8c8c8\">v{addon.version or "0.0.0"} by {util.authorsToString(addon.authors)}</font>{string.find(addon.id, "builtin") == 1 and "   <font size=\"8\" color=\"#c8c8c8\"><sc>(BUILT-IN ADDON)</sc></font>" or ""}`,
-								TextSize = 12,
-								RichText = true,
-								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-								TextColor3 = Color3.new(.8, .8, .8),
-								AutomaticSize = Enum.AutomaticSize.XY,
-								BackgroundTransparency = 1
-							},
-							addon.description and New "TextLabel" {
-								Text = addon.description,
-								TextSize = 10,
-								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-								TextColor3 = Color3.new(.6, .6, .6),
-								LayoutOrder = 1,
-								AutomaticSize = Enum.AutomaticSize.XY,
-								BackgroundTransparency = 1
-							} or nil :: any
-						}
-					}
+				[Children] = New "UICorner" {
+					CornerRadius = UDim.new(0, 4)
 				}
-			}
+			},
+			New "TextLabel" {
+				Size = UDim2.fromOffset(0, 13),
+				Text = Computed(function()
+					return `{addon.name or addon.id} <font size=\"8\" color=\"#{(theme.textSecondary :: any):get():ToHex()}\">v{addon.version}</font>`
+				end),
+				TextSize = 13,
+				RichText = true,
+				FontFace = theme.font500,
+				Position = UDim2.fromOffset(48, 7),
+				TextColor3 = theme.textPrimary,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				BackgroundTransparency = 1
+			},
+			addon.description and New "TextLabel" {
+				Text = addon.description,
+				Size = UDim2.fromOffset(0, 12),
+				TextSize = 10,
+				FontFace = theme.font400,
+				Position = UDim2.fromOffset(48, 21),
+				TextColor3 = theme.textSecondary,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				BackgroundTransparency = 1
+			} or nil :: any
 		}
 	}
 end

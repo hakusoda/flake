@@ -10,6 +10,7 @@ local sounds = root.sounds
 local libraries = flake.libraries
 local playerGui: PlayerGui = RunService:IsClient() and Players.LocalPlayer.PlayerGui or nil
 
+local theme = require(root.theme)()
 local Fusion = require(libraries.Fusion)
 
 local camera = workspace.CurrentCamera
@@ -22,14 +23,14 @@ export type WindowButtonProps = {
 function WindowButton(props: WindowButtonProps)
 	return New "TextButton" {
 		Size = UDim2.fromOffset(28, 28),
-		BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+		BackgroundColor3 = theme.backgroundSecondary,
 		[Children] = {
 			New "UICorner" { CornerRadius = UDim.new(0, 12) },
 			New "ImageLabel" {
 				Size = UDim2.fromOffset(12, 12),
 				Image = props.image,
 				Position = UDim2.fromOffset(8, 8),
-				ImageColor3 = Color3.fromRGB(140, 140, 140),
+				ImageColor3 = theme.textSecondary,
 				Transparency = 1
 			}
 		},
@@ -158,7 +159,7 @@ return function(props: WindowProps)
 		Size = size,
 		Position = positionSpring,
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+		BackgroundColor3 = theme.backgroundPrimary,
 		GroupTransparency = Computed(function()
 			return 1 - alphaSpring:get()
 		end),
@@ -195,8 +196,8 @@ return function(props: WindowProps)
 						Text = props.title or "Window title",
 						TextSize = 16,
 						Position = UDim2.fromOffset(16, 0),
-						FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-						TextColor3 = Color3.fromRGB(240, 240, 240),
+						FontFace = theme.font500,
+						TextColor3 = theme.textPrimary2,
 						AutomaticSize = Enum.AutomaticSize.X,
 						BackgroundTransparency = 1
 					},

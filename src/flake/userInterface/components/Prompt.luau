@@ -5,6 +5,7 @@ local libraries = flake.libraries
 local components = script.Parent
 
 local t = require(flake.localisation)()
+local theme = require(root.theme)()
 local types = require(flake.types)
 local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
@@ -34,9 +35,9 @@ return function(props: PromptProps)
 				Size = UDim2.fromScale(1, 0),
 				TextSize = 14,
 				RichText = true,
+				FontFace = theme.font400,
 				Position = UDim2.fromOffset(0, 8),
-				FontFace = Font.fromName("GothamSSm"),
-				TextColor3 = Color3.new(.9, .9, .9),
+				TextColor3 = theme.textPrimary,
 				BackgroundTransparency = 1
 			},
 			New "Frame" {

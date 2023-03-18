@@ -1,5 +1,7 @@
 --!strict
-local Fusion = require(script.Parent.Parent.Parent.libraries.Fusion)
+local root = script.Parent.Parent
+local theme = require(root.theme)()
+local Fusion = require(root.Parent.libraries.Fusion)
 local New, Children = Fusion.New, Fusion.Children
 
 export type InputLabelProps = {
@@ -12,9 +14,9 @@ return function(props: InputLabelProps)
 	return New "TextLabel" {
 		Text = props[1],
 		TextSize = 14,
+		FontFace = theme.font400,
 		Position = props.Position,
-		FontFace = Font.fromName("GothamSSm"),
-		TextColor3 = Color3.fromRGB(240, 240, 240),
+		TextColor3 = theme.textPrimary,
 		LayoutOrder = props.LayoutOrder,
 		AutomaticSize = Enum.AutomaticSize.XY,
 		BackgroundTransparency = 1,

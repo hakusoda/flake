@@ -3,6 +3,7 @@ local root = script.Parent.Parent.Parent.Parent.Parent
 local libraries = root.libraries
 
 local types = require(root.types)
+local theme = require(root.userInterface.theme)()
 local Fusion = require(libraries.Fusion)
 
 local New, Children, Computed = Fusion.New, Fusion.Children, Fusion.Computed
@@ -19,12 +20,12 @@ return function(props: CommandListItemProps)
 			return string.format("%s%s(%s)", aliases[1] or "", aliases[2] and (", "..aliases[2].." ") or " ", command.id)
 		end),
 		TextSize = 12,
-		FontFace = Font.fromName("GothamSSm"),
-		TextColor3 = Color3.new(.9, .9, .9),
+		FontFace = theme.font400,
+		TextColor3 = theme.textPrimary,
 		LayoutOrder = props.key,
 		AutomaticSize = Enum.AutomaticSize.Y,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+		BackgroundColor3 = theme.backgroundSecondary,
 		[Children] = {
 			New "UICorner" {},
 			New "UIPadding" {

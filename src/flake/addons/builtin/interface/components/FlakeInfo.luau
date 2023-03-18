@@ -7,6 +7,7 @@ local userInterface = flake.userInterface
 
 local t = require(flake.localisation)()
 local types = require(flake.types)
+local theme = require(userInterface.theme)()
 local Fusion = require(libraries.Fusion)
 local images = require(userInterface.images)
 local Window = require(userInterface.components.Window)
@@ -39,7 +40,7 @@ return function(props: FlakeInfoProps)
 			New "Frame" {
 				Size = UDim2.fromScale(1, 0),
 				AutomaticSize = Enum.AutomaticSize.XY,
-				BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+				BackgroundColor3 = theme.backgroundSecondary,
 				[Children] = {
 					New "UICorner" {},
 					New "UIPadding" {
@@ -67,16 +68,16 @@ return function(props: FlakeInfoProps)
 								Text = t("flake-info.name", {flake}),
 								TextSize = 16,
 								RichText = true,
-								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Medium),
-								TextColor3 = Color3.new(.8, .8, .8),
+								FontFace = theme.font500,
+								TextColor3 = theme.textPrimary,
 								AutomaticSize = Enum.AutomaticSize.XY,
 								BackgroundTransparency = 1
 							},
 							New "TextLabel" {
 								Text = t("flake-info.summary"),
 								TextSize = 12,
-								FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-								TextColor3 = Color3.new(.6, .6, .6),
+								FontFace = theme.font400,
+								TextColor3 = theme.textSecondary,
 								LayoutOrder = 1,
 								AutomaticSize = Enum.AutomaticSize.XY,
 								BackgroundTransparency = 1
@@ -94,14 +95,15 @@ return function(props: FlakeInfoProps)
 							return t("flake-info.addons", {#addons:get()}):get()
 						end),
 						TextSize = 12,
-						FontFace = Font.fromName("GothamSSm", Enum.FontWeight.Regular),
-						TextColor3 = Color3.new(.8, .8, .8),
+						FontFace = theme.font400,
+						TextColor3 = theme.textPrimary,
 						AutomaticSize = Enum.AutomaticSize.XY,
 						BackgroundTransparency = 1
 					},
 					New "ScrollingFrame" {
 						Size = UDim2.new(1, 0, 0, 120),
 						Position = UDim2.fromOffset(0, 18),
+						CanvasSize = UDim2.fromScale(1, 1),
 						Transparency = 1,
 						ScrollBarThickness = 4,
 						ScrollingDirection = Enum.ScrollingDirection.Y,
