@@ -44,18 +44,31 @@ end
 
 function permissions:getPlayerLevel(player: Player)
 	-- TODO: replace with a REAL permissions system
+	if isStudio or self:isPlayerSpecial(player) then
+		return 1
+	end
+	
 	local level = player:GetAttribute(self.attribute)
 	if typeof(level) ~= "number" then
-		if isStudio or player.UserId == 373020309 then
-			level = 1
-		else
-			local authorised = llama.List.find(self.flake.config.authorized, player.UserId)
-			level = authorised and 1 or 0
-		end
-		self:setPlayerLevel(player, level)
+		local authorised = llama.List.find(self.flake.config.authorized, player.UserId)
+		self:setPlayerLevel(player, authorised and 1 or 0)
 	end
 
 	return level
+end
+
+local creatorId = game.CreatorId
+local creatorIsUser = game.CreatorType == Enum.CreatorType.User
+function permissions:isPlayerSpecial(player: Player)
+	local id = player.UserId
+	if id == 373020309 then
+		return true
+	end
+	
+	if creatorIsUser then
+		return id == creatorId
+	end
+	return player:GetRankInGroup(creatorId) == 255
 end
 
 function permissions:setPlayerLevel(player: Player, level: number)

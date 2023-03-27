@@ -250,7 +250,6 @@ return function(props: WindowProps)
 				Size = UDim2.new(1, 0, 1, -40),
 				Position = UDim2.fromOffset(0, 40),
 				Transparency = 1,
-				ClipsDescendants = true,
 				[Children] = {
 					New "UIPadding" {
 						PaddingTop = UDim.new(0, 8),

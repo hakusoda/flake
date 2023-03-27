@@ -21,7 +21,7 @@ return function(props: PromptProps)
 	local data = props.data
 	local close = function()
 		local list = props.flake.userInterface.prompts
-		list:set(llama.List.removeValue(list:get(), data))
+		list:set(llama.List.removeValue(list:get(false), data))
 	end
 	return Window {
 		icon = "rbxassetid://11260520498",

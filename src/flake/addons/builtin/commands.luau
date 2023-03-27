@@ -43,6 +43,11 @@ function addon:initialize()
 	:setLevel(1)
 	:setContext("client")
 	:addArgument("id", "number")
+	:addArgument("test", "string", nil, function(text, add)
+		add("yes")
+		add("no")
+		add("NEVER")
+	end)
 	:onCallback(function(cmd, executor: Player, id: number)
 		self.flake.userInterface:createPrompt({
 			title = t("addon-import"),
@@ -61,7 +66,7 @@ function addon:initialize()
 		local cmds = self.flake.commands
 		local command = cmds:getByAlias(string.split(input, " ")[1])
 		if command then
-			local context = command.context:get()
+			local context = command.context:get(false)
 			for _,i in targets do
 				if context == "server" then
 					cmds:processCommandString(i, input, not safe)
@@ -72,14 +77,31 @@ function addon:initialize()
 		end
 	end
 	
+	local getCmdSuggestions: types.commandArgumentSuggestor = function(text, add, invalidate)
+		local valid = false
+		for _,command in self.flake.commands:getAll() do
+			for _,alias in command.aliases:get(false) do
+				if string.find(alias, text) == 1 then
+					add(alias)
+					valid = true
+				end
+			end
+		end
+		
+		if not valid then
+			invalidate(t("argument-error.command"))
+		end
+	end
+	
 	self:createCommand("builtin-sudo-safe")
 	:setAlias("sudo")
 	:setLevel(1)
 	:setContext("server")
 	:addArgument("targets", "players")
-	:addArgument("input", "string", "rest")
-	:onCallback(function(cmd, executor: Player, targets: {Player}, input: string)
-		sudo(true, targets, input)
+	:addArgument("command", "string", nil, getCmdSuggestions)
+	:addArgument("arguments", "string", "rest")
+	:onCallback(function(cmd, executor: Player, targets: {Player}, command: string, arguments: string)
+		sudo(true, targets, `{command} {arguments}`)
 	end)
 	
 	self:createCommand("builtin-sudo-unsafe")
@@ -87,9 +109,10 @@ function addon:initialize()
 	:setLevel(1)
 	:setContext("server")
 	:addArgument("targets", "players")
-	:addArgument("input", "string", "rest")
-	:onCallback(function(cmd, executor: Player, targets: {Player}, input: string)
-		sudo(false, targets, input)
+	:addArgument("command", "string", nil, getCmdSuggestions)
+	:addArgument("arguments", "string", "rest")
+	:onCallback(function(cmd, executor: Player, targets: {Player}, command: string, arguments: string)
+		sudo(false, targets, `{command} {arguments}`)
 	end)
 end
 

@@ -72,14 +72,22 @@ export type addons = baseSystem & {
 	loadAddons: (self: addons) -> ()
 }
 
+export type commandSuggestion = {
+	text: string,
+	index: number,
+	command: command
+}
 export type commands = baseSystem & {
 	commands: Fusion.Value<{command}>,
-
+	
+	getAll: (self: commands) -> {command},
 	getById: (self: commands, id: string) -> command?,
 	getByAlias: (self: commands, alias: string) -> command?,
 
 	create: (self: commands, id: string) -> command,
-
+	
+	getCommand: (self: commands, input: string) -> (command?, {commandSuggestion}),
+	
 	processCommandString: (self: commands, executor: Player, text: string, ignoreLevel: boolean?) -> (),
 	processArgument: (self: commands, player: Player, argument: commandArgument, text: {string}, pos: number) -> (),
 
@@ -90,6 +98,8 @@ export type commandContext = publicTypes.commandContext
 export type commandArgumentType = publicTypes.commandArgumentType
 export type commandArgumentMatch = publicTypes.commandArgumentMatch
 export type commandArgument = publicTypes.commandArgument
+export type commandArgumentSuggestor = publicTypes.commandArgumentSuggestor
+export type commandArgumentSuggestion = publicTypes.commandArgumentSuggestion
 export type command = {
 	__index: command,
 
@@ -113,10 +123,11 @@ export type command = {
 	setShouldLog: (self: command, value: boolean) -> command,
 	
 	getSource: (self: command) -> baseAddon?,
+	getSuggestions: (self: command, input: string, cursor: number) -> ({commandArgumentSuggestion}, { [string]: Fusion.CanBeState<string> }),
 
 	isInContext: (self: command) -> boolean,
 
-	addArgument: (self: command, id: string, type: commandArgumentType, match: commandArgumentMatch?) -> command,
+	addArgument: (self: command, id: string, type: commandArgumentType, match: commandArgumentMatch?, suggestor: commandArgumentSuggestor?) -> command,
 
 	onCallback: (self: command, callback: (self: command, executor: Player, ...any) -> ()) -> command,
 
@@ -167,7 +178,9 @@ export type permissions = baseSystem & {
 
 	getLevel: (self: permissions) -> number,
 	getPlayerLevel: (self: permissions, player: Player) -> number,
-
+	
+	isPlayerSpecial: (self: permissions, player: Player) -> boolean,
+	
 	setPlayerLevel: (self: permissions, player: Player, level: number) -> ()
 }
 
@@ -215,7 +228,9 @@ export type baseAddon = {
 	
 	onEvent: (self: baseAddon, name: string, callback: (...any) -> ()) -> (),
 	emitEvent: (self: baseAddon, name: string, ...any) -> (),
-
+	
+	getIcon: (self: baseAddon, type: "main" | "list") -> string,
+	
 	onAction: (self: baseAddon, player: Player?, action: number, args: { [number]: any }) -> (),
 	sendAction: (self: baseAddon, action: number, args: connectionArgs) -> (),
 	sendPlayerAction: (self: baseAddon, player: Player, action: number, args: connectionArgs) -> (),

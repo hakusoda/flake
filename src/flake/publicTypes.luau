@@ -59,7 +59,8 @@ export type addons = baseSystem & {
 
 export type commands = baseSystem & {
 	commands: Fusion.Value<{command}>,
-
+	
+	getAll: (self: commands) -> {command},
 	getById: (self: commands, id: string) -> command?,
 	getByAlias: (self: commands, alias: string) -> command?,
 
@@ -77,7 +78,15 @@ export type commandArgumentMatch = "default" | "rest"
 export type commandArgument = {
 	id: string,
 	type: commandArgumentType,
-	match: commandArgumentMatch
+	match: commandArgumentMatch,
+	suggestor: commandArgumentSuggestor?
+}
+export type commandArgumentSuggestor = (text: string, add: (text: string) -> (), invalidate: (reason: Fusion.CanBeState<string>?) -> ()) -> ()
+export type commandArgumentSuggestion = {
+	text: string,
+	index: number,
+	argument: commandArgument,
+	argumentIndex: number
 }
 export type command = {
 	id: string,
@@ -97,7 +106,7 @@ export type command = {
 	
 	isInContext: (self: command) -> boolean,
 
-	addArgument: (self: command, id: string, type: commandArgumentType, match: commandArgumentMatch?) -> command,
+	addArgument: (self: command, id: string, type: commandArgumentType, match: commandArgumentMatch?, suggestor: commandArgumentSuggestor?) -> command,
 
 	onCallback: (self: command, callback: (self: command, executor: Player, ...any) -> ()) -> command,
 
@@ -204,7 +213,9 @@ export type baseAddon = {
 
 	onEvent: (self: baseAddon, name: string, callback: (...any) -> ()) -> (),
 	emitEvent: (self: baseAddon, name: string, ...any) -> (),
-
+	
+	getIcon: (self: baseAddon, type: "main" | "list") -> string,
+	
 	onAction: (self: baseAddon, player: Player?, action: number, args: { [number]: any }) -> (),
 	sendAction: (self: baseAddon, action: number, args: connectionArgs) -> (),
 	sendPlayerAction: (self: baseAddon, player: Player, action: number, args: connectionArgs) -> (),

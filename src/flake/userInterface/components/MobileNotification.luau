@@ -1,7 +1,9 @@
 --!strict
 local root = script.Parent.Parent.Parent
 local libraries = root.libraries
+local components = script.Parent
 
+local Text = require(components.Text)
 local types = require(root.types)
 local theme = require(root.userInterface.theme)()
 local Fusion = require(libraries.Fusion)
@@ -36,36 +38,12 @@ return function(props: MobileNotificationProps)
 		BackgroundColor3 = theme.backgroundPrimary,
 		[Children] = {
 			New "UICorner" { CornerRadius = UDim.new(0, 16) },
-			New "UIPadding" {
-				PaddingTop = UDim.new(0, 12),
-				PaddingLeft = UDim.new(0, 16),
-				PaddingBottom = UDim.new(0, 12)
-			},
-			New "TextLabel" {
-				Size = UDim2.fromOffset(0, 14),
-				Text = data.title or "Notification",
-				TextSize = 14,
-				RichText = true,
-				FontFace = theme.font500,
-				Position = UDim2.fromOffset(48, 0),
-				TextColor3 = theme.textPrimary,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				BackgroundTransparency = 1
-			},
-			New "TextLabel" {
-				Size = UDim2.fromOffset(0, 12),
-				Text = data.body or "Notification body",
-				TextSize = 12,
-				RichText = true,
-				FontFace = theme.font400,
-				Position = UDim2.fromOffset(48, 18),
-				TextColor3 = theme.textPrimary,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				BackgroundTransparency = 1
-			},
+			Text(data.title or "Notification", 14, UDim2.fromOffset(64, 12), nil, true),
+			Text(data.body, 12, UDim2.fromOffset(64, 30), nil),
 			New "ImageLabel" {
 				Size = UDim2.fromOffset(32, 32),
 				Image = data.icon.image,
+				Position = UDim2.fromOffset(16, 12),
 				ImageColor3 = data.icon.color,
 				Transparency = 1
 			}

@@ -40,9 +40,8 @@ return {
 		end,
 		[actions.ADD_AUDIT_LOG] = function(flake, player, args)
 			if isClient then
-				print(args[1])
 				local list = flake.auditLogs
-				list:set(util.concat(list:get(), {args[1]}))
+				list:set(util.concat(list:get(false), {args[1]}))
 			end
 		end
 	} :: {

@@ -1,10 +1,12 @@
 --!strict
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TextChatService = game:GetService("TextChatService")
 
 local root = script.Parent.Parent
 local libraries = root.libraries
 
+local t = require(root.localisation)()
 local types = require(root.types)
 local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
@@ -75,8 +77,87 @@ function command:getSource()
 	return self.source
 end
 
+function command:getSuggestions(input: string, cursor: number)
+	local truncated = string.sub(input, 1, cursor - 1)
+	
+	local split = string.split(truncated, " ")
+	local invalid = {}
+	local suggestions: {types.commandArgumentSuggestion} = {}
+	
+	local length = 0
+	for key, argument in self.arguments:get(false) do
+		local text = split[key]
+		if text then
+			length += #text + 1
+			if length < cursor then
+				continue
+			end
+			
+			local suggestor = argument.suggestor
+			local invalidReason = t("argument-error.type-mismatch", {argument})
+			if suggestor then
+				local index = 0
+				suggestor(text, function(text)
+					index += 1
+					table.insert(suggestions, {
+						text = text,
+						index = index,
+						argument = argument,
+						argumentIndex = key
+					})
+				end, function(reason)
+					invalid[argument.id] = reason or invalidReason
+				end)
+			else
+				local type: types.commandArgumentType = argument.type
+				if type == "players" then
+					text = string.lower(text)
+					
+					local valid = false
+					local selectors: {string} = {"all", "others", "random"}
+					for key2, selector in selectors do
+						local full = "@"..selector
+						if string.find(full, text) == 1 then
+							valid = true
+							table.insert(suggestions, {
+								text = "@"..selector,
+								index = key2,
+								argument = argument,
+								argumentIndex = key
+							})
+						end
+					end
+					for key2, player in Players:GetPlayers() do
+						local playerName = player.Name
+						local displayName = player.DisplayName
+						local name = if string.find(string.lower(playerName), text) == 1 then playerName elseif string.find(string.lower(displayName), text) == 1 then displayName else nil
+						if name and string.lower(name) ~= text then
+							valid = true
+							table.insert(suggestions, {
+								text = name,
+								index = #suggestions + key2,
+								argument = argument,
+								argumentIndex = key
+							})
+						end
+					end
+					
+					if not valid then
+						invalid[argument.id] = t("argument-error.player-name")
+					end
+				elseif type == "number" then
+					if not tonumber(text) then
+						invalid[argument.id] = invalidReason
+					end
+				end
+			end
+		end
+	end
+	return suggestions, invalid
+end
+
 function command:isInContext(): boolean
-	local context = self.context:get()
+	local context = self.context:get(false)
 	if context == "both" or (isServer and context == "server") or (isClient and context == "client") then
 		return true
 	end
@@ -84,12 +165,13 @@ function command:isInContext(): boolean
 	return false
 end
 
-function command:addArgument(id: string, type: types.commandArgumentType, match: types.commandArgumentMatch?)
+function command:addArgument(id: string, type: types.commandArgumentType, match: types.commandArgumentMatch?, suggestor: types.commandArgumentSuggestor?)
 	local list = self.arguments
-	list:set(llama.List.join(list:get(), {{
+	list:set(llama.List.join(list:get(false), {{
 		id = id,
 		type = type,
-		match = match or "default"
+		match = match or "default",
+		suggestor = suggestor
 	}}))
 	
 	return self
@@ -101,7 +183,7 @@ function command:onCallback(callback)
 end
 
 function command:hasPermission(player: Player)
-	return self.system.flake.permissions:getPlayerLevel(player) >= self.level:get()
+	return self.system.flake.permissions:getPlayerLevel(player) >= self.level:get(false)
 end
 
 return command

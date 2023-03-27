@@ -6,7 +6,6 @@ local libraries = root.libraries
 
 local util = require(root.util)
 local types = require(root.types)
-local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
 
 local isServer = RunService:IsServer()
@@ -68,6 +67,15 @@ function baseAddon:onAction(player: Player?, action: number, args: types.connect
 	end
 end
 
+function baseAddon:getIcon(type: "main" | "list")
+	local icon = self.icon
+	if typeof(icon) == "string" then
+		return icon
+	else
+		return icon[type]
+	end
+end
+
 function baseAddon:sendAction(action: number, args: types.connectionArgs)
 	return self.flake.networking:sendAction(2, {self.id, action, args})
 end
@@ -79,7 +87,7 @@ end
 function baseAddon:createCommand(id: string)
 	local command = self.flake.commands:create(id):setSource(self)
 	local commands = self.commands
-	commands:set(util.concat(commands:get(), {command}))
+	commands:set(util.concat(commands:get(false), {command}))
 	
 	return command
 end

@@ -68,7 +68,7 @@ function addons:loadAddons()
 end
 
 function addons:getById(id: string)
-	for _,addon in self.loaded:get() do
+	for _,addon in self.loaded:get(false) do
 		if addon.id == id then
 			return addon :: any
 		end
@@ -94,7 +94,7 @@ function addons:loadAddon(module: Instance)
 			local class: types.baseAddon = require(module) :: any
 			if not table.find(self.flake.config.disableAddons, class.id) then
 				local addon = class.new(self)
-				self.loaded:set(llama.List.join(self.loaded:get(), {addon}))
+				self.loaded:set(llama.List.join(self.loaded:get(false), {addon}))
 				
 				self:log(`imported addon: {addon.id} v{addon.version} by {util.authorsToString(addon.authors)}`)
 				task.defer(addon.initialize, addon)

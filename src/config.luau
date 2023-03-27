@@ -1,5 +1,8 @@
 return {
+	cloud = {
+		--enabled = true
+	},
 	hidden = false,
-	authorized = {373020309},
+	authorized = {},
 	importAddons = {}
 }

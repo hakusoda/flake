@@ -19,7 +19,7 @@ return {
 	["command-bar"] = "Command Bar",
 	["command-bar.type"] = "Type a command",
 	["command-bar.info.true"] = "You may experience issues with typing on your device.",
-	["command-bar.info.false"] = "Press TAB to use autocomplete (basic & prone to issues)",
+	["command-bar.info.false"] = "Tip: Press <b>TAB</b> to use autocompletion features!",
 	
 	["command-list"] = "Available Commands",
 	
@@ -37,6 +37,10 @@ return {
 	["error.no-permission"] = "You do not have permission to run {1}.",
 	["error.invalid-command"] = "{1} is not a valid command.",
 	["error.addon-import-fail"] = "An unknown error occurred while loading {1}.",
+	
+	["argument-error.command"] = "no commands match that name",
+	["argument-error.player-name"] = "no players match that name",
+	["argument-error.type-mismatch"] = "{1.id} must be a {1.type}",
 	
 	["notification.user-level-changed"] = "Permission level changed",
 	["notification.user-level-changed.body"] = "Your level is now {1}."

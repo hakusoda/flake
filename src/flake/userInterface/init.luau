@@ -86,12 +86,12 @@ end
 
 function userInterface:addAppComponent(component: any)
 	local list = self.appComponents
-	list:set(llama.List.join(list:get(), {component}))
+	list:set(llama.List.join(list:get(false), {component}))
 end
 
 function userInterface:addTouchMenuItem(item: types.touchMenuItem)
 	local list = self.touchMenuItems
-	list:set(llama.List.join(list:get(), {item}))
+	list:set(llama.List.join(list:get(false), {item}))
 end
 
 function userInterface:updateTouchMenu()
@@ -107,7 +107,7 @@ function userInterface:createPrompt(options: types.promptOptions, windowOptions:
 		cancelButton = options.cancelButton,
 		confirmButton = options.confirmButton
 	}
-	list:set(llama.List.join(list:get(), {data}))
+	list:set(llama.List.join(list:get(false), {data}))
 end
 
 function userInterface:notify(title: types.translatable?, body: types.translatable, icon: string | types.notificationIcon | nil)
@@ -128,12 +128,12 @@ function userInterface:notify(title: types.translatable?, body: types.translatab
 		exiting = Value(false),
 		timeLength = 5
 	}
-	list:set(llama.List.join(list:get(), {data}))
+	list:set(llama.List.join(list:get(false), {data}))
 	SoundService:PlayLocalSound(sounds.notify)
 	
 	task.delay(data.timeLength, data.exiting.set, data.exiting, true)
 	task.delay(data.timeLength + 2, function()
-		list:set(llama.List.removeValue(list:get(), data))
+		list:set(llama.List.removeValue(list:get(false), data))
 	end)
 end
 

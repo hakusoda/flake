@@ -5,17 +5,20 @@ local components = root.userInterface.components
 
 local t = require(root.localisation)()
 local types = require(root.types)
+local llama = require(libraries.llama)
 local Fusion = require(libraries.Fusion)
 local Window = require(components.Window)
 local AuditLogItem = require(script.Parent.AuditLogItem)
 
-local New, Children, ForPairs = Fusion.New, Fusion.Children, Fusion.ForPairs
+local New, Children, ForPairs, Computed = Fusion.New, Fusion.Children, Fusion.ForPairs, Fusion.Computed
 export type AuditLogProps = {
 	data: Fusion.StateObject<{types.auditLog}>,
 	visible: Fusion.Value<boolean>
 }
 return function(props: AuditLogProps)
-	local data = props.data
+	local data = Computed(function()
+		return llama.List.reverse(props.data:get())
+	end)
 	return Window {
 		title = t("audit-log"),
 		width = 512,
@@ -29,18 +32,12 @@ return function(props: AuditLogProps)
 			ScrollingDirection = Enum.ScrollingDirection.Y,
 			AutomaticCanvasSize = Enum.AutomaticSize.Y,
 			ScrollBarImageColor3 = Color3.new(1, 1, 1),
-			[Children] = {
-				New "UIListLayout" {
-					Padding = UDim.new(0, 8),
-					SortOrder = Enum.SortOrder.LayoutOrder
-				},
-				ForPairs(data, function(key, item)
-					return key, AuditLogItem {
-						key = key,
-						data = item
-					}
-				end, Fusion.cleanup) :: any
-			}
+			[Children] = ForPairs(data, function(key, item)
+				return key, AuditLogItem {
+					key = key,
+					data = item
+				}
+			end, Fusion.cleanup)
 		}
 	}
 end

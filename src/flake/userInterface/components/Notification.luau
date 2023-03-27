@@ -1,12 +1,13 @@
 --!strict
 local TextService = game:GetService("TextService")
 
-local root = script.Parent.Parent.Parent
-local types = require(root.types)
-local libraries = root.libraries
+local root = script.Parent.Parent
+local flake = root.Parent
 
-local theme = require(root.userInterface.theme)()
-local Fusion = require(libraries.Fusion)
+local Text = require(script.Parent.Text)
+local theme = require(root.theme)()
+local types = require(flake.types)
+local Fusion = require(flake.libraries.Fusion)
 
 local New, Value, Tween, Spring, Children, Computed = Fusion.New, Fusion.Value, Fusion.Tween, Fusion.Spring, Fusion.Children, Fusion.Computed
 function getBounds(text: types.translatable, size: number): Fusion.StateObject<Vector2>
@@ -56,37 +57,12 @@ return function(props: NotificationProps)
 		BackgroundColor3 = theme.backgroundPrimary,
 		[Children] = {
 			New "UICorner" { CornerRadius = UDim.new(0, 16) },
-			New "UIPadding" {
-				PaddingTop = UDim.new(0, 12),
-				PaddingLeft = UDim.new(0, 20),
-				PaddingRight = UDim.new(0, 20),
-				PaddingBottom = UDim.new(0, 12)
-			},
-			New "TextLabel" {
-				Size = UDim2.fromOffset(0, 14),
-				Text = data.title or "Notification",
-				TextSize = 14,
-				RichText = true,
-				FontFace = theme.font500,
-				TextColor3 = theme.textPrimary,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				BackgroundTransparency = 1
-			},
-			New "TextLabel" {
-				Size = UDim2.fromOffset(0, 12),
-				Text = data.body or "Notification body",
-				TextSize = 12,
-				RichText = true,
-				FontFace = theme.font400,
-				Position = UDim2.fromOffset(0, 18),
-				TextColor3 = theme.textSecondary,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				BackgroundTransparency = 1
-			},
+			Text(data.title or "Notification", nil, UDim2.fromOffset(20, 12), nil, true),
+			Text(data.body, 12, UDim2.fromOffset(20, 30), theme.textSecondary),
 			New "Frame" {
 				Size = UDim2.fromOffset(32, 32),
 				Position = Computed(function()
-					return UDim2.fromOffset(textWidth:get() + 24, 0)
+					return UDim2.fromOffset(textWidth:get() + 44, 12)
 				end),
 				Transparency = 1,
 				[Children] = New "ImageLabel" {
@@ -95,10 +71,10 @@ return function(props: NotificationProps)
 					Position = UDim2.fromScale(0.5, 0.5),
 					AnchorPoint = Vector2.one / 2,
 					ImageColor3 = data.icon.color,
+					Transparency = 1,
 					ImageTransparency = Computed(function()
 						return 1 - math.max(alphaSpring:get() - 0.5, 0) / 0.5
 					end),
-					BackgroundTransparency = 1,
 					[Children] = New "UIScale" {
 						Scale = Computed(function()
 							return 1 + 23 * (1 - math.max(alphaSpring:get() - 0.5, 0) / 0.5)

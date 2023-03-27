@@ -23,7 +23,7 @@ return function(props: CommandListProps)
 	local commands = Computed(function()
 		local list = table.clone(flake.commands.commands:get())
 		table.sort(list, function(a, b)
-			return a.aliases:get()[1] < b.aliases:get()[1]
+			return a.aliases:get(false)[1] < b.aliases:get(false)[1]
 		end)
 		
 		return list

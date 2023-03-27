@@ -141,7 +141,7 @@ function flake:addAuditLog(target: string, player: Player?, action: types.auditL
 		actionType = action
 	}
 	local list = self.auditLogs
-	list:set(util.concat(list:get(), {log}))
+	list:set(util.concat(list:get(false), {log}))
 	
 	for _,player in Players:GetPlayers() do
 		if self.permissions:getPlayerLevel(player) > 0 then

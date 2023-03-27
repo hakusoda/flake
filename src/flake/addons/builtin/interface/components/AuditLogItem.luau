@@ -3,12 +3,16 @@ local RunService = game:GetService("RunService")
 
 local root = script.Parent.Parent.Parent.Parent.Parent
 local libraries = root.libraries
+local userInterface = root.userInterface
+local components = userInterface.components
 
 local t = require(root.localisation)()
+local Icon = require(components.Icon)
+local Text = require(components.Text)
 local types = require(root.types)
-local theme = require(root.userInterface.theme)()
+local theme = require(userInterface.theme)()
 local Fusion = require(libraries.Fusion)
-local images = require(root.userInterface.images)
+local images = require(userInterface.images)
 
 local New, Value, Children, Computed = Fusion.New, Fusion.Value, Fusion.Children, Fusion.Computed
 function s(passed: number)
@@ -47,48 +51,15 @@ return function(props: AuditLogItemProps)
 	local action = t(`audit-log-action.{data.actionType}`)
 	return New "Frame" {
 		Size = UDim2.new(1, 0, 0, 56),
-		LayoutOrder = -props.key,
+		Position = UDim2.fromOffset(0, 64 * (props.key - 1)),
 		BackgroundColor3 = theme.backgroundSecondary,
 		[Children] = {
 			New "UICorner" {},
-			New "UIPadding" {
-				PaddingTop = UDim.new(0, 8),
-				PaddingLeft = UDim.new(0, 8),
-				PaddingRight = UDim.new(0, 8),
-				PaddingBottom = UDim.new(0, 8)
-			},
-			New "ImageLabel" {
-				Size = UDim2.fromOffset(40, 40),
-				Image = player and `rbxthumb://id={player.UserId}&w=48&h=48&type=AvatarHeadShot` or images.PLACEHOLDER_ICON2,
-				BackgroundColor3 = theme.backgroundPrimary,
-				[Children] = New "UICorner" {
-					CornerRadius = UDim.new(0, 4)
-				}
-			},
-			New "TextLabel" {
-				Size = UDim2.fromOffset(0, 13),
-				Text = Computed(function()
-					return `{player and `@{player.Name}` or "Server"} <font color=\"#{(theme.textSecondary :: any):get():ToHex()}\">{action:get()}</font> {data.target}`
-				end),
-				TextSize = 13,
-				RichText = true,
-				FontFace = theme.font500,
-				Position = UDim2.fromOffset(48, 7),
-				TextColor3 = theme.textPrimary,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				BackgroundTransparency = 1
-			},
-			New "TextLabel" {
-				Text = timeAgo(data.time),
-				Size = UDim2.fromOffset(0, 12),
-				TextSize = 12,
-				RichText = true,
-				FontFace = theme.font500,
-				Position = UDim2.fromOffset(48, 21),
-				TextColor3 = theme.textSecondary,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				BackgroundTransparency = 1
-			}
+			Icon(player and `rbxthumb://id={player.UserId}&w=48&h=48&type=AvatarHeadShot` or images.PLACEHOLDER_ICON2, 40, 8, 8),
+			Text(Computed(function()
+				return `{player and `@{player.Name}` or "Server"} <font color=\"#{(theme.textSecondary :: any):get():ToHex()}\">{action:get()}</font> {data.target}`
+			end), 13, UDim2.fromOffset(56, 15), nil, true),
+			Text(timeAgo(data.time), 12, UDim2.fromOffset(56, 29), theme.textSecondary)
 		}
 	}
 end

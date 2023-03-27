@@ -27,17 +27,21 @@ function commands:initialise()
 	self:log("initialised")
 end
 
+function commands:getAll()
+	return self.commands:get(false)
+end
+
 function commands:getById(id: string)
-	local cmds = self.commands:get()
+	local cmds = self.commands:get(false)
 	return cmds[llama.List.findWhere(cmds, function(command)
 		return command.id == id
 	end)]
 end
 
 function commands:getByAlias(alias: string)
-	local cmds = self.commands:get()
+	local cmds = self.commands:get(false)
 	return cmds[llama.List.findWhere(cmds, function(command)
-		return llama.List.find(command.aliases:get(), alias)
+		return llama.List.find(command.aliases:get(false), alias)
 	end)]
 end
 
@@ -57,24 +61,47 @@ function commands:create(id: string)
 			if not command:hasPermission(player) then
 				local level = self.flake.permissions:getPlayerLevel(player)
 				self.flake:notifyPlayer(player, "Command error", "You do not have permission to run <b>"..command.id.."</b>.")
-				return self:log(player.Name.."'s level ("..level..") is not high enough to run", command.id, "("..command.level:get()..")")
+				return self:log(player.Name.."'s level ("..level..") is not high enough to run", command.id, "("..command.level:get(false)..")")
 			end
 
 			local text2 = string.split(text, " ")
 			table.remove(text2, 1)
 
 			local arguments = {}
-			for key, arg in command.arguments:get() do
+			for key, arg in command.arguments:get(false) do
 				arguments[key] = self:processArgument(player, arg, text2, key)
 			end
 
-			self:execute(command, player, arguments, text)
+			self:execute(command, player, arguments, string.sub(text, 2))
 		end)
 	end
 	self:emitEvent("COMMAND_CREATED")
 	
-	self.commands:set(util.concat(self.commands:get(), {command}))
+	self.commands:set(util.concat(self.commands:get(false), {command}))
 	return command
+end
+
+function commands:getCommand(input: string)
+	local text = string.split(input, " ")[1]
+	local matches: {types.commandSuggestion} = {}
+	
+	local index = 0
+	for _,command: types.command in self.commands:get(false) :: {any} do
+		for _,alias in command.aliases:get(false) do
+			if text == alias then
+				return command, {}
+			elseif string.find(alias, text) == 1 then
+				index += 1
+				table.insert(matches, {
+					text = alias,
+					index = index,
+					command = command
+				})
+			end
+		end
+	end
+
+	return nil, matches
 end
 
 function commands:processCommandString(player: Player, text: string, ignoreLevel: boolean?)
@@ -89,11 +116,11 @@ function commands:processCommandString(player: Player, text: string, ignoreLevel
 	if not command:hasPermission(player) and not ignoreLevel then
 		local level = self.flake.permissions:getPlayerLevel(player)
 		self.flake:notifyPlayer(player, "Command error", "You do not have permission to run <b>"..command.id.."</b>.")
-		return self:log(player.Name.."'s level ("..level..") is not high enough to run", command.id, "("..command.level:get()..")")
+		return self:log(player.Name.."'s level ("..level..") is not high enough to run", command.id, "("..command.level:get(false)..")")
 	end
 
 	local arguments = {}
-	for key, arg in command.arguments:get() do
+	for key, arg in command.arguments:get(false) do
 		arguments[key] = self:processArgument(player, arg, text2, key)
 	end
 
@@ -104,8 +131,8 @@ function commands:execute(command: types.command, player: Player, args: {any}, s
 	for _,callback in command.callbacks do
 		task.spawn(callback, command, player, table.unpack(args))
 	end
-	if isServer and command.shouldLog:get() then
-		self.flake:addAuditLog(`/{sourceString or command.aliases:get()[1]}`, player, "execute-command")
+	if isServer and command.shouldLog:get(false) then
+		self.flake:addAuditLog(`/{sourceString or command.aliases:get(false)[1]}`, player, "execute-command")
 	end
 	self:log("executed command", command.id)
 end
@@ -121,16 +148,20 @@ function commands:processArgument(player: Player, argument: types.commandArgumen
 			end
 
 			local allPlayers = Players:GetPlayers()
-			if lower == "all" or lower == "@a" then
+			if lower == "@all" then
 				players = util.concat(players, allPlayers)
 				continue
 			end
-			if lower == "others" or lower == "@o" then
+			if lower == "@others" then
 				players = util.concat(players,
 					llama.List.filter(allPlayers, function(p)
 						return p.UserId ~= player.UserId
 					end
 				))
+				continue
+			end
+			if lower == "@random" then
+				players = {players[math.random(#players)]}
 				continue
 			end
 			for _,player2 in allPlayers do

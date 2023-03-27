@@ -21,5 +21,9 @@ return {
 	["audit-log-action.import-addon"] = "インポートされたアドオン",
 	
 	["error.command"] = "コマンドエラー",
-	["error.addon-error"] = "アドオン エラー"
+	["error.addon-error"] = "アドオン エラー",
+	
+	["argument-error.command"] = "その名前に一致するコマンドはありません",
+	["argument-error.player-name"] = "その名前に一致するプレイヤーはいません",
+	["argument-error.type-mismatch"] = "{1.id} は {1.type} でなければならない",
 }
